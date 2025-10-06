@@ -1,11 +1,32 @@
 {
   "name": "endless-dungeon",
-  "version": "0.0.1",
-  "description": "tone.js synth for endless dungeon",
-  "main": "src/index.ts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc && vite build",
+    "dev": "vite",
+    "lint": "eslint . --ext .ts,.tsx",
+    "preview": "vite preview",
+    "start": "vite --open"
   },
-  "author": "",
-  "license": "ISC"
+  "dependencies": {
+    "solid-js": "^1.8.14",
+    "tonal": "^6.4.2",
+    "tone": "^15.1.22"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__generator": "^7.27.0",
+    "@types/babel__template": "^7.4.4",
+    "@types/babel__traverse": "^7.28.0",
+    "eslint": "^9.37.0",
+    "eslint-plugin-solid": "^0.14.5",
+    "prettier": "^3.6.2",
+    "typescript": "^5.2.2",
+    "typescript-eslint": "^8.45.0",
+    "vite": "^5.1.0",
+    "vite-plugin-solid": "^2.11.9"
+  }
 }

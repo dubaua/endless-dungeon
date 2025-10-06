@@ -10,6 +10,7 @@ export interface SynthConfig {
 export interface SynthController {
   currentNote: Accessor<string>;
   playNext: () => Promise<void>;
+  synth: Tone.Synth<Tone.SynthOptions>;
 }
 
 export const createSynthController = ({ baseNote, intervals }: SynthConfig): SynthController => {
@@ -40,5 +41,6 @@ export const createSynthController = ({ baseNote, intervals }: SynthConfig): Syn
   return {
     currentNote,
     playNext,
+    synth,
   };
 };

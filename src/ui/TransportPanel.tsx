@@ -7,10 +7,12 @@ export const TransportPanel: Component = () => {
   const transport = useStore((state) => state.transport);
 
   const handleToggle = (): void => {
+    emit('audio/resume', undefined);
     emit('transport/toggle', undefined);
   };
 
   const handlePlay = (): void => {
+    emit('audio/resume', undefined);
     emit('transport/play', undefined);
   };
 

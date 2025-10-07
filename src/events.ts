@@ -1,4 +1,5 @@
 interface EventMap {
+  'audio/resume': void;
   'transport/play': void;
   'transport/pause': void;
   'transport/toggle': void;

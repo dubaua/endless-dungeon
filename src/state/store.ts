@@ -37,21 +37,28 @@ const listeners = new Set<Listener>();
 
 export const getState = (): AppState => state;
 
+const notifyListeners = (): void => {
+  const snapshot: AppState = {
+    transport: { ...state.transport },
+  };
+  listeners.forEach((listener) => listener(snapshot));
+};
+
 export const updateState = (mutator: Mutator): void => {
   mutator(state);
-  listeners.forEach((listener) => listener(state));
+  notifyListeners();
 };
 
 export const subscribe = (listener: Listener): Cleanup => {
   listeners.add(listener);
-  listener(state);
+  listener({ transport: { ...state.transport } });
   return () => {
     listeners.delete(listener);
   };
 };
 
 export const useStore = <T>(selector: Selector<T>): Accessor<T> => {
-  const [value, setValue] = createSignal(selector(state));
+  const [value, setValue] = createSignal(selector({ transport: { ...state.transport } }));
   const unsubscribe = subscribe((next) => {
     setValue(() => selector(next));
   });
@@ -61,13 +68,13 @@ export const useStore = <T>(selector: Selector<T>): Accessor<T> => {
 
 export const setTransportPlaying = (isPlaying: boolean): void => {
   updateState((draft) => {
-    draft.transport.isPlaying = isPlaying;
+    draft.transport = { ...draft.transport, isPlaying };
   });
 };
 
 export const setTransportStep = (step: number): void => {
   updateState((draft) => {
-    draft.transport.step = step;
+    draft.transport = { ...draft.transport, step };
   });
 };
 
@@ -77,20 +84,18 @@ export const setTransportPosition = (
   sixteenth: number,
 ): void => {
   updateState((draft) => {
-    draft.transport.bar = bar;
-    draft.transport.beat = beat;
-    draft.transport.sixteenth = sixteenth;
+    draft.transport = { ...draft.transport, bar, beat, sixteenth };
   });
 };
 
 export const setTransportBpm = (bpm: number): void => {
   updateState((draft) => {
-    draft.transport.bpm = bpm;
+    draft.transport = { ...draft.transport, bpm };
   });
 };
 
 export const setTransportTimeSignature = (timeSignature: [number, number]): void => {
   updateState((draft) => {
-    draft.transport.timeSignature = timeSignature;
+    draft.transport = { ...draft.transport, timeSignature };
   });
 };

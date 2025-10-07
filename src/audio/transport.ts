@@ -11,6 +11,8 @@ import {
 } from '../state/store';
 import { on } from '../events';
 
+const transport = Tone.getTransport();
+
 type Cleanup = () => void;
 
 let initialized = false;
@@ -19,10 +21,23 @@ let cleanups: Cleanup[] = [];
 let barCounter = 0;
 let stepWithinBar = 0;
 
+const ensureContextRunning = async (): Promise<void> => {
+  let context = Tone.getContext();
+
+  if (context.state !== 'running') {
+    await Tone.start();
+    context = Tone.getContext();
+  }
+
+  if (context.state !== 'running') {
+    await context.resume();
+  }
+};
+
 const updateToneSettingsFromState = (): void => {
   const state = getState();
-  Tone.Transport.bpm.value = state.transport.bpm;
-  Tone.Transport.timeSignature = state.transport.timeSignature;
+  transport.bpm.value = state.transport.bpm;
+  transport.timeSignature = state.transport.timeSignature;
 };
 
 const handleStateChanges = (): void => {
@@ -33,12 +48,12 @@ const handleStateChanges = (): void => {
     const { bpm, timeSignature } = next.transport;
 
     if (bpm !== lastBpm) {
-      Tone.Transport.bpm.value = bpm;
+      transport.bpm.value = bpm;
       lastBpm = bpm;
     }
 
     if (timeSignature !== lastSignature) {
-      Tone.Transport.timeSignature = timeSignature;
+      transport.timeSignature = timeSignature;
       lastSignature = timeSignature;
     }
   });
@@ -47,6 +62,10 @@ const handleStateChanges = (): void => {
 };
 
 const handleTransportEvents = (): void => {
+  const resumeListener = on('audio/resume', () => {
+    void ensureContextRunning();
+  });
+
   const stopListener = on('transport/pause', () => {
     stopTransport();
   });
@@ -63,27 +82,22 @@ const handleTransportEvents = (): void => {
     }
   });
 
-  cleanups.push(stopListener, startListener, toggleListener);
+  cleanups.push(resumeListener, stopListener, startListener, toggleListener);
 };
 
 const scheduleStepUpdates = (): void => {
   if (scheduleId !== null) {
-    Tone.Transport.clear(scheduleId);
+    transport.clear(scheduleId);
   }
 
   barCounter = 0;
   stepWithinBar = 0;
 
-  scheduleId = Tone.Transport.scheduleRepeat(() => {
+  scheduleId = transport.scheduleRepeat(() => {
     const state = getState();
     const [beatsPerBar, beatUnit] = state.transport.timeSignature;
     const sixteenthsPerBeat = Math.max(1, 16 / beatUnit);
     const sixteenthsPerBar = Math.max(1, Math.floor(beatsPerBar * sixteenthsPerBeat));
-
-    if (stepWithinBar >= sixteenthsPerBar) {
-      stepWithinBar = 0;
-      barCounter += 1;
-    }
 
     const beat = Math.floor(stepWithinBar / sixteenthsPerBeat);
     const sixteenth = Math.floor(stepWithinBar % sixteenthsPerBeat);
@@ -118,9 +132,11 @@ export const startTransport = async (): Promise<void> => {
     return;
   }
 
-  await Tone.start();
-  Tone.Transport.position = '0:0:0';
-  Tone.Transport.start();
+  await ensureContextRunning();
+
+  transport.stop();
+  transport.position = '0:0:0';
+  transport.start('+0', 0);
 
   barCounter = 0;
   stepWithinBar = 0;
@@ -135,8 +151,8 @@ export const stopTransport = (): void => {
     return;
   }
 
-  Tone.Transport.stop();
-  Tone.Transport.position = '0:0:0';
+  transport.stop();
+  transport.position = '0:0:0';
 
   barCounter = 0;
   stepWithinBar = 0;
@@ -148,7 +164,7 @@ export const stopTransport = (): void => {
 
 export const disposeTransport = (): void => {
   if (scheduleId !== null) {
-    Tone.Transport.clear(scheduleId);
+    transport.clear(scheduleId);
     scheduleId = null;
   }
 

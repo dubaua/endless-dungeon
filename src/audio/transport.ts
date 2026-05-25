@@ -1,8 +1,13 @@
 import * as Tone from 'tone';
 
 import {
+  DEFAULT_CLIP_LENGTH_TICKS,
+  PPQ,
+} from '../sequencer';
+import {
   getState,
   setTransportBpm,
+  setTransportTick,
   setTransportPlaying,
   setTransportPosition,
   setTransportStep,
@@ -10,8 +15,10 @@ import {
   subscribe,
 } from '../state/store';
 import { on } from '../events';
+import { triggerPianoNotesAtTick } from './voice';
 
 const transport = Tone.getTransport();
+const TICKS_PER_SIXTEENTH = PPQ / 4;
 
 type Cleanup = () => void;
 
@@ -93,17 +100,22 @@ const scheduleStepUpdates = (): void => {
   barCounter = 0;
   stepWithinBar = 0;
 
-  scheduleId = transport.scheduleRepeat(() => {
+  scheduleId = transport.scheduleRepeat((time) => {
     const state = getState();
     const [beatsPerBar, beatUnit] = state.transport.timeSignature;
     const sixteenthsPerBeat = Math.max(1, 16 / beatUnit);
     const sixteenthsPerBar = Math.max(1, Math.floor(beatsPerBar * sixteenthsPerBeat));
+    const ticksPerBeat = PPQ * (4 / beatUnit);
+    const ticksPerBar = beatsPerBar * ticksPerBeat;
+    const currentTick = (barCounter * ticksPerBar + stepWithinBar * TICKS_PER_SIXTEENTH) % DEFAULT_CLIP_LENGTH_TICKS;
 
     const beat = Math.floor(stepWithinBar / sixteenthsPerBeat);
     const sixteenth = Math.floor(stepWithinBar % sixteenthsPerBeat);
 
+    setTransportTick(currentTick);
     setTransportPosition(barCounter, beat, sixteenth);
     setTransportStep(stepWithinBar);
+    triggerPianoNotesAtTick(currentTick, time);
 
     stepWithinBar += 1;
 
@@ -143,6 +155,7 @@ export const startTransport = async (): Promise<void> => {
 
   setTransportPosition(0, 0, 0);
   setTransportStep(0);
+  setTransportTick(0);
   setTransportPlaying(true);
 };
 
@@ -159,6 +172,7 @@ export const stopTransport = (): void => {
 
   setTransportPosition(0, 0, 0);
   setTransportStep(0);
+  setTransportTick(0);
   setTransportPlaying(false);
 };
 
@@ -185,4 +199,3 @@ export const setTransportTimeSignatureFromUi = (numerator: number, denominator: 
 
   setTransportTimeSignature([numerator, denominator]);
 };
-

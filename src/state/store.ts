@@ -10,8 +10,16 @@ export interface TransportState {
   step: number;
 }
 
+export interface GeneratorsState {
+  melodic: {
+    value: number;
+    inverted: number;
+  };
+}
+
 export interface AppState {
   transport: TransportState;
+  generators: GeneratorsState;
 }
 
 type Listener = (state: AppState) => void;
@@ -31,6 +39,9 @@ const state: AppState = {
     sixteenth: 0,
     step: 0,
   },
+  generators: {
+    melodic: { value: 0, inverted: 0 },
+  },
 };
 
 const listeners = new Set<Listener>();
@@ -40,6 +51,9 @@ export const getState = (): AppState => state;
 const notifyListeners = (): void => {
   const snapshot: AppState = {
     transport: { ...state.transport },
+    generators: {
+      melodic: { ...state.generators.melodic },
+    },
   };
   listeners.forEach((listener) => listener(snapshot));
 };
@@ -51,14 +65,20 @@ export const updateState = (mutator: Mutator): void => {
 
 export const subscribe = (listener: Listener): Cleanup => {
   listeners.add(listener);
-  listener({ transport: { ...state.transport } });
+  listener({
+    transport: { ...state.transport },
+    generators: { melodic: { ...state.generators.melodic } },
+  });
   return () => {
     listeners.delete(listener);
   };
 };
 
 export const useStore = <T>(selector: Selector<T>): Accessor<T> => {
-  const [value, setValue] = createSignal(selector({ transport: { ...state.transport } }));
+  const [value, setValue] = createSignal(selector({
+    transport: { ...state.transport },
+    generators: { melodic: { ...state.generators.melodic } },
+  }));
   const unsubscribe = subscribe((next) => {
     setValue(() => selector(next));
   });
@@ -97,5 +117,14 @@ export const setTransportBpm = (bpm: number): void => {
 export const setTransportTimeSignature = (timeSignature: [number, number]): void => {
   updateState((draft) => {
     draft.transport = { ...draft.transport, timeSignature };
+  });
+};
+
+export const setMelodicGeneratorValues = (value: number, inverted: number): void => {
+  updateState((draft) => {
+    draft.generators = {
+      ...draft.generators,
+      melodic: { value, inverted },
+    };
   });
 };

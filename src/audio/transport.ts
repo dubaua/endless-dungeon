@@ -15,6 +15,7 @@ import {
   subscribe,
 } from '../state/store';
 import { on } from '../events';
+import { triggerDrumsAtStep } from './drums';
 import { triggerPianoNotesAtTick } from './voice';
 
 const transport = Tone.getTransport();
@@ -116,6 +117,7 @@ const scheduleStepUpdates = (): void => {
     setTransportPosition(barCounter, beat, sixteenth);
     setTransportStep(stepWithinBar);
     triggerPianoNotesAtTick(currentTick, time);
+    triggerDrumsAtStep(stepWithinBar, time);
 
     stepWithinBar += 1;
 

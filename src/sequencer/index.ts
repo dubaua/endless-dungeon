@@ -1,5 +1,6 @@
 export * from './demo';
-export * from './drumKit';
+export * from './drumPatterns';
+export * from './pattern';
 export * from './pitch';
 export * from './timing';
 export * from './types';

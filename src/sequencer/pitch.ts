@@ -1,7 +1,5 @@
-const pitchNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+import { Note } from 'tonal';
 
-export const midiNoteToName = (midiNote: number): string => {
-  const pitch = pitchNames[midiNote % 12] ?? 'Note';
-  const octave = Math.floor(midiNote / 12) - 1;
-  return `${pitch}${octave}`;
-};
+export const getNoteName = (noteName: string): string => Note.get(noteName).name || noteName;
+
+export const getNoteFrequency = (noteName: string): number | null => Note.get(noteName).freq;

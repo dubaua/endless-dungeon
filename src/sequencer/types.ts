@@ -1,30 +1,13 @@
-export type ClipType = 'midi';
+export type TrackType = 'notes' | 'drums';
 
-export type ClipView = 'pianoRoll' | 'drumGrid';
-
-export type TrackType = 'pianoRoll' | 'drumKit';
-
-export interface NoteLane {
-  note: number;
-  label: string;
-}
-
-export interface Note {
-  id: string;
-  note: number;
-  description: string;
-  startTick: number;
-  durationTicks: number;
-  velocity: number;
-}
+export type PatternNote = string | null;
+export type PatternStep = readonly [PatternNote, number];
 
 export interface Clip {
   id: string;
-  type: ClipType;
-  view: ClipView;
   startTick: number;
-  lengthTicks: number;
-  notes: Note[];
+  gatePercent: number;
+  pattern: PatternStep[];
 }
 
 export interface Track {
@@ -32,9 +15,20 @@ export interface Track {
   name: string;
   type: TrackType;
   clips: Clip[];
-  noteLanes?: NoteLane[];
+}
+
+export type DrumVoiceKey = 'kick' | 'snare' | 'closedHat' | 'openHat' | 'crash';
+
+export interface DrumChannel {
+  id: string;
+  name: string;
+  voice: DrumVoiceKey;
+  outputChannelId: string;
+  groupId: string | null;
+  pattern: number[];
 }
 
 export interface SequencerState {
   tracks: Track[];
+  drumChannels: DrumChannel[];
 }

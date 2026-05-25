@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 
-import { midiNoteToName, PPQ, type Note } from '../sequencer';
+import { expandClipPattern, getNoteFrequency, PPQ, type ExpandedPatternEvent } from '../sequencer';
 import { getState, subscribe } from '../state/store';
 import { createMasterOutput, type MasterOutput } from './graph/master';
 import { createVoiceInstance, type VoiceInstance } from './graph/voice';
@@ -17,15 +17,13 @@ const ticksToSeconds = (ticks: number, bpm: number): number => {
   return beats * (60 / bpm);
 };
 
-const findPianoNotesStartingAtTick = (tick: number): Note[] => {
+const findNoteEventsStartingAtTick = (tick: number): ExpandedPatternEvent[] => {
   const state = getState();
 
   return state.sequencer.tracks
-    .filter((track) => track.type === 'pianoRoll')
+    .filter((track) => track.type === 'notes')
     .flatMap((track) =>
-      track.clips.flatMap((clip) =>
-        clip.notes.filter((note) => clip.startTick + note.startTick === tick),
-      ),
+      track.clips.flatMap((clip) => expandClipPattern(clip).filter((event) => event.startTick === tick)),
     );
 };
 
@@ -41,10 +39,20 @@ const ensureVoiceInstance = (): VoiceInstance => {
 };
 
 const handleStateChanges = (): void => {
+  let lastSynth = JSON.stringify(getState().synth);
+
   const unsubscribe = subscribe((next) => {
     if (!voiceInstance || !masterOutput) {
       return;
     }
+
+    const nextSynth = JSON.stringify(next.synth);
+
+    if (nextSynth === lastSynth) {
+      return;
+    }
+
+    lastSynth = nextSynth;
 
     voiceInstance.update(next.synth);
     masterOutput.setVolume(next.synth.masterVolume);
@@ -66,14 +74,19 @@ export const initializeVoice = (): void => {
 export const triggerPianoNotesAtTick = (tick: number, time: Tone.Unit.Time): void => {
   const voice = ensureVoiceInstance();
   const state = getState();
-  const notes = findPianoNotesStartingAtTick(tick);
+  const events = findNoteEventsStartingAtTick(tick);
 
-  notes.forEach((note) => {
+  events.forEach((event) => {
+    const frequency = getNoteFrequency(event.note);
+
+    if (frequency === null) {
+      return;
+    }
+
     voice.triggerAttackRelease(
-      midiNoteToName(note.note),
-      ticksToSeconds(note.durationTicks, state.transport.bpm),
+      frequency,
+      ticksToSeconds(event.durationTicks, state.transport.bpm),
       time,
-      note.velocity,
     );
   });
 };

@@ -10,7 +10,7 @@ export interface VoiceInstance {
   input: Tone.PolySynth<Tone.Synth>;
   output: Tone.Gain;
   update: (state: SynthState) => void;
-  triggerAttackRelease: (note: string, durationSeconds: number, time: Tone.Unit.Time, velocity: number) => void;
+  triggerAttackRelease: (frequency: number, durationSeconds: number, time: Tone.Unit.Time) => void;
   dispose: () => void;
 }
 
@@ -61,8 +61,8 @@ export const createVoiceInstance = (state: SynthState): VoiceInstance => {
         depth: nextState.bitCrusherDepth,
       });
     },
-    triggerAttackRelease: (note, durationSeconds, time, velocity) => {
-      synth.triggerAttackRelease(note, durationSeconds, time, velocity);
+    triggerAttackRelease: (frequency, durationSeconds, time) => {
+      synth.triggerAttackRelease(frequency, durationSeconds, time, 1);
     },
     dispose: () => {
       synth.dispose();

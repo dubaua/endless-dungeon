@@ -16,6 +16,7 @@ export const OPEN_HAT_BITS_MIN = 1;
 export const OPEN_HAT_BITS_MAX = 4;
 export const OPEN_HAT_DEPTH_MIN = 0.013;
 export const OPEN_HAT_DEPTH_MAX = 0.055;
+const OPEN_HAT_CHOKE_RELEASE_SECONDS = 0.015;
 
 export const createOpenHatVoice = (voicing: OpenHatVoicing): DrumVoiceInstance<OpenHatVoicing> => {
   const noise = new Tone.Noise('white').start();
@@ -30,7 +31,7 @@ export const createOpenHatVoice = (voicing: OpenHatVoicing): DrumVoiceInstance<O
     bits: voicing.bitCrusherBits,
     depth: voicing.bitCrusherDepth,
   });
-  const output = new Tone.Gain(1);
+  const output = new Tone.Gain(0.75);
 
   filter.Q.value = voicing.filterResonance;
   noise.chain(envelope, filter, crusher.input);
@@ -39,7 +40,14 @@ export const createOpenHatVoice = (voicing: OpenHatVoicing): DrumVoiceInstance<O
   return {
     output,
     trigger: (time, intensity) => {
-      envelope.triggerAttackRelease('16n', time, clamp(intensity, 0, 1));
+      envelope.triggerAttack(time, clamp(intensity, 0, 1));
+    },
+    choke: (time) => {
+      const previousRelease = envelope.release;
+
+      envelope.release = OPEN_HAT_CHOKE_RELEASE_SECONDS;
+      envelope.triggerRelease(time);
+      envelope.release = previousRelease;
     },
     update: (nextVoicing) => {
       envelope.decay = nextVoicing.decay;

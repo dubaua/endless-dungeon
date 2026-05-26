@@ -36,6 +36,8 @@ export interface SnareVoicing {
 
 export interface ClosedHatVoicing {
   decay: number;
+  filterFrequency: number;
+  filterResonance: number;
   bitCrusherBits: number;
   bitCrusherDepth: number;
 }
@@ -52,6 +54,8 @@ export interface OpenHatVoicing {
 export interface CrashVoicing {
   decay: number;
   release: number;
+  filterFrequency: number;
+  filterResonance: number;
   bitCrusherBits: number;
   bitCrusherDepth: number;
 }

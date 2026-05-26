@@ -89,6 +89,16 @@ export const initializeDrums = (): void => {
 export const triggerDrumsAtStep = (step: number, time: Tone.Unit.Time): void => {
   ensureDrumVoices();
 
+  const closedHatRuntime = [...runtimes.values()].find((runtime) => runtime.channel.voice === 'closedHat');
+  const closedHatIntensity = closedHatRuntime
+    ? (closedHatRuntime.channel.pattern[step % closedHatRuntime.channel.pattern.length] ?? 0)
+    : 0;
+  const openHatRuntime = [...runtimes.values()].find((runtime) => runtime.channel.voice === 'openHat');
+
+  if (closedHatIntensity > 0) {
+    openHatRuntime?.chain.choke?.(time);
+  }
+
   runtimes.forEach((runtime) => {
     const patternIndex = step % runtime.channel.pattern.length;
     const intensity = runtime.channel.pattern[patternIndex] ?? 0;

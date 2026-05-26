@@ -12,8 +12,10 @@ export const CRASH_BITS_MIN = 2;
 export const CRASH_BITS_MAX = 4;
 export const CRASH_DEPTH_MIN = 0.01;
 export const CRASH_DEPTH_MAX = 0.15;
-const CRASH_FILTER_FREQUENCY = 3600;
-const CRASH_FILTER_RESONANCE = 0.1;
+export const CRASH_FILTER_FREQUENCY_MIN = 1200;
+export const CRASH_FILTER_FREQUENCY_MAX = 10000;
+export const CRASH_FILTER_RESONANCE_MIN = 0.1;
+export const CRASH_FILTER_RESONANCE_MAX = 4;
 
 export const createCrashVoice = (voicing: CrashVoicing): DrumVoiceInstance<CrashVoicing> => {
   const noise = new Tone.Noise('white').start();
@@ -23,14 +25,14 @@ export const createCrashVoice = (voicing: CrashVoicing): DrumVoiceInstance<Crash
     sustain: 0,
     release: voicing.release,
   });
-  const filter = new Tone.Filter(CRASH_FILTER_FREQUENCY, 'highpass');
+  const filter = new Tone.Filter(voicing.filterFrequency, 'highpass');
   const crusher = createLoFiCrusher({
     bits: voicing.bitCrusherBits,
     depth: voicing.bitCrusherDepth,
   });
-  const output = new Tone.Gain(1);
+  const output = new Tone.Gain(0.5);
 
-  filter.Q.value = CRASH_FILTER_RESONANCE;
+  filter.Q.value = voicing.filterResonance;
   noise.chain(envelope, filter, crusher.input);
   crusher.output.connect(output);
 
@@ -42,6 +44,8 @@ export const createCrashVoice = (voicing: CrashVoicing): DrumVoiceInstance<Crash
     update: (nextVoicing) => {
       envelope.decay = nextVoicing.decay;
       envelope.release = nextVoicing.release;
+      filter.frequency.value = nextVoicing.filterFrequency;
+      filter.Q.value = nextVoicing.filterResonance;
       crusher.update({
         bits: nextVoicing.bitCrusherBits,
         depth: nextVoicing.bitCrusherDepth,

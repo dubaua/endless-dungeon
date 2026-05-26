@@ -21,6 +21,7 @@ export type DrumVoiceKey = 'kick' | 'snare' | 'closedHat' | 'openHat' | 'crash';
 
 export interface KickVoicing {
   decay: number;
+  pitchStart: string;
   filterFrequency: number;
   filterResonance: number;
   bitCrusherBits: number;

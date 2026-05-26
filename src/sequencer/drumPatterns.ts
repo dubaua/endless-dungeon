@@ -10,11 +10,12 @@ export const demoDrumChannels: DrumChannel[] = [
     outputChannelId: 'channel-drum-kick',
     groupId: DRUM_GROUP_ID,
     voicing: {
-      decay: 0.6,
+      decay: 0.55, // больше декай
+      pitchStart: 'C2',
       filterFrequency: 120,
       filterResonance: 1,
-      bitCrusherBits: 4,
-      bitCrusherDepth: 0.1,
+      bitCrusherBits: 2,
+      bitCrusherDepth: 0.05, // больше депт - меньше декей
     },
     pattern: [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
   },

@@ -1,6 +1,7 @@
 import type { Component, JSX } from 'solid-js';
 
 import { setSynthState, type OscillatorType, type SynthState, useStore } from '../state/store';
+import { clamp } from '../utils/clamp';
 
 type SynthNumberKey = {
   [Key in keyof SynthState]: SynthState[Key] extends number ? Key : never;
@@ -19,8 +20,6 @@ interface KnobProps {
   value: number;
   onInput: (value: number) => void;
 }
-
-const clamp = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
 
 const positionToValue = (position: number, min: number, max: number, curve: 'linear' | 'exponential'): number => {
   const clampedPosition = clamp(position, 0, 1);

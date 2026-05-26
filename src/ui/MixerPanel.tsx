@@ -3,6 +3,7 @@ import { createStore } from 'solid-js/store';
 
 import { getMixerMeterLevel } from '../audio/mixer';
 import { setMixerChannelState, useStore } from '../state/store';
+import { clamp } from '../utils/clamp';
 
 const formatVolume = (value: number): string => value.toFixed(2);
 
@@ -31,7 +32,7 @@ export const MixerPanel: Component = () => {
       const value = Number(event.currentTarget.value);
 
       if (Number.isFinite(value)) {
-        setMixerChannelState(channelId, { volume: Math.max(0, Math.min(1, value)) });
+        setMixerChannelState(channelId, { volume: clamp(value, 0, 1) });
       }
     };
   };

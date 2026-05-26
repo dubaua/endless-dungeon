@@ -1,5 +1,7 @@
 import * as Tone from 'tone';
 
+import { clamp } from '../utils/clamp';
+
 const meters = new Map<string, Tone.Meter>();
 
 export interface MeteredMixerChannel {
@@ -9,7 +11,7 @@ export interface MeteredMixerChannel {
 }
 
 const getMixerGain = (volume: number, muted: boolean): number =>
-  muted ? 0 : Math.max(0, Math.min(1, volume));
+  muted ? 0 : clamp(volume, 0, 1);
 
 export const createMeteredMixerChannel = (
   channelId: string,
@@ -43,5 +45,5 @@ export const getMixerMeterLevel = (channelId: string): number => {
   const value = meter.getValue();
   const level = Array.isArray(value) ? Math.max(...value) : value;
 
-  return Number.isFinite(level) ? Math.max(0, Math.min(1, level)) : 0;
+  return Number.isFinite(level) ? clamp(level, 0, 1) : 0;
 };

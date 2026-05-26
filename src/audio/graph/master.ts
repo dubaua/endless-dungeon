@@ -1,5 +1,7 @@
 import * as Tone from 'tone';
 
+import { clamp } from '../../utils/clamp';
+
 const MIN_VOLUME_DB = -60;
 
 export interface MasterOutput {
@@ -9,7 +11,7 @@ export interface MasterOutput {
 }
 
 const volumeToDb = (volume: number): number => {
-  const clamped = Math.max(0, Math.min(1, volume));
+  const clamped = clamp(volume, 0, 1);
   if (clamped === 0) {
     return MIN_VOLUME_DB;
   }

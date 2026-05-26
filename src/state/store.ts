@@ -1,6 +1,7 @@
 import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
 import { demoDrumChannels, demoTracks, type SequencerState } from '../sequencer';
+import { clamp } from '../utils/clamp';
 
 export const SYNTH_MIXER_CHANNEL_ID = 'channel-synth-main';
 
@@ -163,7 +164,7 @@ const createInitialMixerState = (): MixerState => {
 
     channels[id] = {
       ...channel,
-      volume: typeof settings.volume === 'number' ? Math.max(0, Math.min(1, settings.volume)) : channel.volume,
+      volume: typeof settings.volume === 'number' ? clamp(settings.volume, 0, 1) : channel.volume,
       muted: typeof settings.muted === 'boolean' ? settings.muted : channel.muted,
     };
   });

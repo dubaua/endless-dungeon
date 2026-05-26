@@ -1,5 +1,7 @@
 import * as Tone from 'tone';
 
+import { clamp } from '../../utils/clamp';
+
 export interface LoFiCrusherState {
   bits: number;
   depth: number;
@@ -65,8 +67,6 @@ class LoFiCrusherProcessor extends AudioWorkletProcessor {
 
 registerProcessor('${PROCESSOR_NAME}', LoFiCrusherProcessor);
 `;
-
-const clamp = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
 
 let processorModuleUrl: string | null = null;
 let processorModulePromise: Promise<void> | null = null;

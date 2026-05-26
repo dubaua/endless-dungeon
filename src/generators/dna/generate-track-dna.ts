@@ -22,10 +22,10 @@ const RootNotes: readonly NoteName[] = [
   'B',
 ];
 
-const MinMelodicRange = 12;
-const MaxMelodicRange = 36;
-const MinBassRange = 7;
-const MaxBassRange = 24;
+const MinMelodicRangeSteps = 5;
+const MaxMelodicRangeSteps = 16;
+const MinBassRangeSteps = 5;
+const MaxBassRangeSteps = 16;
 
 export interface GenerateTrackDnaOptions {
   customScales?: CustomScale[];
@@ -92,7 +92,10 @@ export const generateTrackDna = (
     density: getRandomStep(random),
     intensity: getRandomStep(random),
     variationBias: getRandomStep(random),
-    melodicRange: getRandomInt(MinMelodicRange, MaxMelodicRange, random),
-    bassRange: getRandomInt(MinBassRange, MaxBassRange, random),
+    noteLengthVariationBias: getRandomStep(random),
+    noteGapBias: getRandomStep(random),
+    melodyBreakBias: getRandomStep(random),
+    melodicRange: getRandomInt(MinMelodicRangeSteps, MaxMelodicRangeSteps, random),
+    bassRange: getRandomInt(MinBassRangeSteps, MaxBassRangeSteps, random),
   };
 };

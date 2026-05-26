@@ -18,6 +18,9 @@ export interface TrackDna {
   density: number;
   intensity: number;
   variationBias: number;
+  noteLengthVariationBias: number;
+  noteGapBias: number;
+  melodyBreakBias: number;
   melodicRange: number;
   bassRange: number;
 }

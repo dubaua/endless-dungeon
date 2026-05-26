@@ -55,10 +55,16 @@ export const GeneratorPanel: Component = () => {
           <dd style={{ margin: 0 }}>{trackDna().intensity.toFixed(1)}</dd>
           <dt>variationBias</dt>
           <dd style={{ margin: 0 }}>{trackDna().variationBias.toFixed(1)}</dd>
+          <dt>noteLengthVariationBias</dt>
+          <dd style={{ margin: 0 }}>{trackDna().noteLengthVariationBias.toFixed(1)}</dd>
+          <dt>noteGapBias</dt>
+          <dd style={{ margin: 0 }}>{trackDna().noteGapBias.toFixed(1)}</dd>
+          <dt>melodyBreakBias</dt>
+          <dd style={{ margin: 0 }}>{trackDna().melodyBreakBias.toFixed(1)}</dd>
           <dt>melodicRange</dt>
-          <dd style={{ margin: 0 }}>{trackDna().melodicRange} semitones</dd>
+          <dd style={{ margin: 0 }}>{trackDna().melodicRange} steps</dd>
           <dt>bassRange</dt>
-          <dd style={{ margin: 0 }}>{trackDna().bassRange} semitones</dd>
+          <dd style={{ margin: 0 }}>{trackDna().bassRange} steps</dd>
         </dl>
       </div>
 

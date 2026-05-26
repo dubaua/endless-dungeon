@@ -2,14 +2,12 @@ import { render } from 'solid-js/web';
 
 import { initializeAudioEngine } from '../audio/engine';
 import { initializeTransport } from '../audio/transport';
-import { initializeGenerators } from '../generators';
 import { emit } from '../events';
 import { Root } from '../ui/Root';
 
 const mount = (): void => {
   initializeAudioEngine();
   initializeTransport();
-  initializeGenerators();
 
   const announceResume = (): void => {
     emit('audio/resume', undefined);

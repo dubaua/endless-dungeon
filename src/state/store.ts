@@ -43,16 +43,8 @@ export interface TransportState {
   step: number;
 }
 
-export interface GeneratorsState {
-  melodic: {
-    value: number;
-    inverted: number;
-  };
-}
-
 export interface AppState {
   transport: TransportState;
-  generators: GeneratorsState;
   sequencer: SequencerState;
   synth: SynthState;
   mixer: MixerState;
@@ -190,9 +182,6 @@ const state: AppState = {
     sixteenth: 0,
     step: 0,
   },
-  generators: {
-    melodic: { value: 0, inverted: 0 },
-  },
   sequencer: {
     tracks: demoTracks,
     drumChannels: demoDrumChannels,
@@ -285,15 +274,6 @@ export const setTransportBpm = (bpm: number): void => {
 export const setTransportTimeSignature = (timeSignature: [number, number]): void => {
   updateState((draft) => {
     draft.transport = { ...draft.transport, timeSignature };
-  });
-};
-
-export const setMelodicGeneratorValues = (value: number, inverted: number): void => {
-  updateState((draft) => {
-    draft.generators = {
-      ...draft.generators,
-      melodic: { value, inverted },
-    };
   });
 };
 

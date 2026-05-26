@@ -1,12 +1,6 @@
 import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
-import {
-  demoDrumChannels,
-  demoTracks,
-  type DrumChannel,
-  type DrumVoicingKey,
-  type SequencerState,
-} from '../sequencer';
+import { demoDrumChannels, demoTracks, type SequencerState } from '../sequencer';
 
 export type OscillatorType = 'sine' | 'triangle' | 'sawtooth' | 'square';
 
@@ -136,7 +130,7 @@ const state: AppState = {
           id: channel.outputChannelId,
           name: channel.name,
           volume: 0.85,
-          muted: true,
+          muted: false,
           groupId: channel.groupId,
         },
       ]),
@@ -146,51 +140,7 @@ const state: AppState = {
 
 const listeners = new Set<Listener>();
 
-const cloneDrumChannel = (channel: DrumChannel): DrumChannel => {
-  if (channel.voice === 'kick') {
-    return { ...channel, voicing: { ...channel.voicing } };
-  }
-
-  if (channel.voice === 'snare') {
-    return { ...channel, voicing: { ...channel.voicing } };
-  }
-
-  if (channel.voice === 'closedHat') {
-    return { ...channel, voicing: { ...channel.voicing } };
-  }
-
-  if (channel.voice === 'openHat') {
-    return { ...channel, voicing: { ...channel.voicing } };
-  }
-
-  return { ...channel, voicing: { ...channel.voicing } };
-};
-
-const snapshotState = (): AppState => ({
-  transport: { ...state.transport },
-  generators: {
-    melodic: { ...state.generators.melodic },
-  },
-  sequencer: {
-    tracks: state.sequencer.tracks.map((track) => ({
-      ...track,
-      clips: track.clips.map((clip) => ({
-        ...clip,
-        pattern: clip.pattern.map(([note, stepCount]) => [note, stepCount]),
-      })),
-    })),
-    drumChannels: state.sequencer.drumChannels.map((channel) => ({
-      ...cloneDrumChannel(channel),
-      pattern: [...channel.pattern],
-    })),
-  },
-  synth: { ...state.synth },
-  mixer: {
-    channels: Object.fromEntries(
-      Object.entries(state.mixer.channels).map(([id, channel]) => [id, { ...channel }]),
-    ),
-  },
-});
+const snapshotState = (): AppState => state;
 
 export const getState = (): AppState => state;
 
@@ -277,22 +227,6 @@ export const setMelodicGeneratorValues = (value: number, inverted: number): void
 export const setSynthState = (synth: Partial<SynthState>): void => {
   updateState((draft) => {
     draft.synth = { ...draft.synth, ...synth };
-  });
-};
-
-export const setDrumChannelVoicing = (
-  channelId: string,
-  voicing: Partial<Record<DrumVoicingKey, number>>,
-): void => {
-  updateState((draft) => {
-    draft.sequencer = {
-      ...draft.sequencer,
-      drumChannels: draft.sequencer.drumChannels.map((channel) =>
-        channel.id === channelId
-          ? ({ ...channel, voicing: { ...channel.voicing, ...voicing } } as DrumChannel)
-          : channel,
-      ),
-    };
   });
 };
 

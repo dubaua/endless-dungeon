@@ -13,7 +13,9 @@ export const CLOSED_HAT_DEPTH_MAX = 0.055;
 const CLOSED_HAT_FILTER_FREQUENCY = 7200;
 const CLOSED_HAT_FILTER_RESONANCE = 0.7;
 
-export const createClosedHatVoice = (voicing: ClosedHatVoicing): DrumVoiceInstance<ClosedHatVoicing> => {
+export const createClosedHatVoice = (
+  voicing: ClosedHatVoicing,
+): DrumVoiceInstance<ClosedHatVoicing> => {
   const metal = new Tone.MetalSynth({
     harmonicity: 3.7,
     modulationIndex: 24,
@@ -48,12 +50,6 @@ export const createClosedHatVoice = (voicing: ClosedHatVoicing): DrumVoiceInstan
         bits: nextVoicing.bitCrusherBits,
         depth: nextVoicing.bitCrusherDepth,
       });
-    },
-    dispose: () => {
-      metal.dispose();
-      filter.dispose();
-      crusher.dispose();
-      output.dispose();
     },
   };
 };

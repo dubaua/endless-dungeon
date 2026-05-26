@@ -6,14 +6,12 @@ export interface DrumVoiceInstance<TVoicing extends DrumVoicing = DrumVoicing> {
   output: Tone.Gain;
   trigger: (time: Tone.Unit.Time, intensity: number) => void;
   update: (voicing: TVoicing) => void;
-  dispose: () => void;
 }
 
 export interface DrumVoiceRuntimeInstance {
   output: Tone.Gain;
   trigger: (time: Tone.Unit.Time, intensity: number) => void;
   update: (voicing: DrumVoicing) => void;
-  dispose: () => void;
 }
 
 export const clamp = (value: number, min: number, max: number): number =>

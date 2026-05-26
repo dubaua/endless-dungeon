@@ -59,12 +59,5 @@ export const createSnareVoice = (voicing: SnareVoicing): DrumVoiceInstance<Snare
         depth,
       });
     },
-    dispose: () => {
-      noise.dispose();
-      envelope.dispose();
-      filter.dispose();
-      crusher.dispose();
-      output.dispose();
-    },
   };
 };

@@ -51,12 +51,5 @@ export const createOpenHatVoice = (voicing: OpenHatVoicing): DrumVoiceInstance<O
         depth: nextVoicing.bitCrusherDepth,
       });
     },
-    dispose: () => {
-      noise.dispose();
-      envelope.dispose();
-      filter.dispose();
-      crusher.dispose();
-      output.dispose();
-    },
   };
 };

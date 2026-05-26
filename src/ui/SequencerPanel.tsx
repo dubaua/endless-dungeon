@@ -12,7 +12,8 @@ export const SequencerPanel: Component = () => {
       <header>
         <h2 style={{ margin: 0 }}>Sequencer</h2>
         <p style={{ margin: '0.25rem 0 0', color: '#555' }}>
-          PPQ {PPQ}, default clip {ticksToBars(DEFAULT_CLIP_LENGTH_TICKS)} bars, tick {transport().currentTick}.
+          PPQ {PPQ}, default clip {ticksToBars(DEFAULT_CLIP_LENGTH_TICKS)} bars, tick{' '}
+          {transport().currentTick}.
         </p>
       </header>
 
@@ -70,6 +71,7 @@ export const SequencerPanel: Component = () => {
                       voice: channel.voice,
                       outputChannelId: channel.outputChannelId,
                       groupId: channel.groupId,
+                      voicing: channel.voicing,
                       pattern: channel.pattern,
                     },
                     null,

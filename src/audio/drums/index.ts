@@ -1,11 +1,9 @@
 import * as Tone from 'tone';
 
 import type { DrumChannel } from '../../sequencer';
-import { getState, subscribe } from '../../state/store';
+import { getState } from '../../state/store';
 import { createDrumVoiceInstance, type DrumVoiceRuntimeInstance } from '../graph/drumVoice';
 import { createMasterOutput, type MasterOutput } from '../graph/master';
-
-type Cleanup = () => void;
 
 interface DrumChannelRuntime {
   channel: DrumChannel;
@@ -14,7 +12,6 @@ interface DrumChannelRuntime {
 }
 
 let initialized = false;
-let cleanups: Cleanup[] = [];
 let masterOutput: MasterOutput | null = null;
 let runtimes = new Map<string, DrumChannelRuntime>();
 
@@ -53,41 +50,6 @@ const ensureDrumVoices = (): void => {
   );
 };
 
-const handleStateChanges = (): void => {
-  let lastDrumChannels = JSON.stringify(getState().sequencer.drumChannels);
-  let lastMixer = JSON.stringify(getState().mixer);
-
-  const unsubscribe = subscribe((next) => {
-    const nextDrumChannels = JSON.stringify(next.sequencer.drumChannels);
-    const nextMixer = JSON.stringify(next.mixer);
-
-    if (nextDrumChannels === lastDrumChannels && nextMixer === lastMixer) {
-      return;
-    }
-
-    lastDrumChannels = nextDrumChannels;
-    lastMixer = nextMixer;
-
-    runtimes.forEach((runtime, channelId) => {
-      const nextChannel = next.sequencer.drumChannels.find((channel) => channel.id === channelId);
-
-      if (nextChannel) {
-        runtime.channel = nextChannel;
-        runtime.chain.update(nextChannel.voicing);
-      }
-
-      const mixerChannel = next.mixer.channels[runtime.channel.outputChannelId];
-
-      runtime.channelOutput.gain.value = getMixerGain(
-        mixerChannel?.volume ?? 1,
-        mixerChannel?.muted ?? false,
-      );
-    });
-  });
-
-  cleanups.push(unsubscribe);
-};
-
 export const initializeDrums = (): void => {
   if (initialized) {
     return;
@@ -95,7 +57,6 @@ export const initializeDrums = (): void => {
 
   initialized = true;
   ensureDrumVoices();
-  handleStateChanges();
 };
 
 export const triggerDrumsAtStep = (step: number, time: Tone.Unit.Time): void => {
@@ -109,20 +70,4 @@ export const triggerDrumsAtStep = (step: number, time: Tone.Unit.Time): void => 
       runtime.chain.trigger(time, intensity);
     }
   });
-};
-
-export const disposeDrums = (): void => {
-  cleanups.forEach((cleanup) => {
-    cleanup();
-  });
-  cleanups = [];
-
-  runtimes.forEach((runtime) => {
-    runtime.chain.dispose();
-    runtime.channelOutput.dispose();
-  });
-  runtimes.clear();
-  masterOutput?.dispose();
-  masterOutput = null;
-  initialized = false;
 };

@@ -47,12 +47,5 @@ export const createCrashVoice = (voicing: CrashVoicing): DrumVoiceInstance<Crash
         depth: nextVoicing.bitCrusherDepth,
       });
     },
-    dispose: () => {
-      noise.dispose();
-      envelope.dispose();
-      filter.dispose();
-      crusher.dispose();
-      output.dispose();
-    },
   };
 };

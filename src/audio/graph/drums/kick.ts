@@ -22,18 +22,20 @@ export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoi
     attack: 0.001,
     decay: voicing.decay,
     sustain: 1,
-    release: 0.5,
+    release: 0.001,
   });
   const filter = new Tone.Filter(voicing.filterFrequency, 'lowpass');
   const crusher = createLoFiCrusher({
     bits: voicing.bitCrusherBits,
     depth: voicing.bitCrusherDepth,
   });
+  const amplifier = new Tone.Gain(5);
+  const limiter = new Tone.Limiter(-1);
   const output = new Tone.Gain(1);
 
   filter.Q.value = voicing.filterResonance;
   noise.chain(envelope, filter, crusher.input);
-  crusher.output.connect(output);
+  crusher.output.chain(amplifier, limiter, output);
 
   return {
     output,

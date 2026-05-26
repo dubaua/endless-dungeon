@@ -10,13 +10,13 @@ export const demoDrumChannels: DrumChannel[] = [
     outputChannelId: 'channel-drum-kick',
     groupId: DRUM_GROUP_ID,
     voicing: {
-      decay: 1,
-      filterFrequency: 60,
-      filterResonance: 5,
+      decay: 0.6,
+      filterFrequency: 120,
+      filterResonance: 1,
       bitCrusherBits: 4,
-      bitCrusherDepth: 0,
+      bitCrusherDepth: 0.1,
     },
-    pattern: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+    pattern: [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
   },
   {
     id: 'drum-snare',
@@ -28,7 +28,7 @@ export const demoDrumChannels: DrumChannel[] = [
       bitCrusherBits: 3,
       bitCrusherDepth: 0.05,
     },
-    pattern: [0, 0, 0, 0, 1, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0],
+    pattern: [0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
   },
   {
     id: 'drum-closed-hat',

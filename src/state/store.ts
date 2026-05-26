@@ -4,6 +4,8 @@ import { demoDrumChannels, demoTracks, type SequencerState } from '../sequencer'
 
 export const SYNTH_MIXER_CHANNEL_ID = 'channel-synth-main';
 
+const MIXER_SESSION_STORAGE_KEY = 'endless-dungeon:mixer';
+
 export type OscillatorType = 'sine' | 'triangle' | 'sawtooth' | 'square';
 
 export interface SynthState {
@@ -63,6 +65,9 @@ type Selector<T> = (state: AppState) => T;
 
 type Cleanup = () => void;
 
+type StoredMixerChannelState = Partial<Pick<MixerChannelState, 'volume' | 'muted'>>;
+type StoredMixerState = Record<string, StoredMixerChannelState>;
+
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -91,6 +96,87 @@ const deepEqual = (left: unknown, right: unknown): boolean => {
   }
 
   return false;
+};
+
+const hasSessionStorage = (): boolean => typeof sessionStorage !== 'undefined';
+
+const readStoredMixerState = (): StoredMixerState => {
+  if (!hasSessionStorage()) {
+    return {};
+  }
+
+  try {
+    const raw = sessionStorage.getItem(MIXER_SESSION_STORAGE_KEY);
+
+    if (!raw) {
+      return {};
+    }
+
+    const parsed = JSON.parse(raw) as unknown;
+
+    return isPlainObject(parsed) ? (parsed as StoredMixerState) : {};
+  } catch {
+    return {};
+  }
+};
+
+const writeStoredMixerState = (mixer: MixerState): void => {
+  if (!hasSessionStorage()) {
+    return;
+  }
+
+  const stored: StoredMixerState = Object.fromEntries(
+    Object.entries(mixer.channels).map(([id, channel]) => [
+      id,
+      {
+        volume: channel.volume,
+        muted: channel.muted,
+      },
+    ]),
+  );
+
+  sessionStorage.setItem(MIXER_SESSION_STORAGE_KEY, JSON.stringify(stored));
+};
+
+const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
+  Object.fromEntries(
+    [
+      {
+        id: SYNTH_MIXER_CHANNEL_ID,
+        name: 'Piano',
+        volume: 0.75,
+        muted: false,
+        groupId: null,
+      },
+      ...demoDrumChannels.map((channel) => ({
+        id: channel.outputChannelId,
+        name: channel.name,
+        volume: 0.85,
+        muted: false,
+        groupId: channel.groupId,
+      })),
+    ].map((channel) => [channel.id, channel]),
+  );
+
+const createInitialMixerState = (): MixerState => {
+  const channels = createDefaultMixerChannels();
+  const stored = readStoredMixerState();
+
+  Object.entries(stored).forEach(([id, settings]) => {
+    const channel = channels[id];
+
+    if (!channel) {
+      return;
+    }
+
+    channels[id] = {
+      ...channel,
+      volume: typeof settings.volume === 'number' ? Math.max(0, Math.min(1, settings.volume)) : channel.volume,
+      muted: typeof settings.muted === 'boolean' ? settings.muted : channel.muted,
+    };
+  });
+
+  return { channels };
 };
 
 const state: AppState = {
@@ -122,26 +208,7 @@ const state: AppState = {
     bitCrusherBits: 8,
     bitCrusherDepth: 0.02,
   },
-  mixer: {
-    channels: Object.fromEntries(
-      [
-        {
-          id: SYNTH_MIXER_CHANNEL_ID,
-          name: 'Piano',
-          volume: 0.75,
-          muted: false,
-          groupId: null,
-        },
-        ...demoDrumChannels.map((channel) => ({
-          id: channel.outputChannelId,
-          name: channel.name,
-          volume: 0.85,
-          muted: false,
-          groupId: channel.groupId,
-        })),
-      ].map((channel) => [channel.id, channel]),
-    ),
-  },
+  mixer: createInitialMixerState(),
 };
 
 const listeners = new Set<Listener>();
@@ -257,5 +324,6 @@ export const setMixerChannelState = (
         },
       },
     };
+    writeStoredMixerState(draft.mixer);
   });
 };

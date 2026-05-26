@@ -1,7 +1,8 @@
-import { createMemo, For, type Component } from 'solid-js';
+import { createMemo, createSignal, For, type Component } from 'solid-js';
 
 import type { BlockFunction } from '../generators/blocks/block-function';
 import { generateTracks } from '../generators/demo/generate-tracks';
+import { generateTrackDna } from '../generators/dna/generate-track-dna';
 
 const blockColors: Record<BlockFunction, string> = {
   body: '#b7e4c7',
@@ -17,9 +18,50 @@ const barWidthRem = 0.8;
 
 export const GeneratorPanel: Component = () => {
   const tracks = createMemo(() => generateTracks(100));
+  const [trackDna, setTrackDna] = createSignal(generateTrackDna());
 
   return (
     <section style={{ display: 'grid', gap: '1rem' }}>
+      <div style={{ display: 'grid', gap: '0.5rem' }}>
+        <header style={{ display: 'flex', gap: '0.5rem', 'align-items': 'center' }}>
+          <h2 style={{ margin: 0 }}>Track DNA</h2>
+          <button type="button" onClick={() => setTrackDna(generateTrackDna())}>
+            Generate
+          </button>
+        </header>
+        <dl
+          style={{
+            display: 'grid',
+            'grid-template-columns': 'max-content 1fr',
+            gap: '0.25rem 0.75rem',
+            margin: 0,
+            'font-family': 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+            'font-size': '0.78rem',
+          }}
+        >
+          <dt>rootNote</dt>
+          <dd style={{ margin: 0 }}>{trackDna().rootNote}</dd>
+          <dt>scale</dt>
+          <dd style={{ margin: 0 }}>
+            {trackDna().scaleName} [{trackDna().scaleNotes.join(' ')}]
+          </dd>
+          <dt>bpm</dt>
+          <dd style={{ margin: 0 }}>{trackDna().bpm}</dd>
+          <dt>syncopation</dt>
+          <dd style={{ margin: 0 }}>{trackDna().syncopation.toFixed(1)}</dd>
+          <dt>density</dt>
+          <dd style={{ margin: 0 }}>{trackDna().density.toFixed(1)}</dd>
+          <dt>intensity</dt>
+          <dd style={{ margin: 0 }}>{trackDna().intensity.toFixed(1)}</dd>
+          <dt>variationBias</dt>
+          <dd style={{ margin: 0 }}>{trackDna().variationBias.toFixed(1)}</dd>
+          <dt>melodicRange</dt>
+          <dd style={{ margin: 0 }}>{trackDna().melodicRange} semitones</dd>
+          <dt>bassRange</dt>
+          <dd style={{ margin: 0 }}>{trackDna().bassRange} semitones</dd>
+        </dl>
+      </div>
+
       <div style={{ display: 'grid', gap: '0.35rem' }}>
         <h2 style={{ margin: 0 }}>Block Routes</h2>
         <div

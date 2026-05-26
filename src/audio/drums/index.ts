@@ -1,8 +1,8 @@
 import * as Tone from 'tone';
 
-import type { DrumChannel, DrumVoiceKey } from '../../sequencer';
+import type { DrumChannel } from '../../sequencer';
 import { getState, subscribe } from '../../state/store';
-import { createDrumVoiceInstance, type DrumVoiceInstance } from '../graph/drumVoice';
+import { createDrumVoiceInstance, type DrumVoiceRuntimeInstance } from '../graph/drumVoice';
 import { createMasterOutput, type MasterOutput } from '../graph/master';
 
 type Cleanup = () => void;
@@ -10,15 +10,16 @@ type Cleanup = () => void;
 interface DrumChannelRuntime {
   channel: DrumChannel;
   channelOutput: Tone.Gain;
-  chain: DrumVoiceInstance;
+  chain: DrumVoiceRuntimeInstance;
 }
 
 let initialized = false;
 let cleanups: Cleanup[] = [];
 let masterOutput: MasterOutput | null = null;
-let runtimes = new Map<DrumVoiceKey, DrumChannelRuntime>();
+let runtimes = new Map<string, DrumChannelRuntime>();
 
-const getMixerGain = (volume: number, muted: boolean): number => (muted ? 0 : Math.max(0, Math.min(1, volume)));
+const getMixerGain = (volume: number, muted: boolean): number =>
+  muted ? 0 : Math.max(0, Math.min(1, volume));
 
 const ensureDrumVoices = (): void => {
   if (masterOutput && runtimes.size > 0) {
@@ -31,15 +32,17 @@ const ensureDrumVoices = (): void => {
 
   runtimes = new Map(
     state.sequencer.drumChannels.map((channel) => {
-      const chain = createDrumVoiceInstance(channel.voice, state.drumVoices[channel.voice]);
+      const chain = createDrumVoiceInstance(channel);
       const mixerChannel = state.mixer.channels[channel.outputChannelId];
-      const channelOutput = new Tone.Gain(getMixerGain(mixerChannel?.volume ?? 1, mixerChannel?.muted ?? false));
+      const channelOutput = new Tone.Gain(
+        getMixerGain(mixerChannel?.volume ?? 1, mixerChannel?.muted ?? false),
+      );
 
       chain.output.connect(channelOutput);
       channelOutput.connect(masterInput);
 
       return [
-        channel.voice,
+        channel.id,
         {
           channel,
           channelOutput,
@@ -51,25 +54,34 @@ const ensureDrumVoices = (): void => {
 };
 
 const handleStateChanges = (): void => {
-  let lastDrumVoices = JSON.stringify(getState().drumVoices);
+  let lastDrumChannels = JSON.stringify(getState().sequencer.drumChannels);
   let lastMixer = JSON.stringify(getState().mixer);
 
   const unsubscribe = subscribe((next) => {
-    const nextDrumVoices = JSON.stringify(next.drumVoices);
+    const nextDrumChannels = JSON.stringify(next.sequencer.drumChannels);
     const nextMixer = JSON.stringify(next.mixer);
 
-    if (nextDrumVoices === lastDrumVoices && nextMixer === lastMixer) {
+    if (nextDrumChannels === lastDrumChannels && nextMixer === lastMixer) {
       return;
     }
 
-    lastDrumVoices = nextDrumVoices;
+    lastDrumChannels = nextDrumChannels;
     lastMixer = nextMixer;
 
-    runtimes.forEach((runtime, voice) => {
+    runtimes.forEach((runtime, channelId) => {
+      const nextChannel = next.sequencer.drumChannels.find((channel) => channel.id === channelId);
+
+      if (nextChannel) {
+        runtime.channel = nextChannel;
+        runtime.chain.update(nextChannel.voicing);
+      }
+
       const mixerChannel = next.mixer.channels[runtime.channel.outputChannelId];
 
-      runtime.chain.update(next.drumVoices[voice]);
-      runtime.channelOutput.gain.value = getMixerGain(mixerChannel?.volume ?? 1, mixerChannel?.muted ?? false);
+      runtime.channelOutput.gain.value = getMixerGain(
+        mixerChannel?.volume ?? 1,
+        mixerChannel?.muted ?? false,
+      );
     });
   });
 

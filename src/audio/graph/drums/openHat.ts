@@ -1,51 +1,59 @@
 import * as Tone from 'tone';
 
-import type { DrumVoiceState } from '../../../state/store';
+import type { OpenHatVoicing } from '../../../sequencer';
 import { createLoFiCrusher } from '../loFiCrusher';
 import { clamp, type DrumVoiceInstance } from './shared';
 
-export const createOpenHatVoice = (state: DrumVoiceState): DrumVoiceInstance => {
-  const metal = new Tone.MetalSynth({
-    harmonicity: 3.7,
-    modulationIndex: 24,
-    resonance: Math.min(state.filterFrequency, 7000),
-    octaves: 1.2,
-    envelope: {
-      attack: 0.001,
-      decay: state.decay,
-      release: state.release,
-    },
+export const OPEN_HAT_DECAY_MIN = 0.05;
+export const OPEN_HAT_DECAY_MAX = 0.5;
+export const OPEN_HAT_RELEASE_MIN = 0.05;
+export const OPEN_HAT_RELEASE_MAX = 1.2;
+export const OPEN_HAT_FILTER_FREQUENCY_MIN = 2500;
+export const OPEN_HAT_FILTER_FREQUENCY_MAX = 10000;
+export const OPEN_HAT_FILTER_RESONANCE_MIN = 0.1;
+export const OPEN_HAT_FILTER_RESONANCE_MAX = 4;
+export const OPEN_HAT_BITS_MIN = 1;
+export const OPEN_HAT_BITS_MAX = 4;
+export const OPEN_HAT_DEPTH_MIN = 0.013;
+export const OPEN_HAT_DEPTH_MAX = 0.055;
+
+export const createOpenHatVoice = (voicing: OpenHatVoicing): DrumVoiceInstance<OpenHatVoicing> => {
+  const noise = new Tone.Noise('white').start();
+  const envelope = new Tone.AmplitudeEnvelope({
+    attack: 0.001,
+    decay: voicing.decay,
+    sustain: 0,
+    release: voicing.release,
   });
-  const filter = new Tone.Filter(state.filterFrequency, 'highpass');
+  const filter = new Tone.Filter(voicing.filterFrequency, 'highpass');
   const crusher = createLoFiCrusher({
-    bits: state.bitCrusherBits,
-    depth: state.bitCrusherDepth,
+    bits: voicing.bitCrusherBits,
+    depth: voicing.bitCrusherDepth,
   });
   const output = new Tone.Gain(1);
 
-  metal.frequency.value = 360;
-  filter.Q.value = state.filterResonance;
-  metal.chain(filter, crusher.input);
+  filter.Q.value = voicing.filterResonance;
+  noise.chain(envelope, filter, crusher.input);
   crusher.output.connect(output);
 
   return {
     output,
     trigger: (time, intensity) => {
-      metal.triggerAttackRelease(360, '16n', time, clamp(intensity, 0, 1));
+      envelope.triggerAttackRelease('16n', time, clamp(intensity, 0, 1));
     },
-    update: (nextState) => {
-      metal.envelope.decay = nextState.decay;
-      metal.envelope.release = nextState.release;
-      metal.resonance = Math.min(nextState.filterFrequency, 7000);
-      filter.frequency.value = nextState.filterFrequency;
-      filter.Q.value = nextState.filterResonance;
+    update: (nextVoicing) => {
+      envelope.decay = nextVoicing.decay;
+      envelope.release = nextVoicing.release;
+      filter.frequency.value = nextVoicing.filterFrequency;
+      filter.Q.value = nextVoicing.filterResonance;
       crusher.update({
-        bits: nextState.bitCrusherBits,
-        depth: nextState.bitCrusherDepth,
+        bits: nextVoicing.bitCrusherBits,
+        depth: nextVoicing.bitCrusherDepth,
       });
     },
     dispose: () => {
-      metal.dispose();
+      noise.dispose();
+      envelope.dispose();
       filter.dispose();
       crusher.dispose();
       output.dispose();

@@ -1,25 +1,37 @@
 import * as Tone from 'tone';
 
-import type { DrumVoiceState } from '../../../state/store';
+import type { KickVoicing } from '../../../sequencer';
 import { createLoFiCrusher } from '../loFiCrusher';
 import { clamp, type DrumVoiceInstance } from './shared';
 
-export const createKickVoice = (state: DrumVoiceState): DrumVoiceInstance => {
-  const noise = new Tone.Noise('brown').start();
+export const KICK_DECAY_MIN = 0.3;
+export const KICK_DECAY_MAX = 0.5;
+export const KICK_FILTER_FREQUENCY_MIN = 60;
+export const KICK_FILTER_FREQUENCY_MAX = 220;
+export const KICK_FILTER_RESONANCE_MIN = 2;
+export const KICK_FILTER_RESONANCE_MAX = 10;
+export const KICK_BITS_MIN = 2;
+export const KICK_BITS_MAX = 4;
+// меньше битность - меньше депт, иначе не слышно
+export const KICK_DEPTH_MIN = 0;
+export const KICK_DEPTH_MAX = 0.1;
+
+export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoicing> => {
+  const noise = new Tone.Noise('white').start();
   const envelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
-    decay: state.decay,
+    decay: voicing.decay,
     sustain: 0,
     release: 0.001,
   });
-  const filter = new Tone.Filter(state.filterFrequency, 'lowpass');
+  const filter = new Tone.Filter(voicing.filterFrequency, 'lowpass');
   const crusher = createLoFiCrusher({
-    bits: state.bitCrusherBits,
-    depth: state.bitCrusherDepth,
+    bits: voicing.bitCrusherBits,
+    depth: voicing.bitCrusherDepth,
   });
   const output = new Tone.Gain(1);
 
-  filter.Q.value = state.filterResonance;
+  filter.Q.value = voicing.filterResonance;
   noise.chain(envelope, filter, crusher.input);
   crusher.output.connect(output);
 
@@ -28,13 +40,13 @@ export const createKickVoice = (state: DrumVoiceState): DrumVoiceInstance => {
     trigger: (time, intensity) => {
       envelope.triggerAttackRelease('16n', time, clamp(intensity, 0, 1));
     },
-    update: (nextState) => {
-      envelope.decay = nextState.decay;
-      filter.frequency.value = nextState.filterFrequency;
-      filter.Q.value = nextState.filterResonance;
+    update: (nextVoicing) => {
+      envelope.decay = nextVoicing.decay;
+      filter.frequency.value = nextVoicing.filterFrequency;
+      filter.Q.value = nextVoicing.filterResonance;
       crusher.update({
-        bits: nextState.bitCrusherBits,
-        depth: nextState.bitCrusherDepth,
+        bits: nextVoicing.bitCrusherBits,
+        depth: nextVoicing.bitCrusherDepth,
       });
     },
     dispose: () => {

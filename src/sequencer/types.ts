@@ -19,14 +19,78 @@ export interface Track {
 
 export type DrumVoiceKey = 'kick' | 'snare' | 'closedHat' | 'openHat' | 'crash';
 
-export interface DrumChannel {
+export interface KickVoicing {
+  decay: number;
+  filterFrequency: number;
+  filterResonance: number;
+  bitCrusherBits: number;
+  bitCrusherDepth: number;
+}
+
+export interface SnareVoicing {
+  bitCrusherBits: number;
+  bitCrusherDepth: number;
+}
+
+export interface ClosedHatVoicing {
+  decay: number;
+  bitCrusherBits: number;
+  bitCrusherDepth: number;
+}
+
+export interface OpenHatVoicing {
+  decay: number;
+  release: number;
+  filterFrequency: number;
+  filterResonance: number;
+  bitCrusherBits: number;
+  bitCrusherDepth: number;
+}
+
+export interface CrashVoicing {
+  decay: number;
+  release: number;
+  bitCrusherBits: number;
+  bitCrusherDepth: number;
+}
+
+export type DrumVoicing =
+  | KickVoicing
+  | SnareVoicing
+  | ClosedHatVoicing
+  | OpenHatVoicing
+  | CrashVoicing;
+
+export type DrumVoicingKey =
+  | 'decay'
+  | 'release'
+  | 'filterFrequency'
+  | 'filterResonance'
+  | 'bitCrusherBits'
+  | 'bitCrusherDepth';
+
+interface DrumChannelBase<TVoice extends DrumVoiceKey, TVoicing extends DrumVoicing> {
   id: string;
   name: string;
-  voice: DrumVoiceKey;
+  voice: TVoice;
   outputChannelId: string;
   groupId: string | null;
+  voicing: TVoicing;
   pattern: number[];
 }
+
+export type KickDrumChannel = DrumChannelBase<'kick', KickVoicing>;
+export type SnareDrumChannel = DrumChannelBase<'snare', SnareVoicing>;
+export type ClosedHatDrumChannel = DrumChannelBase<'closedHat', ClosedHatVoicing>;
+export type OpenHatDrumChannel = DrumChannelBase<'openHat', OpenHatVoicing>;
+export type CrashDrumChannel = DrumChannelBase<'crash', CrashVoicing>;
+
+export type DrumChannel =
+  | KickDrumChannel
+  | SnareDrumChannel
+  | ClosedHatDrumChannel
+  | OpenHatDrumChannel
+  | CrashDrumChannel;
 
 export interface SequencerState {
   tracks: Track[];

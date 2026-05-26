@@ -1,10 +1,14 @@
 import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
-import { demoDrumChannels, demoTracks, type DrumVoiceKey, type SequencerState } from '../sequencer';
+import {
+  demoDrumChannels,
+  demoTracks,
+  type DrumChannel,
+  type DrumVoicingKey,
+  type SequencerState,
+} from '../sequencer';
 
 export type OscillatorType = 'sine' | 'triangle' | 'sawtooth' | 'square';
-export type DrumNoiseType = 'white' | 'pink' | 'brown';
-export type DrumFilterType = 'lowpass' | 'highpass' | 'bandpass';
 
 export interface SynthState {
   oscillatorType: OscillatorType;
@@ -18,21 +22,6 @@ export interface SynthState {
   bitCrusherDepth: number;
   masterVolume: number;
 }
-
-export interface DrumVoiceState {
-  noiseType: DrumNoiseType;
-  attack: number;
-  decay: number;
-  sustain: number;
-  release: number;
-  filterType: DrumFilterType;
-  filterFrequency: number;
-  filterResonance: number;
-  bitCrusherBits: number;
-  bitCrusherDepth: number;
-}
-
-export type DrumVoicesState = Record<DrumVoiceKey, DrumVoiceState>;
 
 export interface MixerChannelState {
   id: string;
@@ -69,7 +58,6 @@ export interface AppState {
   generators: GeneratorsState;
   sequencer: SequencerState;
   synth: SynthState;
-  drumVoices: DrumVoicesState;
   mixer: MixerState;
 }
 
@@ -140,72 +128,6 @@ const state: AppState = {
     bitCrusherDepth: 0.02,
     masterVolume: 0.75,
   },
-  drumVoices: {
-    kick: {
-      noiseType: 'white',
-      attack: 0.001,
-      decay: 0.08,
-      sustain: 0,
-      release: 0.001,
-      filterType: 'lowpass',
-      filterFrequency: 240,
-      filterResonance: 5,
-      bitCrusherBits: 4,
-      bitCrusherDepth: 0.0,
-    },
-    // decay is intensity
-    // less bits -> more decay
-    // depth is character range
-    snare: {
-      noiseType: 'white',
-      attack: 0.001,
-      decay: 0.6,
-      sustain: 1,
-      release: 0.1,
-      filterType: 'bandpass',
-      filterFrequency: 450,
-      filterResonance: 0.2,
-      bitCrusherBits: 3, // 2..4
-      bitCrusherDepth: 0.05, // 0.01 .. 0.1
-    },
-    // volume is intensity
-    closedHat: {
-      noiseType: 'white', // не актуально
-      attack: 0.001,
-      decay: 0.035, // 0.02 .. 0.15
-      sustain: 0,
-      release: 0.001,
-      filterType: 'highpass',
-      filterFrequency: 7200,
-      filterResonance: 0.7,
-      bitCrusherBits: 3, // 1..4
-      bitCrusherDepth: 0.02, // 0.013 .. 0.055
-    },
-    openHat: {
-      noiseType: 'white', // не актуально
-      attack: 0.001,
-      decay: 0.18,
-      sustain: 0,
-      release: 0.28,
-      filterType: 'highpass',
-      filterFrequency: 5600,
-      filterResonance: 0.9,
-      bitCrusherBits: 3,
-      bitCrusherDepth: 0.025,
-    },
-    crash: {
-      noiseType: 'white',
-      attack: 0.001,
-      decay: 0.55,
-      sustain: 0,
-      release: 1.2,
-      filterType: 'highpass',
-      filterFrequency: 3600,
-      filterResonance: 0.55,
-      bitCrusherBits: 2,
-      bitCrusherDepth: 0.035,
-    },
-  },
   mixer: {
     channels: Object.fromEntries(
       demoDrumChannels.map((channel) => [
@@ -224,6 +146,26 @@ const state: AppState = {
 
 const listeners = new Set<Listener>();
 
+const cloneDrumChannel = (channel: DrumChannel): DrumChannel => {
+  if (channel.voice === 'kick') {
+    return { ...channel, voicing: { ...channel.voicing } };
+  }
+
+  if (channel.voice === 'snare') {
+    return { ...channel, voicing: { ...channel.voicing } };
+  }
+
+  if (channel.voice === 'closedHat') {
+    return { ...channel, voicing: { ...channel.voicing } };
+  }
+
+  if (channel.voice === 'openHat') {
+    return { ...channel, voicing: { ...channel.voicing } };
+  }
+
+  return { ...channel, voicing: { ...channel.voicing } };
+};
+
 const snapshotState = (): AppState => ({
   transport: { ...state.transport },
   generators: {
@@ -238,18 +180,11 @@ const snapshotState = (): AppState => ({
       })),
     })),
     drumChannels: state.sequencer.drumChannels.map((channel) => ({
-      ...channel,
+      ...cloneDrumChannel(channel),
       pattern: [...channel.pattern],
     })),
   },
   synth: { ...state.synth },
-  drumVoices: {
-    kick: { ...state.drumVoices.kick },
-    snare: { ...state.drumVoices.snare },
-    closedHat: { ...state.drumVoices.closedHat },
-    openHat: { ...state.drumVoices.openHat },
-    crash: { ...state.drumVoices.crash },
-  },
   mixer: {
     channels: Object.fromEntries(
       Object.entries(state.mixer.channels).map(([id, channel]) => [id, { ...channel }]),
@@ -345,14 +280,18 @@ export const setSynthState = (synth: Partial<SynthState>): void => {
   });
 };
 
-export const setDrumVoiceState = (voice: DrumVoiceKey, settings: Partial<DrumVoiceState>): void => {
+export const setDrumChannelVoicing = (
+  channelId: string,
+  voicing: Partial<Record<DrumVoicingKey, number>>,
+): void => {
   updateState((draft) => {
-    draft.drumVoices = {
-      ...draft.drumVoices,
-      [voice]: {
-        ...draft.drumVoices[voice],
-        ...settings,
-      },
+    draft.sequencer = {
+      ...draft.sequencer,
+      drumChannels: draft.sequencer.drumChannels.map((channel) =>
+        channel.id === channelId
+          ? ({ ...channel, voicing: { ...channel.voicing, ...voicing } } as DrumChannel)
+          : channel,
+      ),
     };
   });
 };

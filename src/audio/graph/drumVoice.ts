@@ -1,30 +1,29 @@
-import type { DrumVoiceKey } from '../../sequencer';
-import type { DrumVoiceState } from '../../state/store';
+import type { DrumChannel } from '../../sequencer';
 import { createClosedHatVoice } from './drums/closedHat';
 import { createCrashVoice } from './drums/crash';
 import { createKickVoice } from './drums/kick';
 import { createOpenHatVoice } from './drums/openHat';
 import { createSnareVoice } from './drums/snare';
-import type { DrumVoiceInstance } from './drums/shared';
+import type { DrumVoiceRuntimeInstance } from './drums/shared';
 
-export const createDrumVoiceInstance = (voice: DrumVoiceKey, state: DrumVoiceState): DrumVoiceInstance => {
-  if (voice === 'kick') {
-    return createKickVoice(state);
+export const createDrumVoiceInstance = (channel: DrumChannel): DrumVoiceRuntimeInstance => {
+  if (channel.voice === 'kick') {
+    return createKickVoice(channel.voicing) as DrumVoiceRuntimeInstance;
   }
 
-  if (voice === 'snare') {
-    return createSnareVoice(state);
+  if (channel.voice === 'snare') {
+    return createSnareVoice(channel.voicing) as DrumVoiceRuntimeInstance;
   }
 
-  if (voice === 'closedHat') {
-    return createClosedHatVoice(state);
+  if (channel.voice === 'closedHat') {
+    return createClosedHatVoice(channel.voicing) as DrumVoiceRuntimeInstance;
   }
 
-  if (voice === 'openHat') {
-    return createOpenHatVoice(state);
+  if (channel.voice === 'openHat') {
+    return createOpenHatVoice(channel.voicing) as DrumVoiceRuntimeInstance;
   }
 
-  return createCrashVoice(state);
+  return createCrashVoice(channel.voicing) as DrumVoiceRuntimeInstance;
 };
 
-export type { DrumVoiceInstance } from './drums/shared';
+export type { DrumVoiceRuntimeInstance } from './drums/shared';

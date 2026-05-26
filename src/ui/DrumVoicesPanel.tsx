@@ -1,16 +1,63 @@
 import { For, Show, type Component, type JSX } from 'solid-js';
 
 import {
-  setMixerChannelState,
-  setDrumVoiceState,
-  type DrumVoiceState,
-  useStore,
-} from '../state/store';
-import type { DrumVoiceKey } from '../sequencer';
+  CLOSED_HAT_BITS_MAX,
+  CLOSED_HAT_BITS_MIN,
+  CLOSED_HAT_DECAY_MAX,
+  CLOSED_HAT_DECAY_MIN,
+  CLOSED_HAT_DEPTH_MAX,
+  CLOSED_HAT_DEPTH_MIN,
+} from '../audio/graph/drums/closedHat';
+import {
+  CRASH_BITS_MAX,
+  CRASH_BITS_MIN,
+  CRASH_DECAY_MAX,
+  CRASH_DECAY_MIN,
+  CRASH_DEPTH_MAX,
+  CRASH_DEPTH_MIN,
+  CRASH_RELEASE_MAX,
+  CRASH_RELEASE_MIN,
+} from '../audio/graph/drums/crash';
+import {
+  KICK_BITS_MAX,
+  KICK_BITS_MIN,
+  KICK_DECAY_MAX,
+  KICK_DECAY_MIN,
+  KICK_DEPTH_MAX,
+  KICK_DEPTH_MIN,
+  KICK_FILTER_FREQUENCY_MAX,
+  KICK_FILTER_FREQUENCY_MIN,
+  KICK_FILTER_RESONANCE_MAX,
+  KICK_FILTER_RESONANCE_MIN,
+} from '../audio/graph/drums/kick';
+import {
+  OPEN_HAT_BITS_MAX,
+  OPEN_HAT_BITS_MIN,
+  OPEN_HAT_DECAY_MAX,
+  OPEN_HAT_DECAY_MIN,
+  OPEN_HAT_DEPTH_MAX,
+  OPEN_HAT_DEPTH_MIN,
+  OPEN_HAT_FILTER_FREQUENCY_MAX,
+  OPEN_HAT_FILTER_FREQUENCY_MIN,
+  OPEN_HAT_FILTER_RESONANCE_MAX,
+  OPEN_HAT_FILTER_RESONANCE_MIN,
+  OPEN_HAT_RELEASE_MAX,
+  OPEN_HAT_RELEASE_MIN,
+} from '../audio/graph/drums/openHat';
+import {
+  SNARE_BITS_MAX,
+  SNARE_BITS_MIN,
+  SNARE_DEPTH_MAX,
+  SNARE_DEPTH_MIN,
+} from '../audio/graph/drums/snare';
+import { setMixerChannelState, setDrumChannelVoicing, useStore } from '../state/store';
+import type { DrumVoiceKey, DrumVoicing, DrumVoicingKey } from '../sequencer';
 
-type DrumNumberKey = {
-  [Key in keyof DrumVoiceState]: DrumVoiceState[Key] extends number ? Key : never;
-}[keyof DrumVoiceState];
+interface DrumControlRange {
+  key: DrumVoicingKey;
+  max: number;
+  min: number;
+}
 
 interface DrumKnobProps {
   curve?: 'linear' | 'exponential';
@@ -24,9 +71,15 @@ interface DrumKnobProps {
   onInput: (value: number) => void;
 }
 
-const clamp = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
+const clamp = (value: number, min: number, max: number): number =>
+  Math.max(min, Math.min(max, value));
 
-const positionToValue = (position: number, min: number, max: number, curve: 'linear' | 'exponential'): number => {
+const positionToValue = (
+  position: number,
+  min: number,
+  max: number,
+  curve: 'linear' | 'exponential',
+): number => {
   const clampedPosition = clamp(position, 0, 1);
 
   if (curve === 'exponential') {
@@ -36,7 +89,12 @@ const positionToValue = (position: number, min: number, max: number, curve: 'lin
   return min + (max - min) * clampedPosition;
 };
 
-const valueToPosition = (value: number, min: number, max: number, curve: 'linear' | 'exponential'): number => {
+const valueToPosition = (
+  value: number,
+  min: number,
+  max: number,
+  curve: 'linear' | 'exponential',
+): number => {
   const clampedValue = clamp(value, min, max);
 
   if (curve === 'exponential') {
@@ -49,6 +107,124 @@ const valueToPosition = (value: number, min: number, max: number, curve: 'linear
 const formatSeconds = (value: number): string => `${value.toFixed(3)}s`;
 const formatNormal = (value: number): string => value.toFixed(2);
 const formatHz = (value: number): string => `${Math.round(value)}Hz`;
+const DRUM_CONTROL_LABELS: Record<DrumVoicingKey, string> = {
+  decay: 'Decay',
+  release: 'Release',
+  filterFrequency: 'Filter freq',
+  filterResonance: 'Filter reso',
+  bitCrusherBits: 'Bit depth',
+  bitCrusherDepth: 'Crush depth',
+};
+
+const getControlCurve = (key: DrumVoicingKey): 'linear' | 'exponential' | undefined => {
+  if (
+    key === 'decay' ||
+    key === 'release' ||
+    key === 'filterFrequency' ||
+    key === 'filterResonance'
+  ) {
+    return 'exponential';
+  }
+
+  return undefined;
+};
+
+const getControlFormat = (key: DrumVoicingKey): ((value: number) => string) | undefined => {
+  if (key === 'decay' || key === 'release') {
+    return formatSeconds;
+  }
+
+  if (key === 'filterFrequency') {
+    return formatHz;
+  }
+
+  if (key === 'filterResonance') {
+    return (value) => value.toFixed(1);
+  }
+
+  if (key === 'bitCrusherBits') {
+    return (value) => String(Math.round(value));
+  }
+
+  if (key === 'bitCrusherDepth') {
+    return (value) => value.toFixed(4);
+  }
+
+  return undefined;
+};
+
+const getControlStep = (key: DrumVoicingKey): number => {
+  if (key === 'bitCrusherBits' || key === 'filterFrequency') {
+    return 1;
+  }
+
+  if (key === 'filterResonance') {
+    return 0.1;
+  }
+
+  if (key === 'decay' || key === 'release' || key === 'bitCrusherDepth') {
+    return 0.001;
+  }
+
+  return 0.01;
+};
+
+const getControlSnap = (key: DrumVoicingKey): ((value: number) => number) | undefined => {
+  if (key === 'bitCrusherBits' || key === 'filterFrequency') {
+    return Math.round;
+  }
+
+  return undefined;
+};
+
+const getDrumControls = (voice: DrumVoiceKey): DrumControlRange[] => {
+  if (voice === 'kick') {
+    return [
+      { key: 'decay', min: KICK_DECAY_MIN, max: KICK_DECAY_MAX },
+      { key: 'filterFrequency', min: KICK_FILTER_FREQUENCY_MIN, max: KICK_FILTER_FREQUENCY_MAX },
+      { key: 'filterResonance', min: KICK_FILTER_RESONANCE_MIN, max: KICK_FILTER_RESONANCE_MAX },
+      { key: 'bitCrusherBits', min: KICK_BITS_MIN, max: KICK_BITS_MAX },
+      { key: 'bitCrusherDepth', min: KICK_DEPTH_MIN, max: KICK_DEPTH_MAX },
+    ];
+  }
+
+  if (voice === 'snare') {
+    return [
+      { key: 'bitCrusherBits', min: SNARE_BITS_MIN, max: SNARE_BITS_MAX },
+      { key: 'bitCrusherDepth', min: SNARE_DEPTH_MIN, max: SNARE_DEPTH_MAX },
+    ];
+  }
+
+  if (voice === 'closedHat') {
+    return [
+      { key: 'decay', min: CLOSED_HAT_DECAY_MIN, max: CLOSED_HAT_DECAY_MAX },
+      { key: 'bitCrusherBits', min: CLOSED_HAT_BITS_MIN, max: CLOSED_HAT_BITS_MAX },
+      { key: 'bitCrusherDepth', min: CLOSED_HAT_DEPTH_MIN, max: CLOSED_HAT_DEPTH_MAX },
+    ];
+  }
+
+  if (voice === 'openHat') {
+    return [
+      { key: 'decay', min: OPEN_HAT_DECAY_MIN, max: OPEN_HAT_DECAY_MAX },
+      { key: 'release', min: OPEN_HAT_RELEASE_MIN, max: OPEN_HAT_RELEASE_MAX },
+      { key: 'filterFrequency', min: OPEN_HAT_FILTER_FREQUENCY_MIN, max: OPEN_HAT_FILTER_FREQUENCY_MAX },
+      { key: 'filterResonance', min: OPEN_HAT_FILTER_RESONANCE_MIN, max: OPEN_HAT_FILTER_RESONANCE_MAX },
+      { key: 'bitCrusherBits', min: OPEN_HAT_BITS_MIN, max: OPEN_HAT_BITS_MAX },
+      { key: 'bitCrusherDepth', min: OPEN_HAT_DEPTH_MIN, max: OPEN_HAT_DEPTH_MAX },
+    ];
+  }
+
+  return [
+    { key: 'decay', min: CRASH_DECAY_MIN, max: CRASH_DECAY_MAX },
+    { key: 'release', min: CRASH_RELEASE_MIN, max: CRASH_RELEASE_MAX },
+    { key: 'bitCrusherBits', min: CRASH_BITS_MIN, max: CRASH_BITS_MAX },
+    { key: 'bitCrusherDepth', min: CRASH_DEPTH_MIN, max: CRASH_DEPTH_MAX },
+  ];
+};
+
+const getVoicingValue = (voicing: DrumVoicing, key: DrumVoicingKey): number => {
+  return (voicing as Record<DrumVoicingKey, number>)[key];
+};
 
 const DrumKnob: Component<DrumKnobProps> = (props) => {
   const handleSliderInput: JSX.EventHandlerUnion<HTMLInputElement, InputEvent> = (event) => {
@@ -62,15 +238,23 @@ const DrumKnob: Component<DrumKnobProps> = (props) => {
   const handleNumberInput: JSX.EventHandlerUnion<HTMLInputElement, InputEvent> = (event) => {
     const value = Number(event.currentTarget.value);
     if (Number.isFinite(value)) {
-      props.onInput(props.snap ? props.snap(clamp(value, props.min, props.max)) : clamp(value, props.min, props.max));
+      props.onInput(
+        props.snap
+          ? props.snap(clamp(value, props.min, props.max))
+          : clamp(value, props.min, props.max),
+      );
     }
   };
 
-  const position = (): number => valueToPosition(props.value, props.min, props.max, props.curve ?? 'linear');
-  const formattedValue = (): string => (props.format ? props.format(props.value) : String(props.value));
+  const position = (): number =>
+    valueToPosition(props.value, props.min, props.max, props.curve ?? 'linear');
+  const formattedValue = (): string =>
+    props.format ? props.format(props.value) : String(props.value);
 
   return (
-    <label style={{ display: 'grid', gap: '0.35rem', 'justify-items': 'center', 'font-size': '0.75rem' }}>
+    <label
+      style={{ display: 'grid', gap: '0.35rem', 'justify-items': 'center', 'font-size': '0.75rem' }}
+    >
       <span style={{ 'font-weight': 600 }}>{props.label}</span>
       <input
         type="range"
@@ -87,7 +271,9 @@ const DrumKnob: Component<DrumKnobProps> = (props) => {
           'accent-color': '#7c3aed',
         }}
       />
-      <span style={{ color: '#555', 'font-variant-numeric': 'tabular-nums' }}>{formattedValue()}</span>
+      <span style={{ color: '#555', 'font-variant-numeric': 'tabular-nums' }}>
+        {formattedValue()}
+      </span>
       <input
         type="number"
         min={props.min}
@@ -102,15 +288,16 @@ const DrumKnob: Component<DrumKnobProps> = (props) => {
 };
 
 export const DrumVoicesPanel: Component = () => {
-  const drumVoices = useStore((state) => state.drumVoices);
   const drumChannels = useStore((state) => state.sequencer.drumChannels);
   const mixerChannels = useStore((state) => state.mixer.channels);
 
-  const setNumber = (voice: DrumVoiceKey, key: DrumNumberKey, value: number): void => {
-    setDrumVoiceState(voice, { [key]: value });
+  const setNumber = (channelId: string, key: DrumVoicingKey, value: number): void => {
+    setDrumChannelVoicing(channelId, { [key]: value });
   };
 
-  const handleVolumeInput = (channelId: string): JSX.EventHandlerUnion<HTMLInputElement, InputEvent> => {
+  const handleVolumeInput = (
+    channelId: string,
+  ): JSX.EventHandlerUnion<HTMLInputElement, InputEvent> => {
     return (event) => {
       const value = Number(event.currentTarget.value);
       if (Number.isFinite(value)) {
@@ -134,8 +321,9 @@ export const DrumVoicesPanel: Component = () => {
       <div style={{ display: 'grid', gap: '1rem' }}>
         <For each={drumChannels()}>
           {(channel) => {
-            const settings = (): DrumVoiceState => drumVoices()[channel.voice];
+            const voicing = (): DrumVoicing => channel.voicing;
             const mixer = () => mixerChannels()[channel.outputChannelId];
+            const controls = (): DrumControlRange[] => getDrumControls(channel.voice);
 
             return (
               <section
@@ -171,7 +359,14 @@ export const DrumVoicesPanel: Component = () => {
                     />
                     <span>Mute</span>
                   </label>
-                  <label style={{ display: 'grid', gap: '0.3rem', 'font-size': '0.78rem', width: '150px' }}>
+                  <label
+                    style={{
+                      display: 'grid',
+                      gap: '0.3rem',
+                      'font-size': '0.78rem',
+                      width: '150px',
+                    }}
+                  >
                     <span>Channel volume {formatNormal(mixer()?.volume ?? 1)}</span>
                     <input
                       type="range"
@@ -184,69 +379,34 @@ export const DrumVoicesPanel: Component = () => {
                   </label>
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem', 'align-items': 'end', 'flex-wrap': 'wrap' }}>
-                  <DrumKnob
-                    label="Decay"
-                    min={0.001}
-                    max={2}
-                    curve="exponential"
-                    format={formatSeconds}
-                    inputStep={0.001}
-                    value={settings().decay}
-                    onInput={(value) => setNumber(channel.voice, 'decay', value)}
-                  />
-                  <Show when={channel.voice === 'openHat' || channel.voice === 'crash'}>
-                    <DrumKnob
-                      label="Release"
-                      min={0.001}
-                      max={3}
-                      curve="exponential"
-                      format={formatSeconds}
-                      inputStep={0.001}
-                      value={settings().release}
-                      onInput={(value) => setNumber(channel.voice, 'release', value)}
-                    />
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '1rem',
+                    'align-items': 'end',
+                    'flex-wrap': 'wrap',
+                  }}
+                >
+                  <For each={controls()}>
+                    {(control) => (
+                      <DrumKnob
+                        label={DRUM_CONTROL_LABELS[control.key]}
+                        min={control.min}
+                        max={control.max}
+                        curve={getControlCurve(control.key)}
+                        format={getControlFormat(control.key)}
+                        inputStep={getControlStep(control.key)}
+                        snap={getControlSnap(control.key)}
+                        value={getVoicingValue(voicing(), control.key)}
+                        onInput={(value) => setNumber(channel.id, control.key, value)}
+                      />
+                    )}
+                  </For>
+                  <Show when={controls().length === 0}>
+                    <span style={{ color: '#666', 'font-size': '0.78rem' }}>
+                      No voicing controls
+                    </span>
                   </Show>
-                  <DrumKnob
-                    label="Filter freq"
-                    min={60}
-                    max={14000}
-                    curve="exponential"
-                    format={formatHz}
-                    inputStep={1}
-                    snap={Math.round}
-                    value={settings().filterFrequency}
-                    onInput={(value) => setNumber(channel.voice, 'filterFrequency', value)}
-                  />
-                  <DrumKnob
-                    label="Filter reso"
-                    min={0.1}
-                    max={18}
-                    curve="exponential"
-                    format={(value) => value.toFixed(1)}
-                    inputStep={0.1}
-                    value={settings().filterResonance}
-                    onInput={(value) => setNumber(channel.voice, 'filterResonance', value)}
-                  />
-                  <DrumKnob
-                    label="Bit depth"
-                    min={1}
-                    max={4}
-                    format={(value) => String(value)}
-                    inputStep={1}
-                    snap={Math.round}
-                    value={settings().bitCrusherBits}
-                    onInput={(value) => setNumber(channel.voice, 'bitCrusherBits', value)}
-                  />
-                  <DrumKnob
-                    label="Crush depth"
-                    min={0}
-                    max={0.25}
-                    format={(value) => value.toFixed(4)}
-                    inputStep={0.001}
-                    value={settings().bitCrusherDepth}
-                    onInput={(value) => setNumber(channel.voice, 'bitCrusherDepth', value)}
-                  />
                 </div>
               </section>
             );

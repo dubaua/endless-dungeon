@@ -1,42 +1,24 @@
-import type { WeightedGraph } from '../../utils/generate-by-graph';
+import type { WeightedOptions } from '../../utils/pick-weighted';
 
-export type Bpm =
-  | '90'
-  | '95'
-  | '100'
-  | '105'
-  | '110'
-  | '115'
-  | '120'
-  | '125'
-  | '130'
-  | '135'
-  | '140'
-  | '145'
-  | '150'
-  | '155'
-  | '160'
-  | '165'
-  | '170'
-  | '175';
+export type Bpm = number;
 
-export const bpmWeights: WeightedGraph<Bpm> = {
-  '90': 1,
-  '95': 2,
-  '100': 3,
-  '105': 4,
-  '110': 7,
-  '115': 8,
-  '120': 13,
-  '125': 8,
-  '130': 7,
-  '135': 5,
-  '140': 4,
-  '145': 3,
-  '150': 2,
-  '155': 2,
-  '160': 2,
-  '165': 1,
-  '170': 1,
-  '175': 1,
-};
+export const bpmWeights: WeightedOptions<Bpm> = [
+  { value: 90, weight: 1 },
+  { value: 95, weight: 2 },
+  { value: 100, weight: 3 },
+  { value: 105, weight: 4 },
+  { value: 110, weight: 7 },
+  { value: 115, weight: 8 },
+  { value: 120, weight: 13 },
+  { value: 125, weight: 8 },
+  { value: 130, weight: 7 },
+  { value: 135, weight: 5 },
+  { value: 140, weight: 4 },
+  { value: 145, weight: 3 },
+  { value: 150, weight: 2 },
+  { value: 155, weight: 2 },
+  { value: 160, weight: 2 },
+  { value: 165, weight: 1 },
+  { value: 170, weight: 1 },
+  { value: 175, weight: 1 },
+];

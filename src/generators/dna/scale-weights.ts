@@ -1,14 +1,14 @@
-import type { WeightedGraph } from '../../utils/generate-by-graph';
+import type { WeightedOptions } from '../../utils/pick-weighted';
 import type { ScaleName } from './track-dna';
 
-export const scaleWeights: WeightedGraph<ScaleName> = {
-  major: 5,
-  minor: 5,
-  ionian: 3,
-  dorian: 3,
-  phrygian: 5,
-  lydian: 4,
-  mixolydian: 3,
-  aeolian: 3,
-  locrian: 1,
-};
+export const scaleWeights: WeightedOptions<ScaleName> = [
+  { value: 'major', weight: 5 },
+  { value: 'minor', weight: 5 },
+  { value: 'ionian', weight: 3 },
+  { value: 'dorian', weight: 3 },
+  { value: 'phrygian', weight: 5 },
+  { value: 'lydian', weight: 4 },
+  { value: 'mixolydian', weight: 3 },
+  { value: 'aeolian', weight: 3 },
+  { value: 'locrian', weight: 1 },
+];

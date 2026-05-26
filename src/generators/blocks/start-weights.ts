@@ -1,10 +1,11 @@
+import type { WeightedOptions } from '../../utils/pick-weighted';
 import type { BlockFunction } from './block-function';
 
-export type BlockStartWeights = Partial<Record<BlockFunction, number>>;
+export type BlockStartWeights = WeightedOptions<BlockFunction>;
 
-export const startWeights = {
-  body: 8,
-  tension: 5,
-  breakdown: 3,
-  pit: 2,
-} satisfies BlockStartWeights;
+export const startWeights = [
+  { value: 'body', weight: 8 },
+  { value: 'tension', weight: 5 },
+  { value: 'breakdown', weight: 3 },
+  { value: 'pit', weight: 2 },
+] satisfies BlockStartWeights;

@@ -1,8 +1,8 @@
 import { Note, Scale } from 'tonal';
 import type { NoteName } from 'tonal';
 
-import { generateByGraph, type RandomSource, type WeightedGraph } from '../../utils/generate-by-graph';
 import { getRandomInt } from '../../utils/get-random-int';
+import { pickWeighted, type RandomSource, type WeightedOptions } from '../../utils/pick-weighted';
 import { bpmWeights } from './bpm-weights';
 import { scaleWeights } from './scale-weights';
 import type { CustomScale, ScaleName, TrackDna } from './track-dna';
@@ -39,11 +39,14 @@ const getRandomRootNote = (random: RandomSource): NoteName => {
   return RootNotes[getRandomInt(0, RootNotes.length - 1, random)] ?? 'C';
 };
 
-const getScaleWeights = (customScales: readonly CustomScale[] = []): WeightedGraph<ScaleName> => {
-  return {
+const getScaleWeights = (customScales: readonly CustomScale[] = []): WeightedOptions<ScaleName> => {
+  return [
     ...scaleWeights,
-    ...Object.fromEntries(customScales.map((scale) => [scale.name, scale.weight])),
-  };
+    ...customScales.map((scale) => ({
+      value: scale.name,
+      weight: scale.weight,
+    })),
+  ];
 };
 
 const normalizeRootNote = (note: NoteName): NoteName => {
@@ -78,13 +81,13 @@ export const generateTrackDna = (
 ): TrackDna => {
   const customScales = options.customScales ?? [];
   const rootNote = normalizeRootNote(getRandomRootNote(random));
-  const scaleName = generateByGraph(getScaleWeights(customScales), random);
+  const scaleName = pickWeighted(getScaleWeights(customScales), random);
 
   return {
     rootNote,
     scaleName,
     scaleNotes: getScaleNotes(rootNote, scaleName, customScales),
-    bpm: Number(generateByGraph(bpmWeights, random)),
+    bpm: pickWeighted(bpmWeights, random),
     syncopation: getRandomStep(random),
     density: getRandomStep(random),
     intensity: getRandomStep(random),

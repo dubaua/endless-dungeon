@@ -1,36 +1,36 @@
+import type { WeightedOptions } from '../../utils/pick-weighted';
 import type { BlockFunction } from './block-function';
 
-export type BlockLength = '1' | '2' | '3' | '4' | '8' | '16';
-export type BlockLengthWeights = Partial<Record<BlockLength, number>>;
+export type BlockLengthWeights = WeightedOptions<number>;
 export type BlockLengthsGraph = Record<BlockFunction, BlockLengthWeights>;
 
 export const lengthsGraph = {
-  body: {
-    '4': 5,
-    '8': 1,
-  },
-  variation: {
-    '4': 5,
-    '8': 1,
-  },
-  tension: {
-    '4': 5,
-    '8': 1,
-  },
-  drop: {
-    '4': 5,
-    '8': 1,
-  },
-  pit: {
-    '4': 5,
-    '8': 1,
-  },
-  break: {
-    '1': 5,
-    '2': 1,
-  },
-  breakdown: {
-    '4': 5,
-    '8': 1,
-  },
+  body: [
+    { value: 4, weight: 5 },
+    { value: 8, weight: 1 },
+  ],
+  variation: [
+    { value: 4, weight: 5 },
+    { value: 8, weight: 1 },
+  ],
+  tension: [
+    { value: 4, weight: 5 },
+    { value: 8, weight: 1 },
+  ],
+  drop: [
+    { value: 4, weight: 5 },
+    { value: 8, weight: 1 },
+  ],
+  pit: [
+    { value: 4, weight: 5 },
+    { value: 8, weight: 1 },
+  ],
+  break: [
+    { value: 1, weight: 5 },
+    { value: 2, weight: 1 },
+  ],
+  breakdown: [
+    { value: 4, weight: 5 },
+    { value: 8, weight: 1 },
+  ],
 } satisfies BlockLengthsGraph;

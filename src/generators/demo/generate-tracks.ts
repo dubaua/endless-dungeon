@@ -1,4 +1,4 @@
-import type { RandomSource } from '../../utils/generate-by-graph';
+import type { RandomSource } from '../../utils/pick-weighted';
 import { generateTrack } from '../generate-track';
 import type { TrackBlock } from '../track-block';
 

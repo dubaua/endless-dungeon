@@ -1,4 +1,4 @@
-import type { RandomSource } from './generate-by-graph';
+import type { RandomSource } from './pick-weighted';
 
 export const getRandomInt = (
   min: number,

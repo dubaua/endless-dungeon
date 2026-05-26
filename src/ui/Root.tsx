@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js';
 
-import { SequencerPanel } from './SequencerPanel';
+import { MixerPanel } from './MixerPanel';
 import { SynthPanel } from './SynthPanel';
 import { TransportPanel } from './TransportPanel';
 
@@ -10,7 +10,7 @@ export const Root: Component = () => {
       <h1 style={{ margin: 0 }}>Endless Dungeon Audio Playground</h1>
       <TransportPanel />
       <SynthPanel />
-      <SequencerPanel />
+      <MixerPanel />
     </div>
   );
 };

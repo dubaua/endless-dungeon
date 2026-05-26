@@ -21,8 +21,8 @@ export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoi
   const envelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
     decay: voicing.decay,
-    sustain: 0,
-    release: 0.001,
+    sustain: 1,
+    release: 0.5,
   });
   const filter = new Tone.Filter(voicing.filterFrequency, 'lowpass');
   const crusher = createLoFiCrusher({

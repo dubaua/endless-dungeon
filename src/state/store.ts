@@ -2,6 +2,8 @@ import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
 import { demoDrumChannels, demoTracks, type SequencerState } from '../sequencer';
 
+export const SYNTH_MIXER_CHANNEL_ID = 'channel-synth-main';
+
 export type OscillatorType = 'sine' | 'triangle' | 'sawtooth' | 'square';
 
 export interface SynthState {
@@ -14,7 +16,6 @@ export interface SynthState {
   filterResonance: number;
   bitCrusherBits: number;
   bitCrusherDepth: number;
-  masterVolume: number;
 }
 
 export interface MixerChannelState {
@@ -120,20 +121,25 @@ const state: AppState = {
     filterResonance: 1.2,
     bitCrusherBits: 8,
     bitCrusherDepth: 0.02,
-    masterVolume: 0.75,
   },
   mixer: {
     channels: Object.fromEntries(
-      demoDrumChannels.map((channel) => [
-        channel.outputChannelId,
+      [
         {
+          id: SYNTH_MIXER_CHANNEL_ID,
+          name: 'Piano',
+          volume: 0.75,
+          muted: false,
+          groupId: null,
+        },
+        ...demoDrumChannels.map((channel) => ({
           id: channel.outputChannelId,
           name: channel.name,
           volume: 0.85,
           muted: false,
           groupId: channel.groupId,
-        },
-      ]),
+        })),
+      ].map((channel) => [channel.id, channel]),
     ),
   },
 };

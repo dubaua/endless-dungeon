@@ -235,15 +235,6 @@ export const SynthPanel: Component = () => {
           value={synth().bitCrusherDepth}
           onInput={(value) => setNumber('bitCrusherDepth', value)}
         />
-        <Knob
-          label="Master"
-          min={0}
-          max={1}
-          format={formatNormal}
-          inputStep={0.01}
-          value={synth().masterVolume}
-          onInput={(value) => setNumber('masterVolume', value)}
-        />
       </div>
     </section>
   );

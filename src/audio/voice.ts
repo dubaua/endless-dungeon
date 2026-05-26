@@ -1,9 +1,10 @@
 import * as Tone from 'tone';
 
 import { expandClipPattern, getNoteFrequency, PPQ, type ExpandedPatternEvent } from '../sequencer';
-import { getState, subscribe } from '../state/store';
+import { getState, subscribe, SYNTH_MIXER_CHANNEL_ID } from '../state/store';
 import { createMasterOutput, type MasterOutput } from './graph/master';
 import { createVoiceInstance, type VoiceInstance } from './graph/voice';
+import { createMeteredMixerChannel, type MeteredMixerChannel } from './mixer';
 
 type Cleanup = () => void;
 
@@ -11,6 +12,7 @@ let initialized = false;
 let cleanups: Cleanup[] = [];
 let voiceInstance: VoiceInstance | null = null;
 let masterOutput: MasterOutput | null = null;
+let mixerChannel: MeteredMixerChannel | null = null;
 
 const ticksToSeconds = (ticks: number, bpm: number): number => {
   const beats = ticks / PPQ;
@@ -30,9 +32,17 @@ const findNoteEventsStartingAtTick = (tick: number): ExpandedPatternEvent[] => {
 const ensureVoiceInstance = (): VoiceInstance => {
   if (!voiceInstance || !masterOutput) {
     const state = getState();
-    masterOutput = createMasterOutput(state.synth.masterVolume);
+    const channel = state.mixer.channels[SYNTH_MIXER_CHANNEL_ID];
+
+    masterOutput = createMasterOutput(1);
     voiceInstance = createVoiceInstance(state.synth);
-    voiceInstance.output.connect(masterOutput.input);
+    mixerChannel = createMeteredMixerChannel(
+      SYNTH_MIXER_CHANNEL_ID,
+      channel?.volume ?? 1,
+      channel?.muted ?? false,
+      masterOutput.input,
+    );
+    voiceInstance.output.connect(mixerChannel.input);
   }
 
   return voiceInstance;
@@ -40,22 +50,27 @@ const ensureVoiceInstance = (): VoiceInstance => {
 
 const handleStateChanges = (): void => {
   let lastSynth = JSON.stringify(getState().synth);
+  let lastMixerChannel = JSON.stringify(getState().mixer.channels[SYNTH_MIXER_CHANNEL_ID]);
 
   const unsubscribe = subscribe((next) => {
-    if (!voiceInstance || !masterOutput) {
+    if (!voiceInstance || !mixerChannel) {
       return;
     }
 
     const nextSynth = JSON.stringify(next.synth);
+    const nextMixerChannel = JSON.stringify(next.mixer.channels[SYNTH_MIXER_CHANNEL_ID]);
 
-    if (nextSynth === lastSynth) {
-      return;
+    if (nextSynth !== lastSynth) {
+      lastSynth = nextSynth;
+      voiceInstance.update(next.synth);
     }
 
-    lastSynth = nextSynth;
+    if (nextMixerChannel !== lastMixerChannel) {
+      const channel = next.mixer.channels[SYNTH_MIXER_CHANNEL_ID];
 
-    voiceInstance.update(next.synth);
-    masterOutput.setVolume(next.synth.masterVolume);
+      lastMixerChannel = nextMixerChannel;
+      mixerChannel.setGain(channel?.volume ?? 1, channel?.muted ?? false);
+    }
   });
 
   cleanups.push(unsubscribe);
@@ -101,5 +116,6 @@ export const disposeVoice = (): void => {
   masterOutput?.dispose();
   voiceInstance = null;
   masterOutput = null;
+  mixerChannel = null;
   initialized = false;
 };

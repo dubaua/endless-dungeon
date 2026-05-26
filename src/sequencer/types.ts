@@ -29,6 +29,7 @@ export interface KickVoicing {
 }
 
 export interface SnareVoicing {
+  decay: number;
   bitCrusherBits: number;
   bitCrusherDepth: number;
 }

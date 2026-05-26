@@ -22,5 +22,6 @@ export interface TrackDna {
   noteGapBias: number;
   melodyBreakBias: number;
   melodicRange: number;
+  absoluteRange: number;
   bassRange: number;
 }

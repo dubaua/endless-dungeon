@@ -24,6 +24,8 @@ const RootNotes: readonly NoteName[] = [
 
 const MinMelodicRangeSteps = 5;
 const MaxMelodicRangeSteps = 16;
+const MinAbsoluteRangeSteps = 5;
+const MaxAbsoluteRangeSteps = 16;
 const MinBassRangeSteps = 5;
 const MaxBassRangeSteps = 16;
 
@@ -82,6 +84,7 @@ export const generateTrackDna = (
   const customScales = options.customScales ?? [];
   const rootNote = normalizeRootNote(getRandomRootNote(random));
   const scaleName = pickWeighted(getScaleWeights(customScales), random);
+  const absoluteRange = getRandomInt(MinAbsoluteRangeSteps, MaxAbsoluteRangeSteps, random);
 
   return {
     rootNote,
@@ -95,7 +98,12 @@ export const generateTrackDna = (
     noteLengthVariationBias: getRandomStep(random),
     noteGapBias: getRandomStep(random),
     melodyBreakBias: getRandomStep(random),
-    melodicRange: getRandomInt(MinMelodicRangeSteps, MaxMelodicRangeSteps, random),
+    melodicRange: getRandomInt(
+      MinMelodicRangeSteps,
+      Math.min(MaxMelodicRangeSteps, absoluteRange),
+      random,
+    ),
+    absoluteRange,
     bassRange: getRandomInt(MinBassRangeSteps, MaxBassRangeSteps, random),
   };
 };

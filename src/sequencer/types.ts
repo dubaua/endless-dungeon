@@ -17,7 +17,7 @@ export interface Track {
   clips: Clip[];
 }
 
-export type DrumVoiceKey = 'kick' | 'snare' | 'closedHat' | 'openHat' | 'crash';
+export type DrumVoiceKey = 'kick' | 'snare' | 'closedHat' | 'openHat' | 'crash' | 'ride';
 
 export interface KickVoicing {
   decay: number;
@@ -60,12 +60,22 @@ export interface CrashVoicing {
   bitCrusherDepth: number;
 }
 
+export interface RideVoicing {
+  decay: number;
+  release: number;
+  filterFrequency: number;
+  filterResonance: number;
+  bitCrusherBits: number;
+  bitCrusherDepth: number;
+}
+
 export type DrumVoicing =
   | KickVoicing
   | SnareVoicing
   | ClosedHatVoicing
   | OpenHatVoicing
-  | CrashVoicing;
+  | CrashVoicing
+  | RideVoicing;
 
 export type DrumVoicingKey =
   | 'decay'
@@ -90,13 +100,15 @@ export type SnareDrumChannel = DrumChannelBase<'snare', SnareVoicing>;
 export type ClosedHatDrumChannel = DrumChannelBase<'closedHat', ClosedHatVoicing>;
 export type OpenHatDrumChannel = DrumChannelBase<'openHat', OpenHatVoicing>;
 export type CrashDrumChannel = DrumChannelBase<'crash', CrashVoicing>;
+export type RideDrumChannel = DrumChannelBase<'ride', RideVoicing>;
 
 export type DrumChannel =
   | KickDrumChannel
   | SnareDrumChannel
   | ClosedHatDrumChannel
   | OpenHatDrumChannel
-  | CrashDrumChannel;
+  | CrashDrumChannel
+  | RideDrumChannel;
 
 export interface SequencerState {
   tracks: Track[];

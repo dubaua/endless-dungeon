@@ -1,9 +1,6 @@
 import * as Tone from 'tone';
 
-import {
-  DEFAULT_CLIP_LENGTH_TICKS,
-  PPQ,
-} from '../sequencer';
+import { DEFAULT_CLIP_LENGTH_TICKS, PPQ } from '../sequencer';
 import {
   getState,
   setTransportBpm,
@@ -17,6 +14,8 @@ import {
 import { on } from '../events';
 import { triggerDrumsAtStep } from './drums';
 import { triggerPianoNotesAtTick } from './voice';
+
+// переписать терминал
 
 const transport = Tone.getTransport();
 const TICKS_PER_SIXTEENTH = PPQ / 4;
@@ -108,7 +107,8 @@ const scheduleStepUpdates = (): void => {
     const sixteenthsPerBar = Math.max(1, Math.floor(beatsPerBar * sixteenthsPerBeat));
     const ticksPerBeat = PPQ * (4 / beatUnit);
     const ticksPerBar = beatsPerBar * ticksPerBeat;
-    const currentTick = (barCounter * ticksPerBar + stepWithinBar * TICKS_PER_SIXTEENTH) % DEFAULT_CLIP_LENGTH_TICKS;
+    const currentTick =
+      (barCounter * ticksPerBar + stepWithinBar * TICKS_PER_SIXTEENTH) % DEFAULT_CLIP_LENGTH_TICKS;
 
     const beat = Math.floor(stepWithinBar / sixteenthsPerBeat);
     const sixteenth = Math.floor(stepWithinBar % sixteenthsPerBeat);

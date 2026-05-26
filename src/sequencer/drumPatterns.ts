@@ -79,4 +79,20 @@ export const demoDrumChannels: DrumChannel[] = [
     },
     pattern: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   },
+  {
+    id: 'drum-ride',
+    name: 'Ride',
+    voice: 'ride',
+    outputChannelId: 'channel-drum-ride',
+    groupId: DRUM_GROUP_ID,
+    voicing: {
+      decay: 0.45,
+      release: 0.35,
+      filterFrequency: 6800,
+      filterResonance: 0.8,
+      bitCrusherBits: 3,
+      bitCrusherDepth: 0.02,
+    },
+    pattern: [0, 0, 1, 0, 0, 0, 0.75, 0, 0, 0, 1, 0, 0, 0, 0.75, 0],
+  },
 ];

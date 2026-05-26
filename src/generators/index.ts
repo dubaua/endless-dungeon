@@ -1,6 +1,9 @@
 import { createMelodicLfo, type MelodicLfo } from './melodic-lfo';
 import { setMelodicGeneratorValues } from '../state/store';
 
+export { blockFunctions, blockTransitionGraph } from './blockTransitions';
+export type { BlockFunction, BlockTransitionGraph, BlockTransitionWeights } from './blockTransitions';
+
 let initialized = false;
 let melodicLfo: MelodicLfo | null = null;
 let rafId: number | null = null;

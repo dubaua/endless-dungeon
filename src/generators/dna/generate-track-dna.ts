@@ -97,7 +97,11 @@ export const generateTrackDna = (
     variationBias: getRandomStep(random),
     noteLengthVariationBias: getRandomStep(random),
     noteGapBias: getRandomStep(random),
-    melodyBreakBias: getRandomStep(random),
+    melodyJumpBias: getRandomStep(random),
+    melodyBreakPhaseResetBias: getRandomStep(random),
+    melodyBreakPhaseShiftBias: getRandomStep(random),
+    melodySpeedBias: getRandomStep(random),
+    melodySpeedChangeBias: getRandomStep(random),
     melodicRange: getRandomInt(
       MinMelodicRangeSteps,
       Math.min(MaxMelodicRangeSteps, absoluteRange),

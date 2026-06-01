@@ -17,10 +17,14 @@ export interface TrackDna {
   syncopation: number;
   density: number;
   intensity: number;
-  variationBias: number;
+  variationBias: number; // if low 1 and 3 bar are same
   noteLengthVariationBias: number;
   noteGapBias: number;
-  melodyBreakBias: number;
+  melodyJumpBias: number; // how often melody jumps away from the current curve
+  melodyBreakPhaseResetBias: number; // resets phase to the base position for the current bar
+  melodyBreakPhaseShiftBias: number; // when melody break occurs it also can shift its phase
+  melodySpeedBias: number; // basically 0..1, but internally varies from 12 to 48 steps
+  melodySpeedChangeBias: number;
   melodicRange: number;
   absoluteRange: number;
   bassRange: number;

@@ -1,6 +1,9 @@
 import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
+import { generateTrackDna } from '../generators/dna/generate-track-dna';
+import type { TrackDna } from '../generators/dna/track-dna';
 import { demoDrumChannels, demoTracks, type SequencerState } from '../sequencer';
+import type { DrumChannel, PatternStep } from '../sequencer';
 import { clamp } from '../utils/clamp';
 
 export const SYNTH_MIXER_CHANNEL_ID = 'channel-synth-main';
@@ -47,6 +50,7 @@ export interface TransportState {
 export interface AppState {
   transport: TransportState;
   sequencer: SequencerState;
+  trackDna: TrackDna;
   synth: SynthState;
   mixer: MixerState;
 }
@@ -187,6 +191,7 @@ const state: AppState = {
     tracks: demoTracks,
     drumChannels: demoDrumChannels,
   },
+  trackDna: generateTrackDna(),
   synth: {
     oscillatorType: 'sawtooth',
     attack: 0.01,
@@ -275,6 +280,73 @@ export const setTransportBpm = (bpm: number): void => {
 export const setTransportTimeSignature = (timeSignature: [number, number]): void => {
   updateState((draft) => {
     draft.transport = { ...draft.transport, timeSignature };
+  });
+};
+
+export const setTrackDna = (trackDna: TrackDna): void => {
+  updateState((draft) => {
+    draft.trackDna = trackDna;
+  });
+};
+
+export const setVoicePattern = (pattern: PatternStep[]): void => {
+  updateState((draft) => {
+    draft.sequencer = {
+      ...draft.sequencer,
+      tracks: draft.sequencer.tracks.map((track) => {
+        if (track.type !== 'notes') {
+          return track;
+        }
+
+        return {
+          ...track,
+          clips: track.clips.map((clip, index) => {
+            if (index !== 0) {
+              return clip;
+            }
+
+            return {
+              ...clip,
+              startTick: 0,
+              pattern,
+            };
+          }),
+        };
+      }),
+    };
+  });
+};
+
+export const setDrumPatternStep = (channelId: string, step: number, intensity: number): void => {
+  updateState((draft) => {
+    draft.sequencer = {
+      ...draft.sequencer,
+      drumChannels: draft.sequencer.drumChannels.map((channel) => {
+        if (channel.id !== channelId) {
+          return channel;
+        }
+
+        return {
+          ...channel,
+          pattern: channel.pattern.map((value, index) => {
+            if (index !== step) {
+              return value;
+            }
+
+            return intensity;
+          }),
+        };
+      }),
+    };
+  });
+};
+
+export const setDrumChannels = (drumChannels: DrumChannel[]): void => {
+  updateState((draft) => {
+    draft.sequencer = {
+      ...draft.sequencer,
+      drumChannels,
+    };
   });
 };
 

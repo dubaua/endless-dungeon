@@ -9,6 +9,18 @@ export interface CustomScale {
   weight: number;
 }
 
+export type TrackDnaOscillatorType = 'sine' | 'triangle' | 'sawtooth' | 'square';
+
+export interface TrackDnaVoiceSettings {
+  oscillatorType: TrackDnaOscillatorType;
+  sustain: number;
+  release: number;
+  filterFrequency: number;
+  filterResonance: number;
+  bitCrusherBits: number;
+  bitCrusherDepth: number;
+}
+
 export interface TrackDna {
   rootNote: NoteName;
   scaleName: ScaleName;
@@ -28,4 +40,5 @@ export interface TrackDna {
   melodicRange: number;
   absoluteRange: number;
   bassRange: number;
+  voice: TrackDnaVoiceSettings;
 }

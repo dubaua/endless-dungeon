@@ -1,10 +1,21 @@
 import { createMemo, createSignal, For, Show, type Component } from 'solid-js';
 
+import { stopTransport } from '../audio/transport';
 import type { BlockFunction } from '../generators/blocks/block-function';
 import { generateTracks } from '../generators/demo/generate-tracks';
 import { generateTrackDna } from '../generators/dna/generate-track-dna';
+import type { TrackDna } from '../generators/dna/track-dna';
 import { generateMotif, type GenerateMotifOptions } from '../generators/motif/generate-motif';
+import { motifToPattern } from '../generators/motif/motif-to-pattern';
 import type { Motif } from '../generators/motif/motif';
+import {
+  getState,
+  setSynthState,
+  setTrackDna,
+  setTransportBpm,
+  setVoicePattern,
+  useStore,
+} from '../state/store';
 import { MotifPreview } from './MotifPreview';
 
 const blockColors: Record<BlockFunction, string> = {
@@ -69,10 +80,28 @@ const formatMotifOptionValue = (value: number, step: number): string => {
   return step < 1 ? value.toFixed(2) : String(value);
 };
 
+const getMotifOptionsFromTrackDna = (
+  trackDna: TrackDna,
+  options: GenerateMotifOptions,
+): GenerateMotifOptions => {
+  return {
+    ...options,
+    melodyJumpBias: trackDna.melodyJumpBias,
+    melodyBreakPhaseResetBias: trackDna.melodyBreakPhaseResetBias,
+    melodyBreakPhaseShiftBias: trackDna.melodyBreakPhaseShiftBias,
+    melodySpeedBias: trackDna.melodySpeedBias,
+    melodySpeedChangeBias: trackDna.melodySpeedChangeBias,
+    melodicRange: trackDna.melodicRange,
+    absoluteRange: trackDna.absoluteRange,
+  };
+};
+
 export const GeneratorPanel: Component = () => {
   const tracks = createMemo(() => generateTracks(100));
-  const [trackDna, setTrackDna] = createSignal(generateTrackDna());
-  const [motifOptions, setMotifOptions] = createSignal<GenerateMotifOptions>(DefaultMotifOptions);
+  const trackDna = useStore((state) => state.trackDna);
+  const [motifOptions, setMotifOptions] = createSignal<GenerateMotifOptions>(
+    getMotifOptionsFromTrackDna(getState().trackDna, DefaultMotifOptions),
+  );
   const [motif, setMotif] = createSignal<Motif>();
   const [motifAbsoluteRange, setMotifAbsoluteRange] = createSignal(DefaultMotifOptions.absoluteRange);
 
@@ -80,9 +109,28 @@ export const GeneratorPanel: Component = () => {
     setMotifOptions((options) => ({ ...options, [key]: value }));
   };
 
+  const applyMotif = (nextMotif: Motif, nextTrackDna: TrackDna, absoluteRange: number): void => {
+    setMotif(nextMotif);
+    setMotifAbsoluteRange(absoluteRange);
+    setVoicePattern(motifToPattern(nextMotif, nextTrackDna));
+    stopTransport();
+  };
+
+  const generateCurrentTrackDna = (): void => {
+    const nextTrackDna = generateTrackDna();
+    const nextMotifOptions = getMotifOptionsFromTrackDna(nextTrackDna, motifOptions());
+    const nextMotif = generateMotif(nextMotifOptions);
+
+    setTrackDna(nextTrackDna);
+    setTransportBpm(nextTrackDna.bpm);
+    setSynthState(nextTrackDna.voice);
+    setMotifOptions(nextMotifOptions);
+    applyMotif(nextMotif, nextTrackDna, nextMotifOptions.absoluteRange);
+  };
+
   const generateCurrentMotif = (): void => {
-    setMotif(generateMotif(motifOptions()));
-    setMotifAbsoluteRange(motifOptions().absoluteRange);
+    const generatedMotif = generateMotif(motifOptions());
+    applyMotif(generatedMotif, trackDna(), motifOptions().absoluteRange);
   };
 
   return (
@@ -90,7 +138,7 @@ export const GeneratorPanel: Component = () => {
       <div style={{ display: 'grid', gap: '0.5rem' }}>
         <header style={{ display: 'flex', gap: '0.5rem', 'align-items': 'center' }}>
           <h2 style={{ margin: 0 }}>Track DNA</h2>
-          <button type="button" onClick={() => setTrackDna(generateTrackDna())}>
+          <button type="button" onClick={generateCurrentTrackDna}>
             Generate
           </button>
         </header>

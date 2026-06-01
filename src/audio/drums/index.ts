@@ -89,9 +89,11 @@ export const initializeDrums = (): void => {
 export const triggerDrumsAtStep = (step: number, time: Tone.Unit.Time): void => {
   ensureDrumVoices();
 
+  const state = getState();
   const closedHatRuntime = [...runtimes.values()].find((runtime) => runtime.channel.voice === 'closedHat');
+  const closedHatChannel = state.sequencer.drumChannels.find((channel) => channel.voice === 'closedHat');
   const closedHatIntensity = closedHatRuntime
-    ? (closedHatRuntime.channel.pattern[step % closedHatRuntime.channel.pattern.length] ?? 0)
+    ? (closedHatChannel?.pattern[step % closedHatChannel.pattern.length] ?? 0)
     : 0;
   const openHatRuntime = [...runtimes.values()].find((runtime) => runtime.channel.voice === 'openHat');
 
@@ -100,8 +102,14 @@ export const triggerDrumsAtStep = (step: number, time: Tone.Unit.Time): void => 
   }
 
   runtimes.forEach((runtime) => {
-    const patternIndex = step % runtime.channel.pattern.length;
-    const intensity = runtime.channel.pattern[patternIndex] ?? 0;
+    const channel = state.sequencer.drumChannels.find((nextChannel) => nextChannel.id === runtime.channel.id);
+
+    if (!channel) {
+      return;
+    }
+
+    const patternIndex = step % channel.pattern.length;
+    const intensity = channel.pattern[patternIndex] ?? 0;
 
     if (intensity > 0) {
       runtime.chain.trigger(time, intensity);

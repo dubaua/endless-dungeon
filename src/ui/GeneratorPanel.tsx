@@ -36,13 +36,13 @@ const barWidthRem = 0.8;
 
 const DefaultMotifOptions: GenerateMotifOptions = {
   startDegree: 0,
-  melodyJumpBias: 0.5,
-  melodyBreakPhaseResetBias: 0.5,
-  melodyBreakPhaseShiftBias: 0.5,
-  melodySpeedBias: 0.5,
-  melodySpeedChangeBias: 0.2,
-  melodicRange: 8,
-  absoluteRange: 12,
+  melodyJumpBias: 0,
+  melodyBreakPhaseResetBias: 1,
+  melodyBreakPhaseShiftBias: 1,
+  melodySpeedBias: 1,
+  melodySpeedChangeBias: 0,
+  melodicRange: 5,
+  absoluteRange: 8,
   midCadence: 5,
   finalCadence: 0,
 };

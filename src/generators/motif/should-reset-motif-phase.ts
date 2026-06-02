@@ -2,8 +2,8 @@ import type { RandomSource } from '../../utils/pick-weighted';
 import { rollBiasChance } from '../../utils/roll-bias-chance';
 import { scale } from '../../utils/scale';
 
-const MelodyPhaseResetMinChance = 0.05;
-const MelodyPhaseResetMaxChance = 0.12;
+const MelodyPhaseResetMinChance = 0.0;
+const MelodyPhaseResetMaxChance = 0.33;
 const MelodyPhaseResetMinSpeedFactor = 0.8;
 const MelodyPhaseResetMaxSpeedFactor = 1.15;
 

@@ -117,7 +117,7 @@ const scheduleStepUpdates = (): void => {
     setTransportPosition(barCounter, beat, sixteenth);
     setTransportStep(stepWithinBar);
     triggerPianoNotesAtTick(currentTick, time);
-    triggerDrumsAtStep(stepWithinBar, time);
+    triggerDrumsAtStep(barCounter * sixteenthsPerBar + stepWithinBar, time);
 
     stepWithinBar += 1;
 

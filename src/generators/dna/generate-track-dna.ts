@@ -5,6 +5,7 @@ import { getRandomFloat } from '../../utils/get-random-float';
 import { getRandomInt } from '../../utils/get-random-int';
 import { pickWeighted, type RandomSource, type WeightedOptions } from '../../utils/pick-weighted';
 import { bpmWeights } from './bpm-weights';
+import { generateDrumDnaSettings } from './generate-drum-dna';
 import { scaleWeights } from './scale-weights';
 import type {
   CustomScale,
@@ -105,14 +106,16 @@ export const generateTrackDna = (
   const rootNote = normalizeRootNote(getRandomRootNote(random));
   const scaleName = pickWeighted(getScaleWeights(customScales), random);
   const absoluteRange = getRandomInt(MinAbsoluteRangeSteps, MaxAbsoluteRangeSteps, random);
+  const drumDnaSettings = generateDrumDnaSettings(random);
 
   return {
     rootNote,
     scaleName,
     scaleNotes: getScaleNotes(rootNote, scaleName, customScales),
     bpm: pickWeighted(bpmWeights, random),
-    syncopation: getRandomStep(random),
-    density: getRandomStep(random),
+    syncopation: drumDnaSettings.syncopation,
+    density: drumDnaSettings.density,
+    bodyDrumPattern: drumDnaSettings.bodyDrumPattern,
     intensity: getRandomStep(random),
     variationBias: getRandomStep(random),
     noteLengthVariationBias: getRandomStep(random),

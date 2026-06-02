@@ -47,10 +47,18 @@ export interface TransportState {
   step: number;
 }
 
+export interface DrumPatternFiltersState {
+  syncopationScore: number;
+  syncopationSpread: number;
+  density: number;
+  densitySpread: number;
+}
+
 export interface AppState {
   transport: TransportState;
   sequencer: SequencerState;
   trackDna: TrackDna;
+  drumPatternFilters: DrumPatternFiltersState;
   synth: SynthState;
   mixer: MixerState;
 }
@@ -192,6 +200,12 @@ const state: AppState = {
     drumChannels: demoDrumChannels,
   },
   trackDna: generateTrackDna(),
+  drumPatternFilters: {
+    syncopationScore: 0.5,
+    syncopationSpread: 0.1,
+    density: 0.5,
+    densitySpread: 0.1,
+  },
   synth: {
     oscillatorType: 'sawtooth',
     attack: 0.01,
@@ -286,6 +300,12 @@ export const setTransportTimeSignature = (timeSignature: [number, number]): void
 export const setTrackDna = (trackDna: TrackDna): void => {
   updateState((draft) => {
     draft.trackDna = trackDna;
+  });
+};
+
+export const setDrumPatternFilters = (filters: Partial<DrumPatternFiltersState>): void => {
+  updateState((draft) => {
+    draft.drumPatternFilters = { ...draft.drumPatternFilters, ...filters };
   });
 };
 

@@ -5,11 +5,15 @@ import type { BlockFunction } from '../generators/blocks/block-function';
 import { generateTracks } from '../generators/demo/generate-tracks';
 import { generateTrackDna } from '../generators/dna/generate-track-dna';
 import type { TrackDna } from '../generators/dna/track-dna';
+import { generateEightBarDrumPattern } from '../generators/drums/generate-eight-bar-drum-pattern';
+import { kickSnarePatternToChannels } from '../generators/drums/kick-snare-pattern-to-channels';
 import { generateMotif, type GenerateMotifOptions } from '../generators/motif/generate-motif';
 import { motifToPattern } from '../generators/motif/motif-to-pattern';
 import type { Motif } from '../generators/motif/motif';
 import {
   getState,
+  setDrumChannels,
+  setDrumPatternFilters,
   setSynthState,
   setTrackDna,
   setTransportBpm,
@@ -123,6 +127,16 @@ export const GeneratorPanel: Component = () => {
 
     setTrackDna(nextTrackDna);
     setTransportBpm(nextTrackDna.bpm);
+    setDrumPatternFilters({
+      density: nextTrackDna.density,
+      syncopationScore: nextTrackDna.syncopation,
+    });
+    setDrumChannels(
+      kickSnarePatternToChannels(
+        generateEightBarDrumPattern(nextTrackDna.bodyDrumPattern),
+        getState().sequencer.drumChannels,
+      ),
+    );
     setSynthState(nextTrackDna.voice);
     setMotifOptions(nextMotifOptions);
     applyMotif(nextMotif, nextTrackDna, nextMotifOptions.absoluteRange);

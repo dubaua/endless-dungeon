@@ -1,11 +1,19 @@
 import { createMemo, createSignal, For, onMount, type Component } from 'solid-js';
 
 import { KickSnarePatternWeights } from '../generators/drums/kick-snare-patterns';
+import { generateEightBarDrumPattern } from '../generators/drums/generate-eight-bar-drum-pattern';
 import {
   kickSnareChannelsToPattern,
   kickSnarePatternToChannels,
 } from '../generators/drums/kick-snare-pattern-to-channels';
-import { getState, setDrumChannels, setDrumPatternStep, useStore } from '../state/store';
+import { RelativePatterns } from '../generators/drums/relative-patterns';
+import {
+  getState,
+  setDrumChannels,
+  setDrumPatternFilters,
+  setDrumPatternStep,
+  useStore,
+} from '../state/store';
 import {
   KickSnarePatternNavigator,
   type KickSnarePatternFilters,
@@ -48,19 +56,22 @@ const getFilteredKickSnarePatterns = (filters: KickSnarePatternFilters) => {
 export const DrumsPanel: Component = () => {
   const drumChannels = useStore((state) => state.sequencer.drumChannels);
   const transport = useStore((state) => state.transport);
-  const [kickSnarePatternIndex, setKickSnarePatternIndex] = createSignal(0);
-  const [kickSnarePatternFilters, setKickSnarePatternFilters] =
-    createSignal<KickSnarePatternFilters>({
-      syncopationScore: 0.5,
-      syncopationSpread: 0.1,
-      density: 0.5,
-      densitySpread: 0.1,
-    });
+  const kickSnarePatternFilters = useStore((state) => state.drumPatternFilters);
+  const [selectedBarIndex, setSelectedBarIndex] = createSignal(0);
+  const [selectedBarPatternIndex, setSelectedBarPatternIndex] = createSignal(0);
   const kickSnarePattern = createMemo(() => kickSnareChannelsToPattern(drumChannels()));
+  const kickSnareBarPatterns = createMemo(() => kickSnarePattern().match(/.{1,16}/g) ?? []);
+  const selectedBarPattern = createMemo(() => kickSnareBarPatterns()[selectedBarIndex()] ?? '');
+  const selectedBarRelativePatterns = createMemo(() =>
+    selectedBarPattern() ? (RelativePatterns[selectedBarPattern()] ?? [selectedBarPattern()]) : [],
+  );
   const filteredKickSnarePatterns = createMemo(() =>
     getFilteredKickSnarePatterns(kickSnarePatternFilters()),
   );
-  const currentKickSnareWeight = createMemo(() => KickSnarePatternWeights.get(kickSnarePattern()));
+  const currentKickSnareWeight = createMemo(() => KickSnarePatternWeights.get(selectedBarPattern()));
+  const relativeKickSnarePatternCount = createMemo(
+    () => selectedBarRelativePatterns().length,
+  );
 
   const setKickSnarePatternFromList = (
     patterns: ReturnType<typeof filteredKickSnarePatterns>,
@@ -77,12 +88,45 @@ export const DrumsPanel: Component = () => {
       return;
     }
 
-    setKickSnarePatternIndex(nextIndex);
-    setDrumChannels(kickSnarePatternToChannels(nextPattern, getState().sequencer.drumChannels));
+    setSelectedBarIndex(0);
+    setSelectedBarPatternIndex(nextIndex);
+    setDrumChannels(
+      kickSnarePatternToChannels(
+        generateEightBarDrumPattern(nextPattern),
+        getState().sequencer.drumChannels,
+      ),
+    );
   };
 
-  const setKickSnarePattern = (index: number): void => {
+  const setBodyKickSnarePattern = (index: number): void => {
     setKickSnarePatternFromList(filteredKickSnarePatterns(), index);
+  };
+
+  const setKickSnareBarPattern = (index: number): void => {
+    const relativePatterns = selectedBarRelativePatterns();
+
+    if (relativePatterns.length === 0) {
+      return;
+    }
+
+    const nextIndex = (index + relativePatterns.length) % relativePatterns.length;
+    const nextPattern = relativePatterns[nextIndex];
+    const nextBarPatterns = [...kickSnareBarPatterns()];
+
+    if (!nextPattern) {
+      return;
+    }
+
+    nextBarPatterns[selectedBarIndex()] = nextPattern;
+    setSelectedBarPatternIndex(nextIndex);
+    setDrumChannels(
+      kickSnarePatternToChannels(nextBarPatterns.join(''), getState().sequencer.drumChannels),
+    );
+  };
+
+  const setKickSnareBarIndex = (index: number): void => {
+    setSelectedBarIndex(index);
+    setSelectedBarPatternIndex(0);
   };
 
   const updateKickSnarePatternFilter = (
@@ -91,7 +135,7 @@ export const DrumsPanel: Component = () => {
   ): void => {
     const nextFilters = { ...kickSnarePatternFilters(), [key]: value };
 
-    setKickSnarePatternFilters(nextFilters);
+    setDrumPatternFilters(nextFilters);
     setKickSnarePatternFromList(getFilteredKickSnarePatterns(nextFilters), 0);
   };
 
@@ -123,71 +167,114 @@ export const DrumsPanel: Component = () => {
     setDrumPatternStep(channelId, step, intensity > 0 ? 0 : 1);
   };
 
+  const toggleBarStep = (voice: 'k' | 's', barIndex: number, step: number): void => {
+    const absoluteStep = barIndex * 16 + step;
+    const channel = drumChannels().find((drumChannel) =>
+      voice === 'k' ? drumChannel.voice === 'kick' : drumChannel.voice === 'snare',
+    );
+
+    if (!channel) {
+      return;
+    }
+
+    toggleStep(channel.id, absoluteStep, channel.pattern[absoluteStep] ?? 0);
+  };
+
   onMount(() => {
-    setKickSnarePattern(0);
+    setBodyKickSnarePattern(0);
   });
 
   return (
     <section style={{ display: 'grid', gap: '0.75rem' }}>
       <KickSnarePatternNavigator
+        barIndex={selectedBarIndex()}
+        barPattern={selectedBarPattern()}
+        barPatternCount={selectedBarRelativePatterns().length}
+        barPatternIndex={selectedBarPatternIndex()}
         filters={kickSnarePatternFilters()}
         pattern={kickSnarePattern()}
-        patternCount={filteredKickSnarePatterns().length}
-        patternIndex={kickSnarePatternIndex()}
+        relativePatternCount={relativeKickSnarePatternCount()}
         weight={currentKickSnareWeight()}
+        onBarIndexInput={setKickSnareBarIndex}
+        onBarPatternIndexInput={setKickSnareBarPattern}
         onFilterInput={updateKickSnarePatternFilter}
-        onPatternIndexInput={setKickSnarePattern}
       />
-      <div
-        style={{
-          display: 'grid',
-          gap: '0.35rem',
-          overflow: 'auto',
-          'font-family': 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-          'font-size': '0.78rem',
-        }}
-      >
-        <For each={drumChannels()}>
-          {(channel) => (
+      <div style={{ display: 'grid', gap: '0.4rem', overflow: 'auto' }}>
+        <For each={[0, 1]}>
+          {(rowIndex) => (
             <div
               style={{
                 display: 'grid',
-                'grid-template-columns': '8rem repeat(16, 1.8rem)',
-                gap: '0.2rem',
-                'align-items': 'center',
-                'min-width': '38rem',
+                'grid-template-columns': 'repeat(4, minmax(16rem, 1fr))',
+                gap: '0.5rem',
+                'min-width': '66rem',
               }}
             >
-              <span style={{ 'white-space': 'nowrap' }}>{channel.name}</span>
-              <For each={channel.pattern}>
-                {(intensity, step) => {
-                  const isCurrentStep = (): boolean =>
-                    transport().isPlaying && step() === transport().step % channel.pattern.length;
-                  const isDisabled = (): boolean =>
-                    intensity <= 0 && hasOtherDrumAtStep(channel.id, step());
+              <For each={kickSnareBarPatterns().slice(rowIndex * 4, rowIndex * 4 + 4)}>
+                {(barPattern, barOffset) => {
+                  const barIndex = rowIndex * 4 + barOffset();
 
                   return (
-                    <button
-                      type="button"
-                      aria-label={`${channel.name} step ${step() + 1}`}
-                      disabled={isDisabled()}
-                      onClick={() => toggleStep(channel.id, step(), intensity)}
+                    <div
                       style={{
-                        width: '1.8rem',
-                        height: '1.8rem',
-                        padding: 0,
-                        border: `1px solid ${getStepBorder(intensity, isCurrentStep())}`,
-                        'border-radius': '0.2rem',
-                        background: getStepBackground(intensity, isCurrentStep()),
-                        color: intensity > 0 ? '#fff' : '#737373',
-                        cursor: isDisabled() ? 'not-allowed' : 'pointer',
-                        opacity: isDisabled() ? 0.45 : 1,
-                        'font-size': '0.65rem',
-                        'font-variant-numeric': 'tabular-nums',
+                        display: 'grid',
+                        gap: '0.3rem',
+                        padding: '0.4rem',
+                        border: '1px solid #d4d4d4',
+                        'border-radius': '0.25rem',
+                        background: '#fff',
+                        'font-family': 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                        'font-size': '0.72rem',
                       }}
                     >
-                      {intensity > 0 ? intensity : ''}
-                    </button>
+                      <div style={{ color: '#666' }}>bar {barIndex + 1} {barPattern}</div>
+                      <For each={['k', 's'] as const}>
+                        {(voice) => (
+                          <div
+                            style={{
+                              display: 'grid',
+                              'grid-template-columns': '1.5rem repeat(16, 1fr)',
+                              gap: '0.12rem',
+                              'align-items': 'center',
+                            }}
+                          >
+                            <span>{voice}</span>
+                            <For each={[...barPattern]}>
+                              {(stepVoice, step) => {
+                                const isActiveStep = (): boolean =>
+                                  transport().isPlaying &&
+                                  transport().bar % 8 === barIndex &&
+                                  transport().step === step();
+                                const intensity = (): number => (stepVoice === voice ? 1 : 0);
+                                const isDisabled = (): boolean => intensity() <= 0 && stepVoice !== '-';
+
+                                return (
+                                  <button
+                                    type="button"
+                                    aria-label={`bar ${barIndex + 1} ${voice} step ${step() + 1}`}
+                                    disabled={isDisabled()}
+                                    onClick={() => toggleBarStep(voice, barIndex, step())}
+                                    style={{
+                                      height: '1.4rem',
+                                      padding: 0,
+                                      border: `1px solid ${getStepBorder(intensity(), isActiveStep())}`,
+                                      'border-radius': '0.15rem',
+                                      background: getStepBackground(intensity(), isActiveStep()),
+                                      color: intensity() > 0 ? '#fff' : '#737373',
+                                      cursor: isDisabled() ? 'not-allowed' : 'pointer',
+                                      opacity: isDisabled() ? 0.45 : 1,
+                                      'font-size': '0.6rem',
+                                    }}
+                                  >
+                                    {intensity() > 0 ? voice : ''}
+                                  </button>
+                                );
+                              }}
+                            </For>
+                          </div>
+                        )}
+                      </For>
+                    </div>
                   );
                 }}
               </For>

@@ -10,13 +10,17 @@ export interface KickSnarePatternFilters {
 }
 
 interface KickSnarePatternNavigatorProps {
+  barIndex: number;
+  barPattern: string;
+  barPatternCount: number;
+  barPatternIndex: number;
   filters: KickSnarePatternFilters;
   pattern: string;
-  patternCount: number;
-  patternIndex: number;
+  relativePatternCount: number;
   weight: KickSnarePatternWeight | undefined;
+  onBarIndexInput: (index: number) => void;
+  onBarPatternIndexInput: (index: number) => void;
   onFilterInput: (key: keyof KickSnarePatternFilters, value: number) => void;
-  onPatternIndexInput: (index: number) => void;
 }
 
 export const KickSnarePatternNavigator: Component<KickSnarePatternNavigatorProps> = (props) => {
@@ -32,8 +36,8 @@ export const KickSnarePatternNavigator: Component<KickSnarePatternNavigatorProps
             'font-size': '0.78rem',
           }}
         >
-          {props.patternCount > 0 ? `${props.patternIndex + 1}/${props.patternCount}` : '0/0'}{' '}
-          {props.pattern}
+          bar {props.barIndex + 1} {props.barPatternCount > 0 ? `${props.barPatternIndex + 1}/${props.barPatternCount}` : '0/0'}{' '}
+          {props.barPattern}
         </span>
       </header>
       <div
@@ -46,15 +50,26 @@ export const KickSnarePatternNavigator: Component<KickSnarePatternNavigatorProps
         }}
       >
         <label style={{ display: 'grid', gap: '0.15rem' }}>
-          <span>pattern {props.patternCount > 0 ? props.patternIndex + 1 : 0}</span>
+          <span>bar {props.barIndex + 1}</span>
           <input
             type="range"
             min="0"
-            max={Math.max(0, props.patternCount - 1)}
+            max="7"
             step="1"
-            value={props.patternIndex}
-            disabled={props.patternCount === 0}
-            onInput={(event) => props.onPatternIndexInput(event.currentTarget.valueAsNumber)}
+            value={props.barIndex}
+            onInput={(event) => props.onBarIndexInput(event.currentTarget.valueAsNumber)}
+          />
+        </label>
+        <label style={{ display: 'grid', gap: '0.15rem' }}>
+          <span>relative {props.barPatternCount > 0 ? props.barPatternIndex + 1 : 0}</span>
+          <input
+            type="range"
+            min="0"
+            max={Math.max(0, props.barPatternCount - 1)}
+            step="1"
+            value={props.barPatternIndex}
+            disabled={props.barPatternCount === 0}
+            onInput={(event) => props.onBarPatternIndexInput(event.currentTarget.valueAsNumber)}
           />
         </label>
         <label style={{ display: 'grid', gap: '0.15rem' }}>
@@ -119,7 +134,7 @@ export const KickSnarePatternNavigator: Component<KickSnarePatternNavigatorProps
         {props.weight?.kickSyncopationScore.toFixed(2) ?? '-'} sSync:
         {props.weight?.snareSyncopationScore.toFixed(2) ?? '-'} sync:
         {props.weight?.syncopationScore.toFixed(2) ?? '-'} density:
-        {props.weight?.density.toFixed(2) ?? '-'}
+        {props.weight?.density.toFixed(2) ?? '-'} relatives:{props.relativePatternCount}
       </span>
     </div>
   );

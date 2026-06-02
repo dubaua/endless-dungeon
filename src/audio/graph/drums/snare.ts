@@ -21,8 +21,8 @@ export const createSnareVoice = (voicing: SnareVoicing): DrumVoiceInstance<Snare
   const envelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
     decay,
-    sustain: 1,
-    release: 0.2,
+    sustain: 0.7,
+    release: 0.02,
   });
   const filter = new Tone.Filter(SNARE_FILTER_FREQUENCY, 'bandpass');
   const crusher = createLoFiCrusher({

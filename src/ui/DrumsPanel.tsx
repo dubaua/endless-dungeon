@@ -1,12 +1,15 @@
 import { createMemo, createSignal, For, onMount, type Component } from 'solid-js';
 
-import { KickSnarePatterns } from '../generators/drums/kick-snare-patterns';
+import { KickSnarePatternWeights } from '../generators/drums/kick-snare-patterns';
 import {
   kickSnareChannelsToPattern,
   kickSnarePatternToChannels,
 } from '../generators/drums/kick-snare-pattern-to-channels';
 import { getState, setDrumChannels, setDrumPatternStep, useStore } from '../state/store';
-import { KickSnarePatternNavigator } from './KickSnarePatternNavigator';
+import {
+  KickSnarePatternNavigator,
+  type KickSnarePatternFilters,
+} from './KickSnarePatternNavigator';
 
 const getStepBackground = (intensity: number, isCurrentStep: boolean): string => {
   if (isCurrentStep) {
@@ -24,15 +27,51 @@ const getStepBorder = (intensity: number, isCurrentStep: boolean): string => {
   return intensity > 0 ? '#111827' : '#d4d4d4';
 };
 
+const getFilteredKickSnarePatterns = (filters: KickSnarePatternFilters) => {
+  return [...KickSnarePatternWeights.values()]
+    .filter((weight) => {
+      const minSyncopationScore = Math.max(0, filters.syncopationScore - filters.syncopationSpread);
+      const maxSyncopationScore = Math.min(1, filters.syncopationScore + filters.syncopationSpread);
+      const minDensity = Math.max(0, filters.density - filters.densitySpread);
+      const maxDensity = Math.min(1, filters.density + filters.densitySpread);
+
+      return (
+        weight.syncopationScore >= minSyncopationScore &&
+        weight.syncopationScore <= maxSyncopationScore &&
+        weight.density >= minDensity &&
+        weight.density <= maxDensity
+      );
+    })
+    .sort((left, right) => left.beatCount - right.beatCount);
+};
+
 export const DrumsPanel: Component = () => {
   const drumChannels = useStore((state) => state.sequencer.drumChannels);
   const transport = useStore((state) => state.transport);
   const [kickSnarePatternIndex, setKickSnarePatternIndex] = createSignal(0);
+  const [kickSnarePatternFilters, setKickSnarePatternFilters] =
+    createSignal<KickSnarePatternFilters>({
+      syncopationScore: 0.5,
+      syncopationSpread: 0.1,
+      density: 0.5,
+      densitySpread: 0.1,
+    });
   const kickSnarePattern = createMemo(() => kickSnareChannelsToPattern(drumChannels()));
+  const filteredKickSnarePatterns = createMemo(() =>
+    getFilteredKickSnarePatterns(kickSnarePatternFilters()),
+  );
+  const currentKickSnareWeight = createMemo(() => KickSnarePatternWeights.get(kickSnarePattern()));
 
-  const setKickSnarePattern = (index: number): void => {
-    const nextIndex = (index + KickSnarePatterns.length) % KickSnarePatterns.length;
-    const nextPattern = KickSnarePatterns[nextIndex];
+  const setKickSnarePatternFromList = (
+    patterns: ReturnType<typeof filteredKickSnarePatterns>,
+    index: number,
+  ): void => {
+    if (patterns.length === 0) {
+      return;
+    }
+
+    const nextIndex = (index + patterns.length) % patterns.length;
+    const nextPattern = patterns[nextIndex]?.pattern;
 
     if (!nextPattern) {
       return;
@@ -40,6 +79,20 @@ export const DrumsPanel: Component = () => {
 
     setKickSnarePatternIndex(nextIndex);
     setDrumChannels(kickSnarePatternToChannels(nextPattern, getState().sequencer.drumChannels));
+  };
+
+  const setKickSnarePattern = (index: number): void => {
+    setKickSnarePatternFromList(filteredKickSnarePatterns(), index);
+  };
+
+  const updateKickSnarePatternFilter = (
+    key: keyof KickSnarePatternFilters,
+    value: number,
+  ): void => {
+    const nextFilters = { ...kickSnarePatternFilters(), [key]: value };
+
+    setKickSnarePatternFilters(nextFilters);
+    setKickSnarePatternFromList(getFilteredKickSnarePatterns(nextFilters), 0);
   };
 
   const hasOtherDrumAtStep = (channelId: string, step: number): boolean => {
@@ -77,9 +130,13 @@ export const DrumsPanel: Component = () => {
   return (
     <section style={{ display: 'grid', gap: '0.75rem' }}>
       <KickSnarePatternNavigator
+        filters={kickSnarePatternFilters()}
         pattern={kickSnarePattern()}
-        onPrevious={() => setKickSnarePattern(kickSnarePatternIndex() - 1)}
-        onNext={() => setKickSnarePattern(kickSnarePatternIndex() + 1)}
+        patternCount={filteredKickSnarePatterns().length}
+        patternIndex={kickSnarePatternIndex()}
+        weight={currentKickSnareWeight()}
+        onFilterInput={updateKickSnarePatternFilter}
+        onPatternIndexInput={setKickSnarePattern}
       />
       <div
         style={{

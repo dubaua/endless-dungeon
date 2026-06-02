@@ -1,17 +1,17 @@
-import { demoDrumChannels } from '../../sequencer';
-import type { DrumChannel, KickDrumChannel, SnareDrumChannel } from '../../sequencer';
+import { InitialDrumChannels } from '../../sequencer/drum-channels';
+import type { DrumChannel, KickDrumChannel, SnareDrumChannel } from '../../sequencer/types';
 
 const getKickChannel = (channels: readonly DrumChannel[]): KickDrumChannel => {
   return (
     channels.find((channel): channel is KickDrumChannel => channel.voice === 'kick') ??
-    demoDrumChannels.find((channel): channel is KickDrumChannel => channel.voice === 'kick')
+    InitialDrumChannels.find((channel): channel is KickDrumChannel => channel.voice === 'kick')
   ) as KickDrumChannel;
 };
 
 const getSnareChannel = (channels: readonly DrumChannel[]): SnareDrumChannel => {
   return (
     channels.find((channel): channel is SnareDrumChannel => channel.voice === 'snare') ??
-    demoDrumChannels.find((channel): channel is SnareDrumChannel => channel.voice === 'snare')
+    InitialDrumChannels.find((channel): channel is SnareDrumChannel => channel.voice === 'snare')
   ) as SnareDrumChannel;
 };
 
@@ -19,21 +19,30 @@ export const kickSnarePatternToChannels = (
   pattern: string,
   channels: readonly DrumChannel[],
 ): DrumChannel[] => {
-  const kickChannel = getKickChannel(channels);
-  const snareChannel = getSnareChannel(channels);
+  const channelsByVoice = new Map(channels.map((channel) => [channel.voice, channel]));
+  const baseChannels = InitialDrumChannels.map(
+    (channel) => channelsByVoice.get(channel.voice) ?? channel,
+  );
   const kickPattern = [...pattern].map((step) => (step === 'k' ? 1 : 0));
   const snarePattern = [...pattern].map((step) => (step === 's' ? 1 : 0));
 
-  return [
-    {
-      ...kickChannel,
-      pattern: kickPattern,
-    },
-    {
-      ...snareChannel,
-      pattern: snarePattern,
-    },
-  ];
+  return baseChannels.map((channel) => {
+    if (channel.voice === 'kick') {
+      return {
+        ...getKickChannel(baseChannels),
+        pattern: kickPattern,
+      };
+    }
+
+    if (channel.voice === 'snare') {
+      return {
+        ...getSnareChannel(baseChannels),
+        pattern: snarePattern,
+      };
+    }
+
+    return channel;
+  });
 };
 
 export const kickSnareChannelsToPattern = (channels: readonly DrumChannel[]): string => {

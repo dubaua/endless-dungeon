@@ -1,8 +1,6 @@
-import { createMemo, createSignal, For, Show, type Component } from 'solid-js';
+import { createSignal, For, onMount, type Component } from 'solid-js';
 
 import { stopTransport } from '../audio/transport';
-import type { BlockFunction } from '../generators/composition/block-function.type';
-import { generateTrack } from '../generators/composition/generate-track';
 import { generateTrackDna } from '../generators/dna/generate-track-dna';
 import type { TrackDna } from '../generators/dna/track-dna';
 import { generateEightBarDrumPattern } from '../generators/drums/generate-eight-bar-drum-pattern';
@@ -20,19 +18,7 @@ import {
   setVoicePattern,
   useStore,
 } from '../state/store';
-import { MotifPreview } from './MotifPreview';
-
-const blockColors: Record<BlockFunction, string> = {
-  body: '#b7e4c7',
-  variation: '#bfdbfe',
-  tension: '#fde68a',
-  drop: '#fecdd3',
-  pit: '#ddd6fe',
-  break: '#e5e7eb',
-  breakdown: '#99f6e4',
-};
-
-const barWidthRem = 0.8;
+import { TrackBlockPanel } from './TrackBlockPanel';
 
 const DefaultMotifOptions: GenerateMotifOptions = {
   startDegree: 0,
@@ -101,7 +87,6 @@ const getMotifOptionsFromTrackDna = (
 };
 
 export const GeneratorPanel: Component = () => {
-  const tracks = createMemo(() => Array.from({ length: 100 }, () => generateTrack()));
   const trackDna = useStore((state) => state.trackDna);
   const [motifOptions, setMotifOptions] = createSignal<GenerateMotifOptions>(
     getMotifOptionsFromTrackDna(getState().trackDna, DefaultMotifOptions),
@@ -148,6 +133,10 @@ export const GeneratorPanel: Component = () => {
     const generatedMotif = generateMotif(motifOptions());
     applyMotif(generatedMotif, trackDna(), motifOptions().absoluteRange);
   };
+
+  onMount(() => {
+    generateCurrentTrackDna();
+  });
 
   return (
     <section style={{ display: 'grid', gap: '1rem' }}>
@@ -256,63 +245,7 @@ export const GeneratorPanel: Component = () => {
         </div>
       </div>
 
-      <Show when={motif()}>
-        {(generatedMotif) => (
-          <MotifPreview motif={generatedMotif()} absoluteRange={motifAbsoluteRange()} />
-        )}
-      </Show>
-
-      <div style={{ display: 'grid', gap: '0.35rem' }}>
-        <h2 style={{ margin: 0 }}>Block Routes</h2>
-        <div
-          style={{
-            display: 'grid',
-            gap: '0.12rem',
-            'max-width': '100%',
-            overflow: 'auto',
-            'font-family': 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-            'font-size': '0.68rem',
-            'line-height': '1.25',
-          }}
-        >
-          <For each={tracks()}>
-            {(track) => (
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '0.2rem',
-                  margin: '4px 0',
-                  'align-items': 'center',
-                  'white-space': 'nowrap',
-                }}
-              >
-                <For each={track}>
-                  {(trackBlock) => (
-                    <span
-                      style={{
-                        background: blockColors[trackBlock.block],
-                        color: '#111',
-                        display: 'inline-flex',
-                        'justify-content': 'center',
-                        'flex-shrink': 0,
-                        width: `${trackBlock.bars * barWidthRem}rem`,
-                        padding: '0.06rem 0.25rem',
-                        'border-radius': '0.2rem',
-                        'font-weight': 700,
-                      }}
-                    >
-                      {trackBlock.block}
-                    </span>
-                  )}
-                </For>
-                <span style={{ color: '#666', 'margin-left': '0.25rem' }}>
-                  {track.reduce((sum, trackBlock) => sum + trackBlock.bars, 0)}
-                </span>
-              </div>
-            )}
-          </For>
-        </div>
-      </div>
+      <TrackBlockPanel motif={motif()} absoluteRange={motifAbsoluteRange()} />
     </section>
   );
 };

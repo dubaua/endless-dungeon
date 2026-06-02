@@ -54,18 +54,6 @@ export const TransportPanel: Component = () => {
           onInput={handleBpmInput}
         />
       </div>
-      <dl style={{ display: 'grid', gap: '0.25rem', 'grid-template-columns': 'auto auto', margin: 0 }}>
-        <dt>Playing</dt>
-        <dd>{transport().isPlaying ? 'yes' : 'no'}</dd>
-        <dt>Bar</dt>
-        <dd>{transport().bar + 1}</dd>
-        <dt>Beat</dt>
-        <dd>{transport().beat + 1}</dd>
-        <dt>Sixteenth</dt>
-        <dd>{transport().sixteenth + 1}</dd>
-        <dt>Step</dt>
-        <dd>{transport().step + 1}</dd>
-      </dl>
     </section>
   );
 };

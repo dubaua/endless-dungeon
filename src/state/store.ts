@@ -2,8 +2,9 @@ import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
 import { generateTrackDna } from '../generators/dna/generate-track-dna';
 import type { TrackDna } from '../generators/dna/track-dna';
-import { demoDrumChannels, demoTracks, type SequencerState } from '../sequencer';
-import type { DrumChannel, PatternStep } from '../sequencer';
+import { InitialDrumChannels } from '../sequencer/drum-channels';
+import { InitialTracks } from '../sequencer/initial-tracks';
+import type { DrumChannel, PatternStep, SequencerState } from '../sequencer/types';
 import { clamp } from '../utils/clamp';
 
 export const SYNTH_MIXER_CHANNEL_ID = 'channel-synth-main';
@@ -153,7 +154,7 @@ const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
         muted: false,
         groupId: null,
       },
-      ...demoDrumChannels.map((channel) => ({
+      ...InitialDrumChannels.map((channel) => ({
         id: channel.outputChannelId,
         name: channel.name,
         volume: 0.85,
@@ -196,8 +197,8 @@ const state: AppState = {
     step: 0,
   },
   sequencer: {
-    tracks: demoTracks,
-    drumChannels: demoDrumChannels,
+    tracks: InitialTracks,
+    drumChannels: InitialDrumChannels,
   },
   trackDna: generateTrackDna(),
   drumPatternFilters: {

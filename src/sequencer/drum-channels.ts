@@ -1,43 +1,44 @@
 import type { DrumChannel } from './types';
 
-const DRUM_GROUP_ID = 'drum-bus-main';
+const DrumGroupId = 'drum-bus-main';
+const EmptyPattern = Array.from({ length: 16 }, () => 0);
 
-export const demoDrumChannels: DrumChannel[] = [
+export const InitialDrumChannels: DrumChannel[] = [
   {
     id: 'drum-kick',
     name: 'Kick',
     voice: 'kick',
     outputChannelId: 'channel-drum-kick',
-    groupId: DRUM_GROUP_ID,
+    groupId: DrumGroupId,
     voicing: {
-      decay: 0.55, // больше декай
+      decay: 0.55,
       pitchStart: 'C2',
       filterFrequency: 120,
       filterResonance: 1,
       bitCrusherBits: 2,
-      bitCrusherDepth: 0.05, // больше депт - меньше декей
+      bitCrusherDepth: 0.05,
     },
-    pattern: [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    pattern: EmptyPattern,
   },
   {
     id: 'drum-snare',
     name: 'Snare',
     voice: 'snare',
     outputChannelId: 'channel-drum-snare',
-    groupId: DRUM_GROUP_ID,
+    groupId: DrumGroupId,
     voicing: {
       decay: 0.15,
       bitCrusherBits: 2,
       bitCrusherDepth: 0.005,
     },
-    pattern: [0, 0, 0, 0, 1, 0, 0, 0.5, 0, 0, 0, 0, 1, 0, 0, 0.5],
+    pattern: EmptyPattern,
   },
   {
     id: 'drum-closed-hat',
     name: 'Closed Hat',
     voice: 'closedHat',
     outputChannelId: 'channel-drum-closed-hat',
-    groupId: DRUM_GROUP_ID,
+    groupId: DrumGroupId,
     voicing: {
       decay: 0.075,
       filterFrequency: 7500,
@@ -45,14 +46,14 @@ export const demoDrumChannels: DrumChannel[] = [
       bitCrusherBits: 3,
       bitCrusherDepth: 0.02,
     },
-    pattern: [0, 0.5, 0.75, 0.5, 1, 0.5, 0.75, 0.5, 0, 0.5, 0.75, 0.5, 1, 0.5, 0.75, 0.5],
+    pattern: EmptyPattern,
   },
   {
     id: 'drum-open-hat',
     name: 'Open Hat',
     voice: 'openHat',
     outputChannelId: 'channel-drum-open-hat',
-    groupId: DRUM_GROUP_ID,
+    groupId: DrumGroupId,
     voicing: {
       decay: 0.8,
       release: 0.5,
@@ -61,14 +62,14 @@ export const demoDrumChannels: DrumChannel[] = [
       bitCrusherBits: 3,
       bitCrusherDepth: 0.02,
     },
-    pattern: [0, 0, 0, 0, 0, 0, 0, 0.65, 0, 0, 0, 0, 0, 0, 0, 0.85],
+    pattern: EmptyPattern,
   },
   {
     id: 'drum-crash',
     name: 'Crash',
     voice: 'crash',
     outputChannelId: 'channel-drum-crash',
-    groupId: DRUM_GROUP_ID,
+    groupId: DrumGroupId,
     voicing: {
       decay: 1.2,
       release: 5,
@@ -77,14 +78,14 @@ export const demoDrumChannels: DrumChannel[] = [
       bitCrusherBits: 3,
       bitCrusherDepth: 0.02,
     },
-    pattern: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    pattern: EmptyPattern,
   },
   {
     id: 'drum-ride',
     name: 'Ride',
     voice: 'ride',
     outputChannelId: 'channel-drum-ride',
-    groupId: DRUM_GROUP_ID,
+    groupId: DrumGroupId,
     voicing: {
       decay: 0.45,
       release: 0.35,
@@ -93,6 +94,6 @@ export const demoDrumChannels: DrumChannel[] = [
       bitCrusherBits: 3,
       bitCrusherDepth: 0.02,
     },
-    pattern: [0, 0, 1, 0, 0, 0, 0.75, 0, 0, 0, 1, 0, 0, 0, 0.75, 0],
+    pattern: EmptyPattern,
   },
 ];

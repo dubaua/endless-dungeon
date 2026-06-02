@@ -1,8 +1,8 @@
 import { createMemo, createSignal, For, Show, type Component } from 'solid-js';
 
 import { stopTransport } from '../audio/transport';
-import type { BlockFunction } from '../generators/blocks/block-function';
-import { generateTracks } from '../generators/demo/generate-tracks';
+import type { BlockFunction } from '../generators/composition/block-function.type';
+import { generateTrack } from '../generators/composition/generate-track';
 import { generateTrackDna } from '../generators/dna/generate-track-dna';
 import type { TrackDna } from '../generators/dna/track-dna';
 import { generateEightBarDrumPattern } from '../generators/drums/generate-eight-bar-drum-pattern';
@@ -101,13 +101,15 @@ const getMotifOptionsFromTrackDna = (
 };
 
 export const GeneratorPanel: Component = () => {
-  const tracks = createMemo(() => generateTracks(100));
+  const tracks = createMemo(() => Array.from({ length: 100 }, () => generateTrack()));
   const trackDna = useStore((state) => state.trackDna);
   const [motifOptions, setMotifOptions] = createSignal<GenerateMotifOptions>(
     getMotifOptionsFromTrackDna(getState().trackDna, DefaultMotifOptions),
   );
   const [motif, setMotif] = createSignal<Motif>();
-  const [motifAbsoluteRange, setMotifAbsoluteRange] = createSignal(DefaultMotifOptions.absoluteRange);
+  const [motifAbsoluteRange, setMotifAbsoluteRange] = createSignal(
+    DefaultMotifOptions.absoluteRange,
+  );
 
   const updateMotifOption = (key: keyof GenerateMotifOptions, value: number): void => {
     setMotifOptions((options) => ({ ...options, [key]: value }));

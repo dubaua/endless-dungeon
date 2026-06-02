@@ -1,8 +1,7 @@
 import type { WeightedOptions } from '../../utils/pick-weighted';
-import type { BlockFunction } from './block-function';
+import type { BlockFunction } from './block-function.type';
 
 export type BlockLengthWeights = WeightedOptions<number>;
-export type BlockLengthsGraph = Record<BlockFunction, BlockLengthWeights>;
 
 export const lengthsGraph = {
   body: [
@@ -33,4 +32,4 @@ export const lengthsGraph = {
     { value: 4, weight: 5 },
     { value: 8, weight: 1 },
   ],
-} satisfies BlockLengthsGraph;
+} satisfies Record<BlockFunction, BlockLengthWeights>;

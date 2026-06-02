@@ -1,8 +1,5 @@
 import type { WeightedOptions } from '../../utils/pick-weighted';
-import type { BlockFunction } from './block-function';
-
-export type BlockTransitionWeights = WeightedOptions<BlockFunction>;
-export type BlockTransitionGraph = Record<BlockFunction, BlockTransitionWeights>;
+import type { BlockFunction } from './block-function.type';
 
 export const transitionsGraph = {
   body: [
@@ -68,4 +65,4 @@ export const transitionsGraph = {
     { value: 'break', weight: 1 },
     { value: 'breakdown', weight: 0 },
   ],
-} satisfies BlockTransitionGraph;
+} satisfies Record<BlockFunction, WeightedOptions<BlockFunction>>;

@@ -1,4 +1,4 @@
-import type { BlockFunction } from './blocks/block-function';
+import type { BlockFunction } from './block-function.type';
 
 export interface TrackBlock {
   block: BlockFunction;

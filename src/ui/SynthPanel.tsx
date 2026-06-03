@@ -1,6 +1,8 @@
 import type { Component, JSX } from 'solid-js';
 
-import { setNoteSynthVoicing, type NoteSynthVoicing, type OscillatorType, useStore } from '../state/store';
+import type { OscillatorType } from '../audio/tone-types';
+import type { NoteSynthVoicing } from '../audio/synths/types';
+import { setNoteSynthVoicing, useStore } from '../state/store';
 import { clamp } from '../utils/clamp';
 
 type SynthNumberKey = {

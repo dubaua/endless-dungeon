@@ -1,6 +1,6 @@
 import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
-import type { NoteSynthId, NoteSynthVoicing, OscillatorType, VoicingState } from '../audio/synths/types';
+import type { NoteSynthId, NoteSynthVoicing, VoicingState } from '../audio/synths/types';
 import type { TrackDna } from '../generators/dna/track-dna';
 import { InitialTrack } from '../sequencer/initial-track';
 import { getTrack, getTrackBlock, updateTrack, updateTrackBlock } from '../sequencer/track-service';
@@ -12,8 +12,6 @@ export const BASS_MIXER_CHANNEL_ID = 'channel-bass-main';
 export const PERCUSSION_MIXER_GROUP_ID = 'group-percussion';
 
 const MIXER_SESSION_STORAGE_KEY = 'endless-dungeon:mixer';
-
-export type { NoteSynthVoicing, OscillatorType };
 
 export interface MixerChannelState {
   id: string;

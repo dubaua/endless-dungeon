@@ -1,10 +1,10 @@
 import type * as Tone from 'tone';
 
+import type { OscillatorType } from '../tone-types';
+
 export type DrumSynthId = 'kick' | 'snare' | 'closedHat' | 'openHat' | 'crash' | 'ride';
 export type NoteSynthId = 'voice' | 'bass';
 export type SynthId = DrumSynthId | NoteSynthId;
-
-export type OscillatorType = 'sine' | 'triangle' | 'sawtooth' | 'square';
 
 export interface KickVoicing {
   decay: number;

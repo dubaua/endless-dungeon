@@ -1,6 +1,6 @@
 import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
-import type { NoteSynthId, NoteSynthVoicing, VoicingState } from '../audio/synths/types';
+import type { DrumSynthId, DrumVoicing, NoteSynthId, NoteSynthVoicing, VoicingState } from '../audio/synths/types';
 import type { TrackDna } from '../generators/dna/track-dna';
 import { InitialTrack } from '../sequencer/initial-track';
 import { getTrack, getTrackBlock, updateTrack, updateTrackBlock } from '../sequencer/track-service';
@@ -487,6 +487,29 @@ export const setNoteSynthVoicing = (synthId: NoteSynthId, voicing: Partial<NoteS
       [synthId]: {
         ...draft.voicing[synthId],
         ...voicing,
+      },
+    };
+
+    draft.voicing = nextVoicing;
+    draft.sequencer = updateActiveTrackBlock(
+      draft.sequencer,
+      draft.sequencer.noteClips,
+      draft.sequencer.drumClips,
+      nextVoicing,
+    );
+  });
+};
+
+export const setDrumSynthVoicing = (synthId: DrumSynthId, voicing: Partial<DrumVoicing>): void => {
+  updateState((draft) => {
+    const nextVoicing = {
+      ...draft.voicing,
+      drums: {
+        ...draft.voicing.drums,
+        [synthId]: {
+          ...draft.voicing.drums[synthId],
+          ...voicing,
+        },
       },
     };
 

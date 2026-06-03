@@ -193,6 +193,17 @@ export const GeneratorPanel: Component = () => {
           <dd style={{ margin: 0 }}>{trackDna().absoluteRange} steps</dd>
           <dt>bassRange</dt>
           <dd style={{ margin: 0 }}>{trackDna().bassRange} steps</dd>
+          <dt>composition</dt>
+          <dd style={{ margin: 0 }}>
+            <For each={trackDna().composition}>
+              {(block, index) => (
+                <>
+                  {index() > 0 ? ' -> ' : ''}
+                  {block.block}:{block.bars}
+                </>
+              )}
+            </For>
+          </dd>
         </dl>
       </div>
 

@@ -6,6 +6,7 @@ import { pickWeighted, type WeightedOptions } from '../../utils/pick-weighted';
 import { takeRandom } from '../../utils/take-random';
 import { generateDrumVoicing } from '../voicing/drums/generate-drum-voicing';
 import { generateSynthVoicing } from '../voicing/generate-synth-voicing';
+import { generateTrackComposition } from '../composition/generate-track-composition';
 import { bpmWeights } from './bpm-weights';
 import { generateDrumDnaSettings } from './generate-drum-dna';
 import { scaleWeights } from './scale-weights';
@@ -99,5 +100,6 @@ export const generateTrackDna = (
       voice: generateSynthVoicing(),
       bass: generateSynthVoicing(),
     },
+    composition: generateTrackComposition(),
   };
 };

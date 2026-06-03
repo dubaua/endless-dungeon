@@ -75,16 +75,13 @@ const getFallbackBlockWeights = (track: readonly TrackBlock[]): WeightedOptions<
   }));
 };
 
-const generateBlockLength = (
-  block: BlockFunction,
-  track: readonly TrackBlock[],
-): number => {
+const generateBlockLength = (block: BlockFunction, track: readonly TrackBlock[]): number => {
   const weights = removeLimitedLengths(lengthsGraph[block], block, track);
 
   return pickWeighted(weights);
 };
 
-export const generateTrack = (): TrackBlock[] => {
+export const generateTrackComposition = (): TrackBlock[] => {
   const targetBars = getRandomInt(MinTrackBars, MaxTrackBars);
   const startBlock = pickWeighted(removeLimitedBlocks(startWeights, []));
   const track: TrackBlock[] = [

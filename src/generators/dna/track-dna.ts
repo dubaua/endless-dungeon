@@ -2,6 +2,7 @@ import { Scale } from 'tonal';
 import type { NoteName } from 'tonal';
 
 import type { VoicingState } from '../../audio/synths/types';
+import type { TrackBlock as TrackCompositionBlock } from '../composition/track-block.interface';
 
 export type ScaleName = ReturnType<typeof Scale.names>[number];
 
@@ -32,4 +33,5 @@ export interface TrackDna {
   absoluteRange: number;
   bassRange: number;
   voicing: VoicingState;
+  composition: TrackCompositionBlock[];
 }

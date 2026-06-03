@@ -1,24 +1,14 @@
 import { Scale } from 'tonal';
 import type { NoteName } from 'tonal';
 
+import type { VoiceSettings } from '../voicing/generate-synth-voicing';
+
 export type ScaleName = ReturnType<typeof Scale.names>[number];
 
 export interface CustomScale {
   name: ScaleName;
   notes: NoteName[];
   weight: number;
-}
-
-export type TrackDnaOscillatorType = 'sine' | 'triangle' | 'sawtooth' | 'square';
-
-export interface TrackDnaVoiceSettings {
-  oscillatorType: TrackDnaOscillatorType;
-  sustain: number;
-  release: number;
-  filterFrequency: number;
-  filterResonance: number;
-  bitCrusherBits: number;
-  bitCrusherDepth: number;
 }
 
 export interface TrackDna {
@@ -41,5 +31,5 @@ export interface TrackDna {
   melodicRange: number;
   absoluteRange: number;
   bassRange: number;
-  voice: TrackDnaVoiceSettings;
+  voice: VoiceSettings;
 }

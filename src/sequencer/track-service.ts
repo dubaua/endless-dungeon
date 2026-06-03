@@ -3,8 +3,6 @@ import type { Track, TrackBlock } from './types';
 
 let tracks: Track[] = [InitialTrack];
 
-export const getTracks = (): Track[] => tracks;
-
 export const getTrack = (trackId: string): Track | undefined =>
   tracks.find((track) => track.id === trackId);
 

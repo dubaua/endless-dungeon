@@ -29,30 +29,3 @@ export const kickSnarePatternToDrumClips = (
     ...baseClips.filter((clip) => clip.synthId !== 'kick' && clip.synthId !== 'snare'),
   ];
 };
-
-export const kickSnareDrumClipsToPattern = (clips: readonly DrumClip[]): string => {
-  const kickPattern = clips
-    .filter((clip) => clip.synthId === 'kick')
-    .sort((left, right) => left.startBar - right.startBar)
-    .flatMap((clip) => clip.pattern);
-  const snarePattern = clips
-    .filter((clip) => clip.synthId === 'snare')
-    .sort((left, right) => left.startBar - right.startBar)
-    .flatMap((clip) => clip.pattern);
-  const patternLength = Math.max(kickPattern.length, snarePattern.length);
-
-  return Array.from({ length: patternLength }, (_, index) => {
-    const hasKick = (kickPattern[index] ?? 0) > 0;
-    const hasSnare = (snarePattern[index] ?? 0) > 0;
-
-    if (hasKick) {
-      return 'k';
-    }
-
-    if (hasSnare) {
-      return 's';
-    }
-
-    return '-';
-  }).join('');
-};

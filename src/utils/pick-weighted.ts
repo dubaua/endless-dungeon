@@ -1,4 +1,4 @@
-export interface WeightedOption<T> {
+interface WeightedOption<T> {
   value: T;
   weight: number;
 }

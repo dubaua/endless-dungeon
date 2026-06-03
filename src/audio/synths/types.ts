@@ -89,9 +89,3 @@ export interface NoteOnEvent {
   note?: string;
   durationSeconds?: number;
 }
-
-export interface NoteOffEvent {
-  synthId: SynthId;
-  time: Tone.Unit.Time;
-  note?: string;
-}

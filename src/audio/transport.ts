@@ -8,7 +8,6 @@ import {
   setTransportPlaying,
   setTransportPosition,
   setTransportStep,
-  setTransportTimeSignature,
   subscribe,
 } from '../state/store';
 import { on } from '../events';
@@ -191,12 +190,4 @@ export const disposeTransport = (): void => {
 export const setTransportBpmFromUi = (bpm: number): void => {
   const clamped = Number.isFinite(bpm) ? Math.max(20, Math.min(300, bpm)) : 120;
   setTransportBpm(clamped);
-};
-
-export const setTransportTimeSignatureFromUi = (numerator: number, denominator: number): void => {
-  if (numerator < 1 || denominator < 1) {
-    return;
-  }
-
-  setTransportTimeSignature([numerator, denominator]);
 };

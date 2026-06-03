@@ -1,28 +1,12 @@
 import * as Tone from 'tone';
 
-import { getNoteFrequency } from '../../../sequencer';
 import type { KickVoicing } from '../../synths/types';
 import { createLoFiCrusher } from '../loFiCrusher';
 import { clamp, type DrumVoiceInstance } from './shared';
 
-export const KICK_DECAY_MIN = 0.3;
-export const KICK_DECAY_MAX = 0.5;
-export const KICK_FILTER_FREQUENCY_MIN = 60;
-export const KICK_FILTER_FREQUENCY_MAX = 220;
-export const KICK_FILTER_RESONANCE_MIN = 2;
-export const KICK_FILTER_RESONANCE_MAX = 10;
-export const KICK_BITS_MIN = 2;
-export const KICK_BITS_MAX = 4;
-
-// меньше битность - меньше депт, иначе не слышно
-export const KICK_DEPTH_MIN = 0;
-export const KICK_DEPTH_MAX = 0.1;
-
-const getKickPitchStart = (voicing: KickVoicing): number => getNoteFrequency(voicing.pitchStart) ?? 73.42;
-
 export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoicing> => {
   let currentVoicing = voicing;
-  const initialPitchStart = getKickPitchStart(voicing);
+  const initialPitchStart = voicing.pitchStart;
   const tone = new Tone.Oscillator(initialPitchStart / 2, 'square').start();
   const toneEnvelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
@@ -59,7 +43,7 @@ export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoi
     trigger: (time, intensity) => {
       const velocity = clamp(intensity, 0, 1);
       const startTime = Tone.Time(time).toSeconds();
-      const pitchStart = getKickPitchStart(currentVoicing);
+      const pitchStart = currentVoicing.pitchStart;
       const pitchEnd = pitchStart / 2;
       const pitchDropSeconds = currentVoicing.decay / 6;
       const clickDecaySeconds = currentVoicing.decay / 12;
@@ -74,7 +58,7 @@ export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoi
     },
     update: (nextVoicing) => {
       currentVoicing = nextVoicing;
-      const pitchStart = getKickPitchStart(nextVoicing);
+      const pitchStart = nextVoicing.pitchStart;
 
       toneEnvelope.decay = nextVoicing.decay;
       clickEnvelope.decay = nextVoicing.decay / 12;

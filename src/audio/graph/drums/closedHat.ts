@@ -4,17 +4,6 @@ import type { ClosedHatVoicing } from '../../synths/types';
 import { createLoFiCrusher } from '../loFiCrusher';
 import { type DrumVoiceInstance } from './shared';
 
-export const CLOSED_HAT_DECAY_MIN = 0.02;
-export const CLOSED_HAT_DECAY_MAX = 0.15;
-export const CLOSED_HAT_BITS_MIN = 1;
-export const CLOSED_HAT_BITS_MAX = 4;
-export const CLOSED_HAT_DEPTH_MIN = 0.013;
-export const CLOSED_HAT_DEPTH_MAX = 0.055;
-export const CLOSED_HAT_FILTER_FREQUENCY_MIN = 2500;
-export const CLOSED_HAT_FILTER_FREQUENCY_MAX = 10000;
-export const CLOSED_HAT_FILTER_RESONANCE_MIN = 0.1;
-export const CLOSED_HAT_FILTER_RESONANCE_MAX = 4;
-
 export const createClosedHatVoice = (
   voicing: ClosedHatVoicing,
 ): DrumVoiceInstance<ClosedHatVoicing> => {

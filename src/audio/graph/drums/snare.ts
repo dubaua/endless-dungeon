@@ -4,12 +4,6 @@ import type { SnareVoicing } from '../../synths/types';
 import { createLoFiCrusher } from '../loFiCrusher';
 import type { DrumVoiceInstance } from './shared';
 
-export const SNARE_DECAY_MIN = 0.08;
-export const SNARE_DECAY_MAX = 0.6;
-export const SNARE_BITS_MIN = 2;
-export const SNARE_BITS_MAX = 4;
-export const SNARE_DEPTH_MIN = 0.01;
-export const SNARE_DEPTH_MAX = 0.1;
 const SNARE_FILTER_FREQUENCY = 450;
 const SNARE_FILTER_RESONANCE = 0.2;
 

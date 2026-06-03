@@ -4,7 +4,7 @@ export const InitialVoicing: VoicingState = {
   drums: {
     kick: {
       decay: 0.55,
-      pitchStart: 'C2',
+      pitchStart: 65.4,
       filterFrequency: 120,
       filterResonance: 1,
       bitCrusherBits: 2,

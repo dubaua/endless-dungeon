@@ -8,7 +8,7 @@ export type OscillatorType = 'sine' | 'triangle' | 'sawtooth' | 'square';
 
 export interface KickVoicing {
   decay: number;
-  pitchStart: string;
+  pitchStart: number;
   filterFrequency: number;
   filterResonance: number;
   bitCrusherBits: number;
@@ -63,14 +63,6 @@ export type DrumVoicing =
   | OpenHatVoicing
   | CrashVoicing
   | RideVoicing;
-
-export type DrumVoicingKey =
-  | 'decay'
-  | 'release'
-  | 'filterFrequency'
-  | 'filterResonance'
-  | 'bitCrusherBits'
-  | 'bitCrusherDepth';
 
 export interface NoteSynthVoicing {
   oscillatorType: OscillatorType;

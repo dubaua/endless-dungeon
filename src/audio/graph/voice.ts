@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 
-import type { SynthState } from '../../state/store';
+import type { NoteSynthVoicing } from '../synths/types';
 import { createLoFiCrusher, type LoFiCrusher } from './loFiCrusher';
 
 export interface VoiceInstance {
@@ -9,12 +9,12 @@ export interface VoiceInstance {
   crusher: LoFiCrusher;
   input: Tone.PolySynth<Tone.Synth>;
   output: Tone.Gain;
-  update: (state: SynthState) => void;
+  update: (state: NoteSynthVoicing) => void;
   triggerAttackRelease: (frequency: number, durationSeconds: number, time: Tone.Unit.Time) => void;
   dispose: () => void;
 }
 
-export const createVoiceInstance = (state: SynthState): VoiceInstance => {
+export const createVoiceInstance = (state: NoteSynthVoicing): VoiceInstance => {
   const synth = new Tone.PolySynth(Tone.Synth, {
     oscillator: {
       type: state.oscillatorType,

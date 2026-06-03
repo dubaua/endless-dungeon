@@ -6,6 +6,7 @@ import { setMixerChannelState, useStore } from '../state/store';
 import { clamp } from '../utils/clamp';
 
 const formatVolume = (value: number): string => value.toFixed(2);
+const formatPan = (value: number): string => value.toFixed(2);
 
 export const MixerPanel: Component = () => {
   const channels = useStore((state) => Object.values(state.mixer.channels));
@@ -40,6 +41,16 @@ export const MixerPanel: Component = () => {
   const handleMuteInput = (channelId: string): JSX.EventHandlerUnion<HTMLInputElement, Event> => {
     return (event) => {
       setMixerChannelState(channelId, { muted: event.currentTarget.checked });
+    };
+  };
+
+  const handlePanInput = (channelId: string): JSX.EventHandlerUnion<HTMLInputElement, InputEvent> => {
+    return (event) => {
+      const value = Number(event.currentTarget.value);
+
+      if (Number.isFinite(value)) {
+        setMixerChannelState(channelId, { pan: clamp(value, -1, 1) });
+      }
     };
   };
 
@@ -114,6 +125,18 @@ export const MixerPanel: Component = () => {
                 <span style={{ 'font-size': '0.75rem', color: '#555', 'font-variant-numeric': 'tabular-nums' }}>
                   {formatVolume(channel.volume)}
                 </span>
+
+                <label style={{ display: 'grid', gap: '0.2rem', width: '100%', 'font-size': '0.7rem' }}>
+                  <span style={{ 'text-align': 'center', color: '#555' }}>Pan {formatPan(channel.pan)}</span>
+                  <input
+                    type="range"
+                    min="-1"
+                    max="1"
+                    step="0.01"
+                    value={channel.pan}
+                    onInput={handlePanInput(channel.id)}
+                  />
+                </label>
 
                 <label style={{ display: 'flex', gap: '0.35rem', 'align-items': 'center', 'font-size': '0.75rem' }}>
                   <input type="checkbox" checked={channel.muted} onInput={handleMuteInput(channel.id)} />

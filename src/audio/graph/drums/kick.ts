@@ -1,6 +1,7 @@
 import * as Tone from 'tone';
 
-import { getNoteFrequency, type KickVoicing } from '../../../sequencer';
+import { getNoteFrequency } from '../../../sequencer';
+import type { KickVoicing } from '../../synths/types';
 import { createLoFiCrusher } from '../loFiCrusher';
 import { clamp, type DrumVoiceInstance } from './shared';
 

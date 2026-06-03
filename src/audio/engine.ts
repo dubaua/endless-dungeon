@@ -1,7 +1,7 @@
-import { initializeDrums } from './drums';
-import { initializeVoice } from './voice';
+import { initializeMixer } from './mixer';
+import { initializeSynthRegistry } from './synths/registry';
 
 export const initializeAudioEngine = (): void => {
-  initializeVoice();
-  initializeDrums();
+  initializeMixer();
+  initializeSynthRegistry();
 };

@@ -1,11 +1,11 @@
 import type { Component, JSX } from 'solid-js';
 
-import { setSynthState, type OscillatorType, type SynthState, useStore } from '../state/store';
+import { setNoteSynthVoicing, type NoteSynthVoicing, type OscillatorType, useStore } from '../state/store';
 import { clamp } from '../utils/clamp';
 
 type SynthNumberKey = {
-  [Key in keyof SynthState]: SynthState[Key] extends number ? Key : never;
-}[keyof SynthState];
+  [Key in keyof NoteSynthVoicing]: NoteSynthVoicing[Key] extends number ? Key : never;
+}[keyof NoteSynthVoicing];
 
 interface KnobProps {
   curve?: 'linear' | 'exponential';
@@ -119,14 +119,14 @@ const Knob: Component<KnobProps> = (props) => {
 };
 
 const setNumber = (key: SynthNumberKey, value: number): void => {
-  setSynthState({ [key]: value });
+  setNoteSynthVoicing('voice', { [key]: value });
 };
 
 export const SynthPanel: Component = () => {
-  const synth = useStore((state) => state.synth);
+  const synth = useStore((state) => state.voicing.notes.voice);
 
   const handleOscillatorInput: JSX.EventHandlerUnion<HTMLSelectElement, Event> = (event) => {
-    setSynthState({ oscillatorType: event.currentTarget.value as OscillatorType });
+    setNoteSynthVoicing('voice', { oscillatorType: event.currentTarget.value as OscillatorType });
   };
 
   return (

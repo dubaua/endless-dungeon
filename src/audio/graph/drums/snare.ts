@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 
-import type { SnareVoicing } from '../../../sequencer';
+import type { SnareVoicing } from '../../synths/types';
 import { createLoFiCrusher } from '../loFiCrusher';
 import type { DrumVoiceInstance } from './shared';
 

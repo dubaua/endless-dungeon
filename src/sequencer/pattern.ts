@@ -1,6 +1,6 @@
 import { STEP_TICKS } from './timing';
 import { getNoteName } from './pitch';
-import type { Clip } from './types';
+import type { NoteClip } from './types';
 
 export interface ExpandedPatternEvent {
   id: string;
@@ -9,10 +9,10 @@ export interface ExpandedPatternEvent {
   durationTicks: number;
 }
 
-export const getPatternLengthTicks = (clip: Clip): number =>
+export const getPatternLengthTicks = (clip: NoteClip): number =>
   clip.pattern.reduce((totalTicks, [, stepCount]) => totalTicks + stepCount * STEP_TICKS, 0);
 
-export const expandClipPattern = (clip: Clip): ExpandedPatternEvent[] => {
+export const expandClipPattern = (clip: NoteClip): ExpandedPatternEvent[] => {
   let cursorTick = clip.startTick;
 
   return clip.pattern.flatMap(([note, stepCount], index) => {

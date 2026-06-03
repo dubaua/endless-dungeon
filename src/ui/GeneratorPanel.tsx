@@ -4,15 +4,15 @@ import { stopTransport } from '../audio/transport';
 import { generateTrackDna } from '../generators/dna/generate-track-dna';
 import type { TrackDna } from '../generators/dna/track-dna';
 import { generateEightBarDrumPattern } from '../generators/drums/generate-eight-bar-drum-pattern';
-import { kickSnarePatternToChannels } from '../generators/drums/kick-snare-pattern-to-channels';
+import { kickSnarePatternToDrumClips } from '../generators/drums/kick-snare-pattern-to-drum-clips';
 import { generateMotif, type GenerateMotifOptions } from '../generators/motif/generate-motif';
 import { motifToPattern } from '../generators/motif/motif-to-pattern';
 import type { Motif } from '../generators/motif/motif';
 import {
   getState,
-  setDrumChannels,
+  setDrumClips,
   setDrumPatternFilters,
-  setSynthState,
+  setNoteSynthVoicing,
   setTrackDna,
   setTransportBpm,
   setVoicePattern,
@@ -118,13 +118,13 @@ export const GeneratorPanel: Component = () => {
       density: nextTrackDna.density,
       syncopationScore: nextTrackDna.syncopation,
     });
-    setDrumChannels(
-      kickSnarePatternToChannels(
+    setDrumClips(
+      kickSnarePatternToDrumClips(
         generateEightBarDrumPattern(nextTrackDna.bodyDrumPattern),
-        getState().sequencer.drumChannels,
+        getState().sequencer.drumClips,
       ),
     );
-    setSynthState(nextTrackDna.voice);
+    setNoteSynthVoicing('voice', nextTrackDna.voice);
     setMotifOptions(nextMotifOptions);
     applyMotif(nextMotif, nextTrackDna, nextMotifOptions.absoluteRange);
   };

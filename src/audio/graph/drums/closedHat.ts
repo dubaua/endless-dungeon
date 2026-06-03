@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 
-import type { ClosedHatVoicing } from '../../../sequencer';
+import type { ClosedHatVoicing } from '../../synths/types';
 import { createLoFiCrusher } from '../loFiCrusher';
 import { type DrumVoiceInstance } from './shared';
 

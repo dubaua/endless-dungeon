@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 
-import type { CrashVoicing } from '../../../sequencer';
+import type { CrashVoicing } from '../../synths/types';
 import { createLoFiCrusher } from '../loFiCrusher';
 import { clamp, type DrumVoiceInstance } from './shared';
 

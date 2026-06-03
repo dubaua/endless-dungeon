@@ -1,40 +1,41 @@
 import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
-import { generateTrackDna } from '../generators/dna/generate-track-dna';
+import type { NoteSynthId, NoteSynthVoicing, OscillatorType, VoicingState } from '../audio/synths/types';
 import type { TrackDna } from '../generators/dna/track-dna';
-import { InitialDrumChannels } from '../sequencer/drum-channels';
-import { InitialTracks } from '../sequencer/initial-tracks';
-import type { DrumChannel, PatternStep, SequencerState } from '../sequencer/types';
+import { InitialTrack } from '../sequencer/initial-track';
+import { getTrack, getTrackBlock, updateTrack, updateTrackBlock } from '../sequencer/track-service';
+import type { DrumClip, NoteClip, PatternStep, SequencerState, TrackBlock } from '../sequencer/types';
 import { clamp } from '../utils/clamp';
 
-export const SYNTH_MIXER_CHANNEL_ID = 'channel-synth-main';
+export const VOICE_MIXER_CHANNEL_ID = 'channel-voice-main';
+export const BASS_MIXER_CHANNEL_ID = 'channel-bass-main';
+export const PERCUSSION_MIXER_GROUP_ID = 'group-percussion';
 
 const MIXER_SESSION_STORAGE_KEY = 'endless-dungeon:mixer';
 
-export type OscillatorType = 'sine' | 'triangle' | 'sawtooth' | 'square';
-
-export interface SynthState {
-  oscillatorType: OscillatorType;
-  attack: number;
-  decay: number;
-  sustain: number;
-  release: number;
-  filterFrequency: number;
-  filterResonance: number;
-  bitCrusherBits: number;
-  bitCrusherDepth: number;
-}
+export type { NoteSynthVoicing, OscillatorType };
 
 export interface MixerChannelState {
   id: string;
   name: string;
   volume: number;
+  pan: number;
   muted: boolean;
   groupId: string | null;
 }
 
+export interface MixerGroupState {
+  id: string;
+  name: string;
+  volume: number;
+  pan: number;
+  muted: boolean;
+}
+
 export interface MixerState {
   channels: Record<string, MixerChannelState>;
+  groups: Record<string, MixerGroupState>;
+  masterVolume: number;
 }
 
 export interface TransportState {
@@ -60,7 +61,7 @@ export interface AppState {
   sequencer: SequencerState;
   trackDna: TrackDna;
   drumPatternFilters: DrumPatternFiltersState;
-  synth: SynthState;
+  voicing: VoicingState;
   mixer: MixerState;
 }
 
@@ -71,7 +72,7 @@ type Selector<T> = (state: AppState) => T;
 
 type Cleanup = () => void;
 
-type StoredMixerChannelState = Partial<Pick<MixerChannelState, 'volume' | 'muted'>>;
+type StoredMixerChannelState = Partial<Pick<MixerChannelState, 'volume' | 'pan' | 'muted'>>;
 type StoredMixerState = Record<string, StoredMixerChannelState>;
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
@@ -136,6 +137,7 @@ const writeStoredMixerState = (mixer: MixerState): void => {
       id,
       {
         volume: channel.volume,
+        pan: channel.pan,
         muted: channel.muted,
       },
     ]),
@@ -148,21 +150,81 @@ const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
   Object.fromEntries(
     [
       {
-        id: SYNTH_MIXER_CHANNEL_ID,
-        name: 'Piano',
+        id: VOICE_MIXER_CHANNEL_ID,
+        name: 'Voice',
         volume: 0.75,
+        pan: 0,
         muted: false,
         groupId: null,
       },
-      ...InitialDrumChannels.map((channel) => ({
-        id: channel.outputChannelId,
-        name: channel.name,
-        volume: 0.85,
+      {
+        id: BASS_MIXER_CHANNEL_ID,
+        name: 'Bass',
+        volume: 0.75,
+        pan: 0,
         muted: false,
-        groupId: channel.groupId,
-      })),
+        groupId: null,
+      },
+      {
+        id: 'channel-drum-kick',
+        name: 'Kick',
+        volume: 0.85,
+        pan: 0,
+        muted: false,
+        groupId: null,
+      },
+      {
+        id: 'channel-drum-snare',
+        name: 'Snare',
+        volume: 0.85,
+        pan: 0,
+        muted: false,
+        groupId: null,
+      },
+      {
+        id: 'channel-drum-closed-hat',
+        name: 'Closed Hat',
+        volume: 0.85,
+        pan: 0,
+        muted: false,
+        groupId: PERCUSSION_MIXER_GROUP_ID,
+      },
+      {
+        id: 'channel-drum-open-hat',
+        name: 'Open Hat',
+        volume: 0.85,
+        pan: 0,
+        muted: false,
+        groupId: PERCUSSION_MIXER_GROUP_ID,
+      },
+      {
+        id: 'channel-drum-crash',
+        name: 'Crash',
+        volume: 0.85,
+        pan: 0,
+        muted: false,
+        groupId: PERCUSSION_MIXER_GROUP_ID,
+      },
+      {
+        id: 'channel-drum-ride',
+        name: 'Ride',
+        volume: 0.85,
+        pan: 0,
+        muted: false,
+        groupId: PERCUSSION_MIXER_GROUP_ID,
+      },
     ].map((channel) => [channel.id, channel]),
   );
+
+const createDefaultMixerGroups = (): Record<string, MixerGroupState> => ({
+  [PERCUSSION_MIXER_GROUP_ID]: {
+    id: PERCUSSION_MIXER_GROUP_ID,
+    name: 'Percussion',
+    volume: 0.9,
+    pan: 0,
+    muted: false,
+  },
+});
 
 const createInitialMixerState = (): MixerState => {
   const channels = createDefaultMixerChannels();
@@ -178,11 +240,38 @@ const createInitialMixerState = (): MixerState => {
     channels[id] = {
       ...channel,
       volume: typeof settings.volume === 'number' ? clamp(settings.volume, 0, 1) : channel.volume,
+      pan: typeof settings.pan === 'number' ? clamp(settings.pan, -1, 1) : channel.pan,
       muted: typeof settings.muted === 'boolean' ? settings.muted : channel.muted,
     };
   });
 
-  return { channels };
+  return { channels, groups: createDefaultMixerGroups(), masterVolume: 1 };
+};
+
+const InitialTrackBlock = InitialTrack.blocks[0] as TrackBlock;
+
+const updateActiveTrackBlock = (
+  sequencer: SequencerState,
+  noteClips: NoteClip[],
+  drumClips: DrumClip[],
+  voicing: VoicingState,
+): SequencerState => {
+  const activeBlock = getTrackBlock(sequencer.activeTrackId, sequencer.activeBlockId);
+
+  if (activeBlock) {
+    updateTrackBlock(sequencer.activeTrackId, {
+      ...activeBlock,
+      noteClips,
+      drumClips,
+      voicing,
+    });
+  }
+
+  return {
+    ...sequencer,
+    noteClips,
+    drumClips,
+  };
 };
 
 const state: AppState = {
@@ -197,27 +286,19 @@ const state: AppState = {
     step: 0,
   },
   sequencer: {
-    tracks: InitialTracks,
-    drumChannels: InitialDrumChannels,
+    activeTrackId: InitialTrack.id,
+    activeBlockId: InitialTrackBlock.id,
+    noteClips: InitialTrackBlock.noteClips,
+    drumClips: InitialTrackBlock.drumClips,
   },
-  trackDna: generateTrackDna(),
+  trackDna: InitialTrack.dna,
   drumPatternFilters: {
     syncopationScore: 0.5,
     syncopationSpread: 0.1,
     density: 0.5,
     densitySpread: 0.1,
   },
-  synth: {
-    oscillatorType: 'sawtooth',
-    attack: 0.01,
-    decay: 0.16,
-    sustain: 0.55,
-    release: 0.28,
-    filterFrequency: 1800,
-    filterResonance: 1.2,
-    bitCrusherBits: 8,
-    bitCrusherDepth: 0.02,
-  },
+  voicing: InitialTrackBlock.voicing,
   mixer: createInitialMixerState(),
 };
 
@@ -301,6 +382,14 @@ export const setTransportTimeSignature = (timeSignature: [number, number]): void
 export const setTrackDna = (trackDna: TrackDna): void => {
   updateState((draft) => {
     draft.trackDna = trackDna;
+    const track = getTrack(draft.sequencer.activeTrackId);
+
+    if (track) {
+      updateTrack({
+        ...track,
+        dna: trackDna,
+      });
+    }
   });
 };
 
@@ -310,76 +399,115 @@ export const setDrumPatternFilters = (filters: Partial<DrumPatternFiltersState>)
   });
 };
 
+export const loadTrackBlock = (trackId: string, blockId: string): void => {
+  updateState((draft) => {
+    const track = getTrack(trackId);
+    const block = getTrackBlock(trackId, blockId);
+
+    if (!track || !block) {
+      return;
+    }
+
+    draft.sequencer = {
+      ...draft.sequencer,
+      activeTrackId: track.id,
+      activeBlockId: block.id,
+      noteClips: block.noteClips,
+      drumClips: block.drumClips,
+    };
+    draft.trackDna = track.dna;
+    draft.voicing = block.voicing;
+  });
+};
+
 export const setVoicePattern = (pattern: PatternStep[]): void => {
   updateState((draft) => {
-    draft.sequencer = {
-      ...draft.sequencer,
-      tracks: draft.sequencer.tracks.map((track) => {
-        if (track.type !== 'notes') {
-          return track;
-        }
+    const noteClips = draft.sequencer.noteClips.map((clip) => {
+      if (clip.synthId !== 'voice') {
+        return clip;
+      }
 
-        return {
-          ...track,
-          clips: track.clips.map((clip, index) => {
-            if (index !== 0) {
-              return clip;
-            }
+      return {
+        ...clip,
+        startTick: 0,
+        pattern,
+      };
+    });
 
-            return {
-              ...clip,
-              startTick: 0,
-              pattern,
-            };
-          }),
-        };
-      }),
-    };
+    draft.sequencer = updateActiveTrackBlock(
+      draft.sequencer,
+      noteClips,
+      draft.sequencer.drumClips,
+      draft.voicing,
+    );
   });
 };
 
-export const setDrumPatternStep = (channelId: string, step: number, intensity: number): void => {
+export const setDrumPatternStep = (clipId: string, step: number, intensity: number): void => {
   updateState((draft) => {
-    draft.sequencer = {
-      ...draft.sequencer,
-      drumChannels: draft.sequencer.drumChannels.map((channel) => {
-        if (channel.id !== channelId) {
-          return channel;
-        }
+    const drumClips = draft.sequencer.drumClips.map((clip) => {
+      if (clip.id !== clipId) {
+        return clip;
+      }
 
-        return {
-          ...channel,
-          pattern: channel.pattern.map((value, index) => {
-            if (index !== step) {
-              return value;
-            }
+      return {
+        ...clip,
+        pattern: clip.pattern.map((value, index) => {
+          if (index !== step) {
+            return value;
+          }
 
-            return intensity;
-          }),
-        };
-      }),
-    };
+          return intensity;
+        }),
+      };
+    });
+
+    draft.sequencer = updateActiveTrackBlock(
+      draft.sequencer,
+      draft.sequencer.noteClips,
+      drumClips,
+      draft.voicing,
+    );
   });
 };
 
-export const setDrumChannels = (drumChannels: DrumChannel[]): void => {
+export const setDrumClips = (drumClips: DrumClip[]): void => {
   updateState((draft) => {
-    draft.sequencer = {
-      ...draft.sequencer,
-      drumChannels,
-    };
+    draft.sequencer = updateActiveTrackBlock(
+      draft.sequencer,
+      draft.sequencer.noteClips,
+      drumClips,
+      draft.voicing,
+    );
   });
 };
 
-export const setSynthState = (synth: Partial<SynthState>): void => {
+export const setNoteSynthVoicing = (synthId: NoteSynthId, voicing: Partial<NoteSynthVoicing>): void => {
   updateState((draft) => {
-    draft.synth = { ...draft.synth, ...synth };
+    const nextVoicing = {
+      ...draft.voicing,
+      notes: {
+        ...draft.voicing.notes,
+        [synthId]: {
+          ...draft.voicing.notes[synthId],
+          ...voicing,
+        },
+      },
+    };
+
+    draft.voicing = nextVoicing;
+    draft.sequencer = updateActiveTrackBlock(
+      draft.sequencer,
+      draft.sequencer.noteClips,
+      draft.sequencer.drumClips,
+      nextVoicing,
+    );
   });
 };
 
 export const setMixerChannelState = (
   channelId: string,
-  settings: Partial<Pick<MixerChannelState, 'volume' | 'muted'>>,
+  settings: Partial<Pick<MixerChannelState, 'volume' | 'pan' | 'muted'>>,
 ): void => {
   updateState((draft) => {
     const channel = draft.mixer.channels[channelId];

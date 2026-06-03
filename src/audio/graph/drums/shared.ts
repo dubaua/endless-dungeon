@@ -1,6 +1,6 @@
 import type * as Tone from 'tone';
 
-import type { DrumVoicing } from '../../../sequencer';
+import type { DrumVoicing } from '../../synths/types';
 export { clamp } from '../../../utils/clamp';
 export { lerp } from '../../../utils/lerp';
 

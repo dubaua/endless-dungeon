@@ -12,8 +12,7 @@ import {
   subscribe,
 } from '../state/store';
 import { on } from '../events';
-import { triggerDrumsAtStep } from './drums';
-import { triggerPianoNotesAtTick } from './voice';
+import { playSequencerStep, playSequencerTick } from './sequencer';
 
 // переписать терминал
 
@@ -116,8 +115,8 @@ const scheduleStepUpdates = (): void => {
     setTransportTick(currentTick);
     setTransportPosition(barCounter, beat, sixteenth);
     setTransportStep(stepWithinBar);
-    triggerPianoNotesAtTick(currentTick, time);
-    triggerDrumsAtStep(barCounter * sixteenthsPerBar + stepWithinBar, time);
+    playSequencerTick(currentTick, time);
+    playSequencerStep(barCounter * sixteenthsPerBar + stepWithinBar, time);
 
     stepWithinBar += 1;
 

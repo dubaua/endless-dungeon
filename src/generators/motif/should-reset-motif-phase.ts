@@ -1,4 +1,3 @@
-import type { RandomSource } from '../../utils/pick-weighted';
 import { rollBiasChance } from '../../utils/roll-bias-chance';
 import { scale } from '../../utils/scale';
 
@@ -10,7 +9,6 @@ const MelodyPhaseResetMaxSpeedFactor = 1.15;
 export const shouldResetMotifPhase = (
   melodyBreakPhaseResetBias: number,
   melodySpeedBias: number,
-  random: RandomSource,
 ): boolean => {
   const speedFactor = scale(
     melodySpeedBias,
@@ -24,6 +22,5 @@ export const shouldResetMotifPhase = (
     melodyBreakPhaseResetBias,
     MelodyPhaseResetMinChance * speedFactor,
     MelodyPhaseResetMaxChance * speedFactor,
-    random,
   );
 };

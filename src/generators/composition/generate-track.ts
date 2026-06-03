@@ -4,7 +4,7 @@ import { startWeights } from './start-block.graph';
 import { transitionsGraph } from './block-transition.graph';
 import type { TrackBlock } from './track-block.interface';
 import { getRandomInt } from '../../utils/get-random-int';
-import { pickWeighted, type RandomSource, type WeightedOptions } from '../../utils/pick-weighted';
+import { pickWeighted, type WeightedOptions } from '../../utils/pick-weighted';
 
 const MinTrackBars = 24;
 const MaxTrackBars = 48;
@@ -78,20 +78,19 @@ const getFallbackBlockWeights = (track: readonly TrackBlock[]): WeightedOptions<
 const generateBlockLength = (
   block: BlockFunction,
   track: readonly TrackBlock[],
-  random: RandomSource,
 ): number => {
   const weights = removeLimitedLengths(lengthsGraph[block], block, track);
 
-  return pickWeighted(weights, random);
+  return pickWeighted(weights);
 };
 
-export const generateTrack = (random: RandomSource = Math.random): TrackBlock[] => {
-  const targetBars = getRandomInt(MinTrackBars, MaxTrackBars, random);
-  const startBlock = pickWeighted(removeLimitedBlocks(startWeights, []), random);
+export const generateTrack = (): TrackBlock[] => {
+  const targetBars = getRandomInt(MinTrackBars, MaxTrackBars);
+  const startBlock = pickWeighted(removeLimitedBlocks(startWeights, []));
   const track: TrackBlock[] = [
     {
       block: startBlock,
-      bars: generateBlockLength(startBlock, [], random),
+      bars: generateBlockLength(startBlock, []),
     },
   ];
 
@@ -105,11 +104,11 @@ export const generateTrack = (random: RandomSource = Math.random): TrackBlock[] 
       break;
     }
 
-    const block = pickWeighted(nextBlockWeights, random);
+    const block = pickWeighted(nextBlockWeights);
 
     track.push({
       block,
-      bars: generateBlockLength(block, track, random),
+      bars: generateBlockLength(block, track),
     });
   }
 

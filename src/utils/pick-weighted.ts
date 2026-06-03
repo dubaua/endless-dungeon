@@ -4,12 +4,8 @@ export interface WeightedOption<T> {
 }
 
 export type WeightedOptions<T> = WeightedOption<T>[];
-export type RandomSource = () => number;
 
-export const pickWeighted = <T>(
-  options: WeightedOptions<T>,
-  random: RandomSource = Math.random,
-): T => {
+export const pickWeighted = <T>(options: WeightedOptions<T>): T => {
   const validOptions = options.filter((option) => option.weight > 0);
 
   if (validOptions.length === 0) {
@@ -17,7 +13,7 @@ export const pickWeighted = <T>(
   }
 
   const totalWeight = validOptions.reduce((sum, option) => sum + option.weight, 0);
-  let threshold = random() * totalWeight;
+  let threshold = Math.random() * totalWeight;
 
   for (const option of validOptions) {
     threshold -= option.weight;

@@ -2,7 +2,6 @@ import { KickSnarePatternWeights } from '../drums/kick-snare-patterns';
 import { getRandomFloat } from '../../utils/get-random-float';
 import { lerp } from '../../utils/lerp';
 import { takeRandom } from '../../utils/take-random';
-import type { RandomSource } from '../../utils/pick-weighted';
 
 export interface DrumDnaSettings {
   density: number;
@@ -52,18 +51,18 @@ const findMatchingKickSnarePatterns = (
     .map((weight) => weight.pattern);
 };
 
-const randomizeDrumDnaCandidate = (random: RandomSource): Pick<DrumDnaSettings, 'density' | 'syncopation'> => {
-  const density = getRandomFloat(MinDensity, MaxDensity, random);
+const randomizeDrumDnaCandidate = (): Pick<DrumDnaSettings, 'density' | 'syncopation'> => {
+  const density = getRandomFloat(MinDensity, MaxDensity);
   const [minSyncopation, maxSyncopation] = getSyncopationRangeForDensity(density);
 
   return {
     density,
-    syncopation: getRandomFloat(minSyncopation, maxSyncopation, random),
+    syncopation: getRandomFloat(minSyncopation, maxSyncopation),
   };
 };
 
-export const generateDrumDnaSettings = (random: RandomSource): DrumDnaSettings => {
-  const candidate = randomizeDrumDnaCandidate(random);
+export const generateDrumDnaSettings = (): DrumDnaSettings => {
+  const candidate = randomizeDrumDnaCandidate();
 
   for (
     let searchSpread = InitialSearchSpread;
@@ -77,7 +76,7 @@ export const generateDrumDnaSettings = (random: RandomSource): DrumDnaSettings =
     );
 
     if (matchingPatterns.length > 0) {
-      const bodyDrumPattern = takeRandom(matchingPatterns, random);
+      const bodyDrumPattern = takeRandom(matchingPatterns);
 
       return {
         ...candidate,
@@ -86,7 +85,7 @@ export const generateDrumDnaSettings = (random: RandomSource): DrumDnaSettings =
     }
   }
 
-  const bodyDrumPattern = takeRandom([...KickSnarePatternWeights.keys()], random);
+  const bodyDrumPattern = takeRandom([...KickSnarePatternWeights.keys()]);
 
   return {
     ...candidate,

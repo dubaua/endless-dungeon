@@ -1,5 +1,4 @@
 import type { GenerateMotifBarOptions, MotifBar, MotifStepEvent } from './motif';
-import type { RandomSource } from '../../utils/pick-weighted';
 import { getRandomFloat } from '../../utils/get-random-float';
 import { scale } from '../../utils/scale';
 import { shouldChangeMotifSpeed } from './should-change-motif-speed';
@@ -32,7 +31,6 @@ export function generateMotifBar(
     absoluteRange,
   }: GenerateMotifBarOptions,
   length: number,
-  random: RandomSource = Math.random,
 ): MotifBar {
   if (length <= 0) {
     return { steps: [], stepEvents: [] };
@@ -45,12 +43,11 @@ export function generateMotifBar(
   const startDegreeFloat =
     startDegree !== undefined
       ? startDegree / melodicRange
-      : getRandomFloat(-absoluteRatio, absoluteRatio, random);
+      : getRandomFloat(-absoluteRatio, absoluteRatio);
 
   let { phase, curveYShift } = getPhaseAndCurveYShiftForDegree(
     startDegreeFloat,
     absoluteRatio,
-    random,
   );
 
   let anchorPhase = phase;
@@ -69,7 +66,7 @@ export function generateMotifBar(
       direction = Math.sign(degreeFloat - previousDegreeFloat);
     }
 
-    if (index > 0 && shouldJumpMotif(melodyJumpBias, random)) {
+    if (index > 0 && shouldJumpMotif(melodyJumpBias)) {
       const jumpRange = getMotifJumpRange(
         previousDegreeFloat,
         direction,
@@ -78,11 +75,10 @@ export function generateMotifBar(
       );
 
       if (jumpRange !== null) {
-        const jumpDegreeFloat = getRandomFloat(jumpRange.min, jumpRange.max, random);
+        const jumpDegreeFloat = getRandomFloat(jumpRange.min, jumpRange.max);
         const phaseAndCurveYShift = getPhaseAndCurveYShiftForDegree(
           jumpDegreeFloat,
           absoluteRatio,
-          random,
         );
 
         phase = phaseAndCurveYShift.phase;
@@ -96,14 +92,14 @@ export function generateMotifBar(
     if (
       !didJump &&
       index > 0 &&
-      shouldResetMotifPhase(melodyBreakPhaseResetBias, melodySpeedBias, random)
+      shouldResetMotifPhase(melodyBreakPhaseResetBias, melodySpeedBias)
     ) {
       phase = anchorPhase;
       let event: MotifStepEvent = 'phase-reset';
 
       if (
         melodicRange >= MinMotifShiftSteps &&
-        shouldShiftMotifPhase(melodyBreakPhaseShiftBias, random)
+        shouldShiftMotifPhase(melodyBreakPhaseShiftBias)
       ) {
         const resetPhase = phase;
         const point = Math.sin(phase);
@@ -132,8 +128,8 @@ export function generateMotifBar(
       degreeFloat = Math.sin(phase) + curveYShift;
     }
 
-    if (index > 0 && shouldChangeMotifSpeed(melodySpeedChangeBias, random)) {
-      phaseStep = FullCycle / scale(random(), 0, 1, MaxCurveCycleSteps, MinCurveCycleSteps);
+    if (index > 0 && shouldChangeMotifSpeed(melodySpeedChangeBias)) {
+      phaseStep = FullCycle / scale(Math.random(), 0, 1, MaxCurveCycleSteps, MinCurveCycleSteps);
       events.push('speed-change');
     }
 

@@ -1,7 +1,6 @@
 import { clamp } from '../../utils/clamp';
 import { getRandomFloat } from '../../utils/get-random-float';
 import { normalizePhase } from '../../utils/normalize-phase';
-import { RandomSource } from '../../utils/pick-weighted';
 import { takeRandom } from '../../utils/take-random';
 
 interface CurveYShiftRange {
@@ -36,18 +35,17 @@ const getCurveYShiftRangeForDegree = (
 export const getPhaseAndCurveYShiftForDegree = (
   degreeFloat: number,
   absoluteRatio: number,
-  random: RandomSource,
 ): PhaseAndCurveYShift => {
   const shiftRange = getCurveYShiftRangeForDegree(degreeFloat, absoluteRatio);
 
-  const curveYShift = getRandomFloat(shiftRange.min, shiftRange.max, random);
+  const curveYShift = getRandomFloat(shiftRange.min, shiftRange.max);
   const sineValue = clamp(degreeFloat - curveYShift, -1, 1);
   const phase = Math.asin(sineValue);
 
   const phases = [normalizePhase(phase), normalizePhase(Math.PI - phase)];
 
   return {
-    phase: takeRandom(phases, random),
+    phase: takeRandom(phases),
     curveYShift,
   };
 };

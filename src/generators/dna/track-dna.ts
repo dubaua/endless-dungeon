@@ -1,7 +1,7 @@
 import { Scale } from 'tonal';
 import type { NoteName } from 'tonal';
 
-import type { VoiceSettings } from '../voicing/generate-synth-voicing';
+import type { VoicingState } from '../../audio/synths/types';
 
 export type ScaleName = ReturnType<typeof Scale.names>[number];
 
@@ -31,5 +31,5 @@ export interface TrackDna {
   melodicRange: number;
   absoluteRange: number;
   bassRange: number;
-  voice: VoiceSettings;
+  voicing: VoicingState;
 }

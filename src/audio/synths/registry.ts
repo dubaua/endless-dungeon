@@ -29,7 +29,7 @@ const ensureSynths = (): void => {
   });
 
   NoteSynthIds.forEach((synthId) => {
-    const synth = createVoiceInstance(state.voicing.notes[synthId]);
+    const synth = createVoiceInstance(state.voicing[synthId]);
     noteSynths.set(synthId, synth);
     connectMixerChannelInput(getMixerChannelIdForSynth(synthId), synth.output);
   });
@@ -50,7 +50,7 @@ const handleVoicingChanges = (): void => {
       drumSynths.get(synthId)?.update(next.voicing.drums[synthId]);
     });
     NoteSynthIds.forEach((synthId) => {
-      noteSynths.get(synthId)?.update(next.voicing.notes[synthId]);
+      noteSynths.get(synthId)?.update(next.voicing[synthId]);
     });
   });
 

@@ -12,9 +12,9 @@ import {
   getState,
   setDrumClips,
   setDrumPatternFilters,
-  setNoteSynthVoicing,
   setTrackDna,
   setTransportBpm,
+  setVoicing,
   setVoicePattern,
   useStore,
 } from '../state/store';
@@ -124,7 +124,7 @@ export const GeneratorPanel: Component = () => {
         getState().sequencer.drumClips,
       ),
     );
-    setNoteSynthVoicing('voice', nextTrackDna.voice);
+    setVoicing(nextTrackDna.voicing);
     setMotifOptions(nextMotifOptions);
     applyMotif(nextMotif, nextTrackDna, nextMotifOptions.absoluteRange);
   };

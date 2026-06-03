@@ -4,6 +4,7 @@ import type { NoteName } from 'tonal';
 import { getRandomInt } from '../../utils/get-random-int';
 import { pickWeighted, type RandomSource, type WeightedOptions } from '../../utils/pick-weighted';
 import { takeRandom } from '../../utils/take-random';
+import { generateDrumVoicing } from '../voicing/drums/generate-drum-voicing';
 import { generateSynthVoicing } from '../voicing/generate-synth-voicing';
 import { bpmWeights } from './bpm-weights';
 import { generateDrumDnaSettings } from './generate-drum-dna';
@@ -36,6 +37,7 @@ export interface GenerateTrackDnaOptions {
   customScales?: CustomScale[];
 }
 
+// не уверен что это говно нужно, как и следующая функция
 const getScaleWeights = (customScales: readonly CustomScale[] = []): WeightedOptions<ScaleName> => {
   return [
     ...scaleWeights,
@@ -94,6 +96,10 @@ export const generateTrackDna = (
     ),
     absoluteRange,
     bassRange: getRandomInt(MinBassRangeSteps, MaxBassRangeSteps, random),
-    voice: generateSynthVoicing(random),
+    voicing: {
+      drums: generateDrumVoicing(rootNote),
+      voice: generateSynthVoicing(random),
+      bass: generateSynthVoicing(random),
+    },
   };
 };

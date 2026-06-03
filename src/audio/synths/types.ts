@@ -78,7 +78,8 @@ export interface NoteSynthVoicing {
 
 export interface VoicingState {
   drums: Record<DrumSynthId, DrumVoicing>;
-  notes: Record<NoteSynthId, NoteSynthVoicing>;
+  voice: NoteSynthVoicing;
+  bass: NoteSynthVoicing;
 }
 
 export interface NoteOnEvent {

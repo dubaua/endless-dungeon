@@ -125,7 +125,7 @@ const setNumber = (key: SynthNumberKey, value: number): void => {
 };
 
 export const SynthPanel: Component = () => {
-  const synth = useStore((state) => state.voicing.notes.voice);
+  const synth = useStore((state) => state.voicing.voice);
 
   const handleOscillatorInput: JSX.EventHandlerUnion<HTMLSelectElement, Event> = (event) => {
     setNoteSynthVoicing('voice', { oscillatorType: event.currentTarget.value as OscillatorType });

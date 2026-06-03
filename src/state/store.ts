@@ -484,12 +484,9 @@ export const setNoteSynthVoicing = (synthId: NoteSynthId, voicing: Partial<NoteS
   updateState((draft) => {
     const nextVoicing = {
       ...draft.voicing,
-      notes: {
-        ...draft.voicing.notes,
-        [synthId]: {
-          ...draft.voicing.notes[synthId],
-          ...voicing,
-        },
+      [synthId]: {
+        ...draft.voicing[synthId],
+        ...voicing,
       },
     };
 
@@ -499,6 +496,18 @@ export const setNoteSynthVoicing = (synthId: NoteSynthId, voicing: Partial<NoteS
       draft.sequencer.noteClips,
       draft.sequencer.drumClips,
       nextVoicing,
+    );
+  });
+};
+
+export const setVoicing = (voicing: VoicingState): void => {
+  updateState((draft) => {
+    draft.voicing = voicing;
+    draft.sequencer = updateActiveTrackBlock(
+      draft.sequencer,
+      draft.sequencer.noteClips,
+      draft.sequencer.drumClips,
+      voicing,
     );
   });
 };

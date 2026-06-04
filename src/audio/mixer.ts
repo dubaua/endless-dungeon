@@ -37,6 +37,7 @@ const SynthMixerChannelIds: Record<SynthId, string> = {
   bass: BASS_MIXER_CHANNEL_ID,
   kick: 'channel-drum-kick',
   snare: 'channel-drum-snare',
+  clap: 'channel-drum-clap',
   closedHat: 'channel-drum-closed-hat',
   openHat: 'channel-drum-open-hat',
   crash: 'channel-drum-crash',

@@ -180,6 +180,14 @@ const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
         groupId: null,
       },
       {
+        id: 'channel-drum-clap',
+        name: 'Clap',
+        volume: 0.85,
+        pan: 0,
+        muted: false,
+        groupId: null,
+      },
+      {
         id: 'channel-drum-closed-hat',
         name: 'Closed Hat',
         volume: 0.85,

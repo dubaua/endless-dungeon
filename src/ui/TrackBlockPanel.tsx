@@ -51,6 +51,7 @@ const PianoRollRowHeight = '0.38rem';
 const DrumClipLabels: Record<DrumSynthId, string> = {
   kick: 'Kick',
   snare: 'Snare',
+  clap: 'Clap',
   closedHat: 'Closed Hat',
   openHat: 'Open Hat',
   crash: 'Crash',

@@ -1,6 +1,7 @@
 import type { NoteName } from 'tonal';
 
 import type { VoicingState } from '../../../audio/synths/types';
+import { generateClapVoicing } from './generate-clap-voicing';
 import { generateClosedHatVoicing } from './generate-closed-hat-voicing';
 import { generateCrashVoicing } from './generate-crash-voicing';
 import { generateCymbalVoicingSettings } from './generate-cymbal-voicing-settings';
@@ -15,6 +16,7 @@ export const generateDrumVoicing = (rootNote: NoteName): VoicingState['drums'] =
   return {
     kick: generateKickVoicing(rootNote),
     snare: generateSnareVoicing(),
+    clap: generateClapVoicing(),
     closedHat: generateClosedHatVoicing(cymbalVoicingSettings),
     openHat: generateOpenHatVoicing(cymbalVoicingSettings),
     crash: generateCrashVoicing(cymbalVoicingSettings),

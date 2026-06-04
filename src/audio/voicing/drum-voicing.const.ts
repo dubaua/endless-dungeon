@@ -17,6 +17,14 @@ export const SnareVoicing = {
   bitCrusherDepth: { min: 0.02, max: 0.1 },
 } satisfies Record<string, Range>;
 
+export const ClapVoicing = {
+  decay: { min: 0.04, max: 0.5 },
+  burstCount: { min: 3, max: 5 },
+  burstSpread: { min: 0.01, max: 0.05 },
+  bitCrusherBits: { min: 2, max: 5 },
+  bitCrusherDepth: { min: 0.04, max: 0.18 },
+} satisfies Record<string, Range>;
+
 export const CymbalVoicing = {
   filterFrequency: { min: 2500, max: 10000 },
   filterResonance: { min: 0.1, max: 4 },

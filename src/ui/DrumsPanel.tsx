@@ -103,6 +103,23 @@ const drumClipsToHatsPattern = (clips: readonly DrumClip[]): string => {
   }).join('');
 };
 
+const drumClipsToClapPattern = (clips: readonly DrumClip[]): string => {
+  const barCount = Math.max(
+    1,
+    ...clips
+      .filter((clip) => clip.synthId === 'clap')
+      .map((clip) => clip.startBar + Math.ceil(clip.pattern.length / StepsPerBar)),
+  );
+
+  return Array.from({ length: barCount * StepsPerBar }, (_, step) => {
+    if (getDrumClipIntensityAtStep(clips, 'clap', step) > 0) {
+      return 'c';
+    }
+
+    return '-';
+  }).join('');
+};
+
 const getFilteredKickSnarePatterns = (filters: KickSnarePatternFilters) => {
   return [...KickSnarePatternWeights.values()]
     .filter((weight) => {
@@ -144,8 +161,10 @@ export const DrumsPanel: Component = () => {
   const [selectedHatsBarPatternIndex, setSelectedHatsBarPatternIndex] = createSignal(0);
   const kickSnarePattern = createMemo(() => drumClipsToKickSnarePattern(drumClips()));
   const hatsPattern = createMemo(() => drumClipsToHatsPattern(drumClips()));
+  const clapPattern = createMemo(() => drumClipsToClapPattern(drumClips()));
   const kickSnareBarPatterns = createMemo(() => kickSnarePattern().match(/.{1,16}/g) ?? []);
   const hatsBarPatterns = createMemo(() => hatsPattern().match(/.{1,16}/g) ?? []);
+  const clapBarPatterns = createMemo(() => clapPattern().match(/.{1,16}/g) ?? []);
   const selectedBarPattern = createMemo(() => kickSnareBarPatterns()[selectedBarIndex()] ?? '');
   const selectedHatsBarPattern = createMemo(() => hatsBarPatterns()[selectedHatsBarIndex()] ?? '');
   const selectedBarRelativePatterns = createMemo(() =>
@@ -382,6 +401,29 @@ export const DrumsPanel: Component = () => {
     );
   };
 
+  const toggleClapBarStep = (barIndex: number, step: number): void => {
+    const absoluteStep = barIndex * 16 + step;
+    const channel = drumClips().find((drumChannel) => {
+      const startStep = drumChannel.startBar * StepsPerBar;
+
+      return (
+        drumChannel.synthId === 'clap' &&
+        absoluteStep >= startStep &&
+        absoluteStep < startStep + drumChannel.pattern.length
+      );
+    });
+
+    if (!channel) {
+      return;
+    }
+
+    setDrumPatternStep(
+      channel.id,
+      absoluteStep - channel.startBar * StepsPerBar,
+      getDrumClipIntensityAtStep([channel], channel.synthId, absoluteStep) > 0 ? 0 : 1,
+    );
+  };
+
   onMount(() => {
     setBodyKickSnarePattern(0);
     setBodyHatsPattern(0);
@@ -432,6 +474,7 @@ export const DrumsPanel: Component = () => {
                 {(barPattern, barOffset) => {
                   const barIndex = (): number => rowIndex * 4 + barOffset();
                   const hatsBarPattern = (): string => hatsBarPatterns()[barIndex()] ?? '';
+                  const clapBarPattern = (): string => clapBarPatterns()[barIndex()] ?? '';
 
                   return (
                     <div
@@ -448,7 +491,7 @@ export const DrumsPanel: Component = () => {
                       }}
                     >
                       <div style={{ color: '#666' }}>
-                        bar {barIndex() + 1} {barPattern} {hatsBarPattern()}
+                        bar {barIndex() + 1} {barPattern} {clapBarPattern()} {hatsBarPattern()}
                       </div>
                       <For each={['k', 's'] as const}>
                         {(voice) => (
@@ -497,6 +540,46 @@ export const DrumsPanel: Component = () => {
                           </div>
                         )}
                       </For>
+                      <div
+                        style={{
+                          display: 'grid',
+                          'grid-template-columns': '1.5rem repeat(16, 1fr)',
+                          gap: '0.12rem',
+                          'align-items': 'center',
+                        }}
+                      >
+                        <span>c</span>
+                        <For each={[...clapBarPattern()]}>
+                          {(stepVoice, step) => {
+                            const isActiveStep = (): boolean =>
+                              transport().isPlaying &&
+                              transport().bar % clapBarPatterns().length === barIndex() &&
+                              transport().step === step();
+                            const intensity = (): number => (stepVoice === 'c' ? 1 : 0);
+
+                            return (
+                              <button
+                                type="button"
+                                aria-label={`bar ${barIndex() + 1} clap step ${step() + 1}`}
+                                onClick={() => toggleClapBarStep(barIndex(), step())}
+                                style={{
+                                  height: '1.4rem',
+                                  padding: 0,
+                                  border: `1px solid ${getStepBorder(intensity(), isActiveStep())}`,
+                                  'border-radius': '0.15rem',
+                                  background: getStepBackground(intensity(), isActiveStep()),
+                                  color: intensity() > 0 ? '#fff' : '#737373',
+                                  cursor: 'pointer',
+                                  opacity: 1,
+                                  'font-size': '0.6rem',
+                                }}
+                              >
+                                {intensity() > 0 ? 'c' : ''}
+                              </button>
+                            );
+                          }}
+                        </For>
+                      </div>
                       <For each={['h', 'o'] as const}>
                         {(voice) => (
                           <div

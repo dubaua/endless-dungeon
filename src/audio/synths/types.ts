@@ -2,7 +2,7 @@ import type * as Tone from 'tone';
 
 import type { OscillatorType } from '../voicing/oscillator-types.const';
 
-export type DrumSynthId = 'kick' | 'snare' | 'closedHat' | 'openHat' | 'crash' | 'ride';
+export type DrumSynthId = 'kick' | 'snare' | 'clap' | 'closedHat' | 'openHat' | 'crash' | 'ride';
 export type NoteSynthId = 'voice' | 'bass';
 export type SynthId = DrumSynthId | NoteSynthId;
 
@@ -17,6 +17,14 @@ export interface KickVoicing {
 
 export interface SnareVoicing {
   decay: number;
+  bitCrusherBits: number;
+  bitCrusherDepth: number;
+}
+
+export interface ClapVoicing {
+  decay: number;
+  burstCount: number;
+  burstSpread: number;
   bitCrusherBits: number;
   bitCrusherDepth: number;
 }
@@ -59,6 +67,7 @@ export interface RideVoicing {
 export type DrumVoicing =
   | KickVoicing
   | SnareVoicing
+  | ClapVoicing
   | ClosedHatVoicing
   | OpenHatVoicing
   | CrashVoicing

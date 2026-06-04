@@ -16,6 +16,12 @@ export const InitialDrumClips: DrumClip[] = [
     pattern: EmptyPattern,
   },
   {
+    id: 'drum-clap-bar-1',
+    synthId: 'clap',
+    startBar: 0,
+    pattern: EmptyPattern,
+  },
+  {
     id: 'drum-closed-hat-bar-1',
     synthId: 'closedHat',
     startBar: 0,

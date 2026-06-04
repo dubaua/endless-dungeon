@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js';
 
 import type {
+  ClapVoicing,
   ClosedHatVoicing,
   CrashVoicing,
   DrumSynthId,
@@ -10,6 +11,7 @@ import type {
   SnareVoicing,
 } from '../audio/synths/types';
 import { setDrumSynthVoicing, useStore } from '../state/store';
+import { ClapControls } from './synth-panel/ClapControls';
 import { CymbalControls } from './synth-panel/CymbalControls';
 import { KickControls } from './synth-panel/KickControls';
 import { NoteSynthControls } from './synth-panel/NoteSynthControls';
@@ -28,6 +30,7 @@ export const SynthPanel: Component = () => {
   const drums = useStore((state) => state.voicing.drums);
   const kick = (): KickVoicing => drums().kick as KickVoicing;
   const snare = (): SnareVoicing => drums().snare as SnareVoicing;
+  const clap = (): ClapVoicing => drums().clap as ClapVoicing;
   const closedHat = (): ClosedHatVoicing => drums().closedHat as ClosedHatVoicing;
   const openHat = (): OpenHatVoicing => drums().openHat as OpenHatVoicing;
   const crash = (): CrashVoicing => drums().crash as CrashVoicing;
@@ -55,6 +58,7 @@ export const SynthPanel: Component = () => {
           snare={snare()}
           onInput={(key, value) => setDrumNumber('snare', key, value)}
         />
+        <ClapControls clap={clap()} onInput={(key, value) => setDrumNumber('clap', key, value)} />
         <CymbalControls
           closedHat={closedHat()}
           openHat={openHat()}

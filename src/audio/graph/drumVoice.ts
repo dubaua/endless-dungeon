@@ -1,4 +1,5 @@
 import type {
+  ClapVoicing,
   ClosedHatVoicing,
   CrashVoicing,
   DrumSynthId,
@@ -8,6 +9,7 @@ import type {
   RideVoicing,
   SnareVoicing,
 } from '../synths/types';
+import { createClapVoice } from './drums/clap';
 import { createClosedHatVoice } from './drums/closedHat';
 import { createCrashVoice } from './drums/crash';
 import { createKickVoice } from './drums/kick';
@@ -23,6 +25,10 @@ export const createDrumVoiceInstance = (synthId: DrumSynthId, voicing: DrumVoici
 
   if (synthId === 'snare') {
     return createSnareVoice(voicing as SnareVoicing) as DrumVoiceRuntimeInstance;
+  }
+
+  if (synthId === 'clap') {
+    return createClapVoice(voicing as ClapVoicing) as DrumVoiceRuntimeInstance;
   }
 
   if (synthId === 'closedHat') {

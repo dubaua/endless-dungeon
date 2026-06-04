@@ -4,6 +4,8 @@ export type SliderCurve = 'linear' | 'exponential';
 
 export type DrumNumberKey =
   | 'decay'
+  | 'burstCount'
+  | 'burstSpread'
   | 'release'
   | 'filterFrequency'
   | 'filterResonance'

@@ -1,4 +1,3 @@
-import { InitialDrumClips } from '../../sequencer/initial-drum-clips';
 import type { DrumClip } from '../../sequencer/types';
 import type { DrumSynthId } from '../../audio/synths/types';
 
@@ -16,8 +15,6 @@ export const kickSnarePatternToDrumClips = (
   pattern: string,
   clips: readonly DrumClip[],
 ): DrumClip[] => {
-  const clipsBySynth = new Map(clips.map((clip) => [clip.synthId, clip]));
-  const baseClips = InitialDrumClips.map((clip) => clipsBySynth.get(clip.synthId) ?? clip);
   const kickPattern = [...pattern].map((step) => (step === 'k' ? 1 : 0));
   const snarePattern = [...pattern].map((step) => (step === 's' ? 1 : 0));
   const kickClips = patternToClips('kick', kickPattern);
@@ -26,6 +23,6 @@ export const kickSnarePatternToDrumClips = (
   return [
     ...kickClips,
     ...snareClips,
-    ...baseClips.filter((clip) => clip.synthId !== 'kick' && clip.synthId !== 'snare'),
+    ...clips.filter((clip) => clip.synthId !== 'kick' && clip.synthId !== 'snare'),
   ];
 };

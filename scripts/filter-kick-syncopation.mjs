@@ -8,8 +8,7 @@ const ProjectRoot = resolve(ScriptDir, '..');
 const TempDir = resolve(ProjectRoot, '.tmp-script-ts/drums');
 
 const TsModules = [
-  'src/generators/drums/fill-order.const.ts',
-  'src/generators/drums/get-pattern-syncopation-score.ts',
+  'src/generators/drums/new-syncope-grade.ts',
   'src/generators/drums/weigh-kick-snare-pattern.ts',
 ];
 
@@ -78,7 +77,7 @@ const main = async () => {
   const filteredPatterns = patterns.filter((pattern) => {
     const weight = weighKickSnarePattern(pattern);
 
-    return weight.kickSyncopationScore - weight.snareSyncopationScore <= threshold;
+    return weight.syncopationScore <= threshold;
   });
 
   await writeFile(sourcePath, `${filteredPatterns.join('\n')}\n`);

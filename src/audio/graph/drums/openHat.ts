@@ -19,7 +19,7 @@ export const createOpenHatVoice = (voicing: OpenHatVoicing): DrumVoiceInstance<O
     bits: voicing.bitCrusherBits,
     depth: voicing.bitCrusherDepth,
   });
-  const output = new Tone.Gain(0.75);
+  const output = new Tone.Gain(1);
 
   filter.Q.value = voicing.filterResonance;
   noise.chain(envelope, filter, crusher.input);

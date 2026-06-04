@@ -6,14 +6,21 @@ import type {
   OpenHatVoicing,
   RideVoicing,
 } from '../../audio/synths/types';
+import {
+  ClosedHatVoicing as ClosedHatVoicingSettings,
+  CrashVoicing as CrashVoicingSettings,
+  CymbalVoicing as CymbalVoicingSettings,
+  OpenHatVoicing as OpenHatVoicingSettings,
+  RideVoicing as RideVoicingSettings,
+} from '../../audio/voicing/drum-voicing.const';
 import { Section } from './Section';
 import { Slider } from './Slider';
 import { SliderRow } from './SliderRow';
 import {
   formatHz,
   formatSeconds,
-  mapCrushDepthPosition,
-  unmapCrushDepthValue,
+  mapCrushDepthRangePosition,
+  unmapCrushDepthRangeValue,
   type DrumNumberKey,
 } from './slider-utils';
 
@@ -35,8 +42,8 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
       <Section title="Cls Hat" tiny>
         <Slider
           label="D"
-          min={0.001}
-          max={2}
+          min={ClosedHatVoicingSettings.decay.min}
+          max={ClosedHatVoicingSettings.decay.max}
           curve="exponential"
           format={formatSeconds}
           value={props.closedHat.decay}
@@ -47,8 +54,8 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
         <SliderRow>
           <Slider
             label="D"
-            min={0.001}
-            max={4}
+            min={OpenHatVoicingSettings.decay.min}
+            max={OpenHatVoicingSettings.decay.max}
             curve="exponential"
             format={formatSeconds}
             value={props.openHat.decay}
@@ -56,8 +63,8 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
           />
           <Slider
             label="R"
-            min={0.001}
-            max={4}
+            min={OpenHatVoicingSettings.release.min}
+            max={OpenHatVoicingSettings.release.max}
             curve="exponential"
             format={formatSeconds}
             value={props.openHat.release}
@@ -69,8 +76,8 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
         <SliderRow>
           <Slider
             label="D"
-            min={0.001}
-            max={5}
+            min={CrashVoicingSettings.decay.min}
+            max={CrashVoicingSettings.decay.max}
             curve="exponential"
             format={formatSeconds}
             value={props.crash.decay}
@@ -78,8 +85,8 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
           />
           <Slider
             label="R"
-            min={0.001}
-            max={8}
+            min={CrashVoicingSettings.release.min}
+            max={CrashVoicingSettings.release.max}
             curve="exponential"
             format={formatSeconds}
             value={props.crash.release}
@@ -91,8 +98,8 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
         <SliderRow>
           <Slider
             label="D"
-            min={0.001}
-            max={3}
+            min={RideVoicingSettings.decay.min}
+            max={RideVoicingSettings.decay.max}
             curve="exponential"
             format={formatSeconds}
             value={props.ride.decay}
@@ -100,8 +107,8 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
           />
           <Slider
             label="R"
-            min={0.001}
-            max={3}
+            min={RideVoicingSettings.release.min}
+            max={RideVoicingSettings.release.max}
             curve="exponential"
             format={formatSeconds}
             value={props.ride.release}
@@ -111,8 +118,8 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
       </Section>
       <Slider
         label="Freq"
-        min={800}
-        max={12000}
+        min={CymbalVoicingSettings.filterFrequency.min}
+        max={CymbalVoicingSettings.filterFrequency.max}
         curve="exponential"
         format={formatHz}
         snap={Math.round}
@@ -121,8 +128,8 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
       />
       <Slider
         label="Reso"
-        min={0.1}
-        max={18}
+        min={CymbalVoicingSettings.filterResonance.min}
+        max={CymbalVoicingSettings.filterResonance.max}
         curve="exponential"
         format={(value) => value.toFixed(1)}
         value={props.closedHat.filterResonance}
@@ -130,8 +137,8 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
       />
       <Slider
         label="Bits"
-        min={1}
-        max={16}
+        min={CymbalVoicingSettings.bitCrusherBits.min}
+        max={CymbalVoicingSettings.bitCrusherBits.max}
         format={(value) => String(value)}
         snap={Math.round}
         value={props.closedHat.bitCrusherBits}
@@ -139,11 +146,23 @@ export const CymbalControls: Component<CymbalControlsProps> = (props) => (
       />
       <Slider
         label="Depth"
-        min={0}
-        max={0.25}
+        min={CymbalVoicingSettings.bitCrusherDepth.min}
+        max={CymbalVoicingSettings.bitCrusherDepth.max}
         format={(value) => value.toFixed(4)}
-        mapPositionToValue={mapCrushDepthPosition}
-        unmapValueToPosition={unmapCrushDepthValue}
+        mapPositionToValue={(position) =>
+          mapCrushDepthRangePosition(
+            position,
+            CymbalVoicingSettings.bitCrusherDepth.min,
+            CymbalVoicingSettings.bitCrusherDepth.max,
+          )
+        }
+        unmapValueToPosition={(value) =>
+          unmapCrushDepthRangeValue(
+            value,
+            CymbalVoicingSettings.bitCrusherDepth.min,
+            CymbalVoicingSettings.bitCrusherDepth.max,
+          )
+        }
         value={props.closedHat.bitCrusherDepth}
         onInput={(value) => props.onCommonInput('bitCrusherDepth', value)}
       />

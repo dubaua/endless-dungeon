@@ -1,7 +1,11 @@
-import type { Component, JSX } from 'solid-js';
+import { For, type Component, type JSX } from 'solid-js';
 
 import type { NoteSynthId, NoteSynthVoicing } from '../../audio/synths/types';
-import type { OscillatorType } from '../../audio/tone-types';
+import { NoteSynthVoicing as NoteSynthVoicingSettings } from '../../audio/voicing/note-synth-voicing.const';
+import {
+  OscillatorTypes,
+  type OscillatorType,
+} from '../../audio/voicing/oscillator-types.const';
 import { setNoteSynthVoicing, useStore } from '../../state/store';
 import { Section } from './Section';
 import { Slider } from './Slider';
@@ -10,8 +14,8 @@ import {
   formatHz,
   formatNormal,
   formatSeconds,
-  mapCrushDepthPosition,
-  unmapCrushDepthValue,
+  mapCrushDepthRangePosition,
+  unmapCrushDepthRangeValue,
 } from './slider-utils';
 
 type NoteNumberKey = {
@@ -36,18 +40,19 @@ export const NoteSynthControls: Component<{ synthId: NoteSynthId; title: string 
       <label style={{ display: 'grid', gap: '0.3rem', 'font-size': '0.8rem', 'max-width': '180px' }}>
         <span>Osc</span>
         <select value={synth().oscillatorType} onInput={handleOscillatorInput}>
-          <option value="sine">sine</option>
-          <option value="triangle">triangle</option>
-          <option value="sawtooth">saw</option>
-          <option value="square">square</option>
+          <For each={OscillatorTypes}>
+            {(oscillatorType) => (
+              <option value={oscillatorType}>{oscillatorType}</option>
+            )}
+          </For>
         </select>
       </label>
 
       <SliderRow>
         <Slider
           label="A"
-          min={0.001}
-          max={2}
+          min={NoteSynthVoicingSettings.attack}
+          max={NoteSynthVoicingSettings.attack}
           curve="exponential"
           format={formatSeconds}
           value={synth().attack}
@@ -55,8 +60,8 @@ export const NoteSynthControls: Component<{ synthId: NoteSynthId; title: string 
         />
         <Slider
           label="D"
-          min={0.001}
-          max={2}
+          min={NoteSynthVoicingSettings.decay}
+          max={NoteSynthVoicingSettings.decay}
           curve="exponential"
           format={formatSeconds}
           value={synth().decay}
@@ -64,16 +69,16 @@ export const NoteSynthControls: Component<{ synthId: NoteSynthId; title: string 
         />
         <Slider
           label="S"
-          min={0}
-          max={1}
+          min={NoteSynthVoicingSettings.sustain.min}
+          max={NoteSynthVoicingSettings.sustain.max}
           format={formatNormal}
           value={synth().sustain}
           onInput={(value) => setNumber('sustain', value)}
         />
         <Slider
           label="R"
-          min={0.001}
-          max={3}
+          min={NoteSynthVoicingSettings.release.min}
+          max={NoteSynthVoicingSettings.release.max}
           curve="exponential"
           format={formatSeconds}
           value={synth().release}
@@ -81,8 +86,8 @@ export const NoteSynthControls: Component<{ synthId: NoteSynthId; title: string 
         />
         <Slider
           label="Freq"
-          min={80}
-          max={12000}
+          min={NoteSynthVoicingSettings.filterFrequency.min}
+          max={NoteSynthVoicingSettings.filterFrequency.max}
           curve="exponential"
           format={formatHz}
           snap={Math.round}
@@ -91,8 +96,8 @@ export const NoteSynthControls: Component<{ synthId: NoteSynthId; title: string 
         />
         <Slider
           label="Reso"
-          min={0.1}
-          max={18}
+          min={NoteSynthVoicingSettings.filterResonance.min}
+          max={NoteSynthVoicingSettings.filterResonance.max}
           curve="exponential"
           format={(value) => value.toFixed(1)}
           value={synth().filterResonance}
@@ -100,8 +105,8 @@ export const NoteSynthControls: Component<{ synthId: NoteSynthId; title: string 
         />
         <Slider
           label="Bits"
-          min={1}
-          max={16}
+          min={NoteSynthVoicingSettings.bitCrusherBits.min}
+          max={NoteSynthVoicingSettings.bitCrusherBits.max}
           format={(value) => String(value)}
           snap={Math.round}
           value={synth().bitCrusherBits}
@@ -109,11 +114,23 @@ export const NoteSynthControls: Component<{ synthId: NoteSynthId; title: string 
         />
         <Slider
           label="Depth"
-          min={0}
-          max={0.25}
+          min={NoteSynthVoicingSettings.bitCrusherDepth.min}
+          max={NoteSynthVoicingSettings.bitCrusherDepth.max}
           format={(value) => value.toFixed(4)}
-          mapPositionToValue={mapCrushDepthPosition}
-          unmapValueToPosition={unmapCrushDepthValue}
+          mapPositionToValue={(position) =>
+            mapCrushDepthRangePosition(
+              position,
+              NoteSynthVoicingSettings.bitCrusherDepth.min,
+              NoteSynthVoicingSettings.bitCrusherDepth.max,
+            )
+          }
+          unmapValueToPosition={(value) =>
+            unmapCrushDepthRangeValue(
+              value,
+              NoteSynthVoicingSettings.bitCrusherDepth.min,
+              NoteSynthVoicingSettings.bitCrusherDepth.max,
+            )
+          }
           value={synth().bitCrusherDepth}
           onInput={(value) => setNumber('bitCrusherDepth', value)}
         />

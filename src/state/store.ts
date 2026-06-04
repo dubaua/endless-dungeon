@@ -49,7 +49,6 @@ export interface TransportState {
 
 export interface DrumPatternFiltersState {
   syncopationScore: number;
-  syncopationSpread: number;
   density: number;
   densitySpread: number;
 }
@@ -59,6 +58,7 @@ export interface AppState {
   sequencer: SequencerState;
   trackDna: TrackDna;
   drumPatternFilters: DrumPatternFiltersState;
+  hatsPatternFilters: DrumPatternFiltersState;
   voicing: VoicingState;
   mixer: MixerState;
 }
@@ -291,8 +291,12 @@ const state: AppState = {
   },
   trackDna: InitialTrack.dna,
   drumPatternFilters: {
-    syncopationScore: 0.5,
-    syncopationSpread: 0.1,
+    syncopationScore: 0,
+    density: 0.5,
+    densitySpread: 0.1,
+  },
+  hatsPatternFilters: {
+    syncopationScore: 0,
     density: 0.5,
     densitySpread: 0.1,
   },
@@ -394,6 +398,12 @@ export const setTrackDna = (trackDna: TrackDna): void => {
 export const setDrumPatternFilters = (filters: Partial<DrumPatternFiltersState>): void => {
   updateState((draft) => {
     draft.drumPatternFilters = { ...draft.drumPatternFilters, ...filters };
+  });
+};
+
+export const setHatsPatternFilters = (filters: Partial<DrumPatternFiltersState>): void => {
+  updateState((draft) => {
+    draft.hatsPatternFilters = { ...draft.hatsPatternFilters, ...filters };
   });
 };
 

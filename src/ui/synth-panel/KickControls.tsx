@@ -1,14 +1,15 @@
 import type { Component } from 'solid-js';
 
 import type { KickVoicing } from '../../audio/synths/types';
+import { KickVoicing as KickVoicingSettings } from '../../audio/voicing/drum-voicing.const';
 import { Section } from './Section';
 import { Slider } from './Slider';
 import { SliderRow } from './SliderRow';
 import {
   formatHz,
   formatSeconds,
-  mapCrushDepthPosition,
-  unmapCrushDepthValue,
+  mapCrushDepthRangePosition,
+  unmapCrushDepthRangeValue,
   type DrumNumberKey,
 } from './slider-utils';
 
@@ -22,8 +23,8 @@ export const KickControls: Component<KickControlsProps> = (props) => (
     <SliderRow>
       <Slider
         label="D"
-        min={0.001}
-        max={2}
+        min={KickVoicingSettings.decay.min}
+        max={KickVoicingSettings.decay.max}
         curve="exponential"
         format={formatSeconds}
         value={props.kick.decay}
@@ -31,8 +32,8 @@ export const KickControls: Component<KickControlsProps> = (props) => (
       />
       <Slider
         label="Freq"
-        min={40}
-        max={300}
+        min={KickVoicingSettings.filterFrequency.min}
+        max={KickVoicingSettings.filterFrequency.max}
         curve="exponential"
         format={formatHz}
         snap={Math.round}
@@ -41,8 +42,8 @@ export const KickControls: Component<KickControlsProps> = (props) => (
       />
       <Slider
         label="Reso"
-        min={0.1}
-        max={18}
+        min={KickVoicingSettings.filterResonance.min}
+        max={KickVoicingSettings.filterResonance.max}
         curve="exponential"
         format={(value) => value.toFixed(1)}
         value={props.kick.filterResonance}
@@ -50,8 +51,8 @@ export const KickControls: Component<KickControlsProps> = (props) => (
       />
       <Slider
         label="Bits"
-        min={1}
-        max={16}
+        min={KickVoicingSettings.bitCrusherBits.min}
+        max={KickVoicingSettings.bitCrusherBits.max}
         format={(value) => String(value)}
         snap={Math.round}
         value={props.kick.bitCrusherBits}
@@ -59,11 +60,23 @@ export const KickControls: Component<KickControlsProps> = (props) => (
       />
       <Slider
         label="Depth"
-        min={0}
-        max={0.25}
+        min={KickVoicingSettings.bitCrusherDepth.min}
+        max={KickVoicingSettings.bitCrusherDepth.max}
         format={(value) => value.toFixed(3)}
-        mapPositionToValue={mapCrushDepthPosition}
-        unmapValueToPosition={unmapCrushDepthValue}
+        mapPositionToValue={(position) =>
+          mapCrushDepthRangePosition(
+            position,
+            KickVoicingSettings.bitCrusherDepth.min,
+            KickVoicingSettings.bitCrusherDepth.max,
+          )
+        }
+        unmapValueToPosition={(value) =>
+          unmapCrushDepthRangeValue(
+            value,
+            KickVoicingSettings.bitCrusherDepth.min,
+            KickVoicingSettings.bitCrusherDepth.max,
+          )
+        }
         value={props.kick.bitCrusherDepth}
         onInput={(value) => props.onInput('bitCrusherDepth', value)}
       />

@@ -1,17 +1,16 @@
 import type { SnareVoicing } from '../../../audio/synths/types';
+import { SnareVoicing as SnareVoicingSettings } from '../../../audio/voicing/drum-voicing.const';
 import { getRandomFloat } from '../../../utils/get-random-float';
 import { getRandomInt } from '../../../utils/get-random-int';
 
-// TODO вынести в войсинг, импортнуть в контролы
-export const SnareDecayMin = 0.08;
-export const SnareDecayMax = 0.25;
-export const SnareBitsMin = 2;
-export const SnareBitsMax = 4;
-export const SnareDepthMin = 0.01;
-export const SnareDepthMax = 0.1;
-
 export const generateSnareVoicing = (): SnareVoicing => ({
-  decay: getRandomFloat(SnareDecayMin, SnareDecayMax),
-  bitCrusherBits: getRandomInt(SnareBitsMin, SnareBitsMax),
-  bitCrusherDepth: getRandomFloat(SnareDepthMin, SnareDepthMax),
+  decay: getRandomFloat(SnareVoicingSettings.decay.min, SnareVoicingSettings.decay.max),
+  bitCrusherBits: getRandomInt(
+    SnareVoicingSettings.bitCrusherBits.min,
+    SnareVoicingSettings.bitCrusherBits.max,
+  ),
+  bitCrusherDepth: getRandomFloat(
+    SnareVoicingSettings.bitCrusherDepth.min,
+    SnareVoicingSettings.bitCrusherDepth.max,
+  ),
 });

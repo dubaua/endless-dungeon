@@ -18,3 +18,11 @@
 - No structural or stylistic edits (imports, ordering, formatting) unless told to.
 - Never alter formatting mid-file. Repeat the existing pattern.
 - All “improvements” require direct user approval.
+
+## No re-export
+
+No reexports in new code
+
+# Runtime
+
+- Never start the app or dev server. The user runs the project manually when needed.

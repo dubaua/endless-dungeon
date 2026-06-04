@@ -4,8 +4,8 @@ import type { SnareVoicing } from '../../synths/types';
 import { createLoFiCrusher } from '../loFiCrusher';
 import type { DrumVoiceInstance } from './shared';
 
-const SNARE_FILTER_FREQUENCY = 450;
-const SNARE_FILTER_RESONANCE = 0.2;
+// const SNARE_FILTER_FREQUENCY = 450;
+// const SNARE_FILTER_RESONANCE = 0.2;
 
 export const createSnareVoice = (voicing: SnareVoicing): DrumVoiceInstance<SnareVoicing> => {
   let { decay } = voicing;
@@ -18,15 +18,15 @@ export const createSnareVoice = (voicing: SnareVoicing): DrumVoiceInstance<Snare
     sustain: 0.7,
     release: 0.02,
   });
-  const filter = new Tone.Filter(SNARE_FILTER_FREQUENCY, 'bandpass');
+  // const filter = new Tone.Filter(SNARE_FILTER_FREQUENCY, 'bandpass');
   const crusher = createLoFiCrusher({
     bits,
     depth,
   });
   const output = new Tone.Gain(1);
 
-  filter.Q.value = SNARE_FILTER_RESONANCE;
-  noise.chain(envelope, filter, crusher.input);
+  // filter.Q.value = SNARE_FILTER_RESONANCE;
+  noise.chain(envelope, /* filter, */ crusher.input);
   crusher.output.connect(output);
 
   return {

@@ -20,6 +20,7 @@ export interface TrackDna {
   syncopation: number;
   density: number;
   bodyDrumPattern: string;
+  bodyHatPattern: string;
   intensity: number;
   variationBias: number; // if low 1 and 3 bar are same
   noteLengthVariationBias: number;

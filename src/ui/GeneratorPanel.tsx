@@ -4,6 +4,8 @@ import { stopTransport } from '../audio/transport';
 import { generateTrackDna } from '../generators/dna/generate-track-dna';
 import type { TrackDna } from '../generators/dna/track-dna';
 import { generateEightBarDrumPattern } from '../generators/drums/generate-eight-bar-drum-pattern';
+import { generateEightBarHatsPattern } from '../generators/drums/generate-eight-bar-hats-pattern';
+import { hatsPatternToDrumClips } from '../generators/drums/hats-pattern-to-drum-clips';
 import { kickSnarePatternToDrumClips } from '../generators/drums/kick-snare-pattern-to-drum-clips';
 import { generateMotif, type GenerateMotifOptions } from '../generators/motif/generate-motif';
 import { motifToPattern } from '../generators/motif/motif-to-pattern';
@@ -12,6 +14,7 @@ import {
   getState,
   setDrumClips,
   setDrumPatternFilters,
+  setHatsPatternFilters,
   setTrackDna,
   setTransportBpm,
   setVoicing,
@@ -118,10 +121,17 @@ export const GeneratorPanel: Component = () => {
       density: nextTrackDna.density,
       syncopationScore: nextTrackDna.syncopation,
     });
+    setHatsPatternFilters({
+      density: nextTrackDna.density,
+      syncopationScore: nextTrackDna.syncopation,
+    });
     setDrumClips(
-      kickSnarePatternToDrumClips(
-        generateEightBarDrumPattern(nextTrackDna.bodyDrumPattern),
-        getState().sequencer.drumClips,
+      hatsPatternToDrumClips(
+        generateEightBarHatsPattern(nextTrackDna.bodyHatPattern),
+        kickSnarePatternToDrumClips(
+          generateEightBarDrumPattern(nextTrackDna.bodyDrumPattern),
+          getState().sequencer.drumClips,
+        ),
       ),
     );
     setVoicing(nextTrackDna.voicing);

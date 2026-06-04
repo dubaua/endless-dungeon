@@ -1,8 +1,8 @@
-import { RelativePatterns } from './relative-patterns';
+import { RelativeKickSnarePatterns } from './relative-kick-snare-patterns';
 import { takeRandom } from '../../utils/take-random';
 
 const takeRelativeDrumPattern = (pattern: string): string => {
-  const relativePatterns = RelativePatterns[pattern] ?? [pattern];
+  const relativePatterns = RelativeKickSnarePatterns[pattern] ?? [pattern];
 
   return takeRandom(relativePatterns);
 };

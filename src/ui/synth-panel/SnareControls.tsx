@@ -1,23 +1,16 @@
 import type { Component } from 'solid-js';
 
 import type { SnareVoicing } from '../../audio/synths/types';
+import { SnareVoicing as SnareVoicingSettings } from '../../audio/voicing/drum-voicing.const';
 import { Section } from './Section';
 import { Slider } from './Slider';
 import { SliderRow } from './SliderRow';
 import {
   formatSeconds,
-  mapCrushDepthPosition,
-  unmapCrushDepthValue,
+  mapCrushDepthRangePosition,
+  unmapCrushDepthRangeValue,
   type DrumNumberKey,
 } from './slider-utils';
-import {
-  SnareDecayMin,
-  SnareDecayMax,
-  SnareBitsMin,
-  SnareBitsMax,
-  SnareDepthMin,
-  SnareDepthMax,
-} from '../../generators/voicing/drums/generate-snare-voicing';
 
 interface SnareControlsProps {
   snare: SnareVoicing;
@@ -29,8 +22,8 @@ export const SnareControls: Component<SnareControlsProps> = (props) => (
     <SliderRow>
       <Slider
         label="D"
-        min={SnareDecayMin}
-        max={SnareDecayMax}
+        min={SnareVoicingSettings.decay.min}
+        max={SnareVoicingSettings.decay.max}
         curve="exponential"
         format={formatSeconds}
         value={props.snare.decay}
@@ -38,8 +31,8 @@ export const SnareControls: Component<SnareControlsProps> = (props) => (
       />
       <Slider
         label="Bits"
-        min={SnareBitsMin}
-        max={SnareBitsMax}
+        min={SnareVoicingSettings.bitCrusherBits.min}
+        max={SnareVoicingSettings.bitCrusherBits.max}
         format={(value) => String(value)}
         snap={Math.round}
         value={props.snare.bitCrusherBits}
@@ -47,11 +40,23 @@ export const SnareControls: Component<SnareControlsProps> = (props) => (
       />
       <Slider
         label="Depth"
-        min={SnareDepthMin}
-        max={SnareDepthMax}
+        min={SnareVoicingSettings.bitCrusherDepth.min}
+        max={SnareVoicingSettings.bitCrusherDepth.max}
         format={(value) => value.toFixed(4)}
-        mapPositionToValue={mapCrushDepthPosition}
-        unmapValueToPosition={unmapCrushDepthValue}
+        mapPositionToValue={(position) =>
+          mapCrushDepthRangePosition(
+            position,
+            SnareVoicingSettings.bitCrusherDepth.min,
+            SnareVoicingSettings.bitCrusherDepth.max,
+          )
+        }
+        unmapValueToPosition={(value) =>
+          unmapCrushDepthRangeValue(
+            value,
+            SnareVoicingSettings.bitCrusherDepth.min,
+            SnareVoicingSettings.bitCrusherDepth.max,
+          )
+        }
         value={props.snare.bitCrusherDepth}
         onInput={(value) => props.onInput('bitCrusherDepth', value)}
       />

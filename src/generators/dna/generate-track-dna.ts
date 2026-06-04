@@ -80,6 +80,7 @@ export const generateTrackDna = (
     syncopation: drumDnaSettings.syncopation,
     density: drumDnaSettings.density,
     bodyDrumPattern: drumDnaSettings.bodyDrumPattern,
+    bodyHatPattern: drumDnaSettings.bodyHatPattern,
     intensity: getRandomInt(0, 10) / 10,
     variationBias: getRandomInt(0, 10) / 10,
     noteLengthVariationBias: getRandomInt(0, 10) / 10,

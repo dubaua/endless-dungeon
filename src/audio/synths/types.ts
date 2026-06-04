@@ -1,6 +1,6 @@
 import type * as Tone from 'tone';
 
-import type { OscillatorType } from '../tone-types';
+import type { OscillatorType } from '../voicing/oscillator-types.const';
 
 export type DrumSynthId = 'kick' | 'snare' | 'closedHat' | 'openHat' | 'crash' | 'ride';
 export type NoteSynthId = 'voice' | 'bass';

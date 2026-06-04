@@ -21,9 +21,15 @@ import {
 } from './KickSnarePatternNavigator';
 import { HatPatternNavigator } from './HatPatternNavigator';
 
-const getStepBackground = (intensity: number, isCurrentStep: boolean): string => {
+const isStrongStep = (step: number): boolean => step % 4 === 0;
+
+const getStepBackground = (intensity: number, isCurrentStep: boolean, isStrong: boolean): string => {
   if (isCurrentStep) {
     return intensity > 0 ? '#ef4444' : '#fee2e2';
+  }
+
+  if (isStrong && intensity <= 0) {
+    return '#e5e7eb';
   }
 
   return intensity > 0 ? '#111827' : '#f5f5f5';
@@ -555,6 +561,32 @@ export const DrumsPanel: Component = () => {
                       <div style={{ color: '#666' }}>
                         bar {barIndex() + 1}
                       </div>
+                      <div
+                        style={{
+                          display: 'grid',
+                          'grid-template-columns': '1.5rem repeat(16, 1fr) 3.6rem',
+                          gap: '0.12rem',
+                          'align-items': 'center',
+                          color: '#737373',
+                          'font-size': '0.58rem',
+                        }}
+                      >
+                        <span />
+                        <For each={Array.from({ length: 16 }, (_, index) => index)}>
+                          {(step) => (
+                            <span
+                              style={{
+                                'text-align': 'center',
+                                background: isStrongStep(step) ? '#e5e7eb' : 'transparent',
+                                'border-radius': '0.12rem',
+                              }}
+                            >
+                              {step + 1}
+                            </span>
+                          )}
+                        </For>
+                        <span />
+                      </div>
                       <For each={drumRows()}>
                         {(row) => (
                           <div
@@ -586,7 +618,7 @@ export const DrumsPanel: Component = () => {
                                       padding: 0,
                                       border: `1px solid ${getStepBorder(intensity(), isActiveStep())}`,
                                       'border-radius': '0.15rem',
-                                      background: getStepBackground(intensity(), isActiveStep()),
+                                      background: getStepBackground(intensity(), isActiveStep(), isStrongStep(step())),
                                       color: intensity() > 0 ? '#fff' : '#737373',
                                       cursor: 'pointer',
                                       opacity: 1,

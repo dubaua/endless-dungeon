@@ -11,7 +11,7 @@ import type {
   SnareVoicing,
 } from '../audio/synths/types';
 import { setDrumSynthVoicing, useStore } from '../state/store';
-import { DrumsPanel } from './DrumsPanel';
+import { DrumNewPanel } from './DrumNewPanel';
 import { TransportPanel } from './TransportPanel';
 import { ClapControls } from './synth-panel/ClapControls';
 import { CymbalControls } from './synth-panel/CymbalControls';
@@ -27,7 +27,7 @@ const setDrumNumber = (synthId: DrumSynthId, key: DrumNumberKey, value: number):
   setDrumSynthVoicing(synthId, { [key]: value });
 };
 
-export const DrumsRoute: Component = () => {
+export const DrumNewRoute: Component = () => {
   const drums = useStore((state) => state.voicing.drums);
   const kick = (): KickVoicing => drums().kickPrimary as KickVoicing;
   const snare = (): SnareVoicing => drums().snarePrimary as SnareVoicing;
@@ -46,18 +46,17 @@ export const DrumsRoute: Component = () => {
   return (
     <div style={{ display: 'flex', 'flex-direction': 'column', gap: '1.5rem' }}>
       <header style={{ display: 'flex', 'align-items': 'center', gap: '0.75rem' }}>
-        <h1 style={{ margin: 0 }}>Drums</h1>
+        <h1 style={{ margin: 0 }}>Drum New</h1>
         <a href="/">Back</a>
-        <a href="/drum-new">Drum New</a>
       </header>
       <TransportPanel />
-      <DrumsPanel />
+      <DrumNewPanel />
       <section style={{ display: 'grid', gap: '8px' }}>
         <header>
           <h2 style={{ margin: 0 }}>Drum Voicing</h2>
         </header>
         <div style={{ display: 'flex', gap: '8px' }}>
-        <KickControls kick={kick()} onInput={(key, value) => setDrumNumber('kickPrimary', key, value)} />
+          <KickControls kick={kick()} onInput={(key, value) => setDrumNumber('kickPrimary', key, value)} />
           <SnareControls
             snare={snare()}
             onInput={(key, value) => setDrumNumber('snarePrimary', key, value)}

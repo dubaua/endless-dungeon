@@ -17,12 +17,12 @@ export const kickSnarePatternToDrumClips = (
 ): DrumClip[] => {
   const kickPattern = [...pattern].map((step) => (step === 'k' ? 1 : 0));
   const snarePattern = [...pattern].map((step) => (step === 's' ? 1 : 0));
-  const kickClips = patternToClips('kick', kickPattern);
-  const snareClips = patternToClips('snare', snarePattern);
+  const kickClips = patternToClips('kickPrimary', kickPattern);
+  const snareClips = patternToClips('snarePrimary', snarePattern);
 
   return [
     ...kickClips,
     ...snareClips,
-    ...clips.filter((clip) => clip.synthId !== 'kick' && clip.synthId !== 'snare'),
+    ...clips.filter((clip) => clip.synthId !== 'kickPrimary' && clip.synthId !== 'snarePrimary'),
   ];
 };

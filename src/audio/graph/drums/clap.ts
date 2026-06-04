@@ -43,6 +43,7 @@ export const createClapVoice = (voicing: ClapVoicing): DrumVoiceInstance<ClapVoi
     output,
     trigger: (time, intensity) => {
       const gain = Math.sqrt(intensity);
+      const startTime = Tone.Time(time).toSeconds();
       const count = Math.max(3, Math.min(5, Math.round(burstCount)));
       const spread = Math.max(0.02, Math.min(0.04, burstSpread));
 
@@ -51,10 +52,10 @@ export const createClapVoice = (voicing: ClapVoicing): DrumVoiceInstance<ClapVoi
 
       for (let index = 0; index < count; index += 1) {
         const offset = count === 1 ? 0 : (spread * index) / (count - 1);
-        burstEnvelope.triggerAttackRelease(0.006 + spread / 8, time + offset, gain);
+        burstEnvelope.triggerAttackRelease(0.006 + spread / 8, startTime + offset, gain);
       }
 
-      tailEnvelope.triggerAttackRelease(decay, time + spread, gain);
+      tailEnvelope.triggerAttackRelease(decay, startTime + spread, gain);
     },
     update: (nextVoicing) => {
       decay = nextVoicing.decay;

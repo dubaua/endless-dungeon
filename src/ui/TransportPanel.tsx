@@ -46,13 +46,22 @@ export const TransportPanel: Component = () => {
         </label>
         <input
           id="transport-bpm"
-          type="number"
-          min="20"
-          max="300"
+          type="range"
+          min="85"
+          max="180"
           step="1"
           value={transport().bpm}
           onInput={handleBpmInput}
+          style={{ width: '16rem' }}
         />
+        <span
+          style={{
+            'font-family': 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+            'font-size': '0.8rem',
+          }}
+        >
+          {transport().bpm}
+        </span>
       </div>
     </section>
   );

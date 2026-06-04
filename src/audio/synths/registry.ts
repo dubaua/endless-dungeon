@@ -7,7 +7,18 @@ import type { DrumSynthId, NoteOnEvent, NoteSynthId } from './types';
 
 type Cleanup = () => void;
 
-const DrumSynthIds: readonly DrumSynthId[] = ['kick', 'snare', 'clap', 'closedHat', 'openHat', 'crash', 'ride'];
+const DrumSynthIds: readonly DrumSynthId[] = [
+  'kickPrimary',
+  'kickSecondary',
+  'snarePrimary',
+  'snareSecondary',
+  'clapPrimary',
+  'clapSecondary',
+  'closedHat',
+  'openHat',
+  'ride',
+  'crash',
+];
 const NoteSynthIds: readonly NoteSynthId[] = ['voice', 'bass'];
 
 let initialized = false;

@@ -49,13 +49,16 @@ const LabelWidthRem = 2;
 const BarSeparator = '2px solid #9ca3af';
 const PianoRollRowHeight = '0.38rem';
 const DrumClipLabels: Record<DrumSynthId, string> = {
-  kick: 'Kick',
-  snare: 'Snare',
-  clap: 'Clap',
+  kickPrimary: 'Kick P',
+  kickSecondary: 'Kick S',
+  snarePrimary: 'Snare P',
+  snareSecondary: 'Snare S',
+  clapPrimary: 'Clap P',
+  clapSecondary: 'Clap S',
   closedHat: 'Closed Hat',
   openHat: 'Open Hat',
-  crash: 'Crash',
   ride: 'Ride',
+  crash: 'Crash',
 };
 
 const getPositiveModulo = (value: number, modulo: number): number => {

@@ -35,13 +35,16 @@ const groups = new Map<string, RuntimeMixerGroup>();
 const SynthMixerChannelIds: Record<SynthId, string> = {
   voice: VOICE_MIXER_CHANNEL_ID,
   bass: BASS_MIXER_CHANNEL_ID,
-  kick: 'channel-drum-kick',
-  snare: 'channel-drum-snare',
-  clap: 'channel-drum-clap',
+  kickPrimary: 'channel-drum-kick-primary',
+  kickSecondary: 'channel-drum-kick-secondary',
+  snarePrimary: 'channel-drum-snare-primary',
+  snareSecondary: 'channel-drum-snare-secondary',
+  clapPrimary: 'channel-drum-clap-primary',
+  clapSecondary: 'channel-drum-clap-secondary',
   closedHat: 'channel-drum-closed-hat',
   openHat: 'channel-drum-open-hat',
-  crash: 'channel-drum-crash',
   ride: 'channel-drum-ride',
+  crash: 'channel-drum-crash',
 };
 
 let initialized = false;

@@ -150,7 +150,7 @@ const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
       {
         id: VOICE_MIXER_CHANNEL_ID,
         name: 'Voice',
-        volume: 0.75,
+        volume: 1,
         pan: 0,
         muted: false,
         groupId: null,
@@ -158,31 +158,55 @@ const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
       {
         id: BASS_MIXER_CHANNEL_ID,
         name: 'Bass',
-        volume: 0.75,
+        volume: 1,
         pan: 0,
         muted: false,
         groupId: null,
       },
       {
-        id: 'channel-drum-kick',
-        name: 'Kick',
-        volume: 0.85,
+        id: 'channel-drum-kick-primary',
+        name: 'Kick Primary',
+        volume: 1,
         pan: 0,
         muted: false,
         groupId: null,
       },
       {
-        id: 'channel-drum-snare',
-        name: 'Snare',
-        volume: 0.85,
+        id: 'channel-drum-kick-secondary',
+        name: 'Kick Secondary',
+        volume: 0.8,
         pan: 0,
         muted: false,
         groupId: null,
       },
       {
-        id: 'channel-drum-clap',
-        name: 'Clap',
-        volume: 0.85,
+        id: 'channel-drum-snare-primary',
+        name: 'Snare Primary',
+        volume: 1,
+        pan: 0,
+        muted: false,
+        groupId: null,
+      },
+      {
+        id: 'channel-drum-snare-secondary',
+        name: 'Snare Secondary',
+        volume: 0.8,
+        pan: 0,
+        muted: false,
+        groupId: null,
+      },
+      {
+        id: 'channel-drum-clap-primary',
+        name: 'Clap Primary',
+        volume: 1,
+        pan: 0,
+        muted: false,
+        groupId: null,
+      },
+      {
+        id: 'channel-drum-clap-secondary',
+        name: 'Clap Secondary',
+        volume: 0.8,
         pan: 0,
         muted: false,
         groupId: null,
@@ -190,7 +214,7 @@ const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
       {
         id: 'channel-drum-closed-hat',
         name: 'Closed Hat',
-        volume: 0.85,
+        volume: 1,
         pan: 0,
         muted: false,
         groupId: PERCUSSION_MIXER_GROUP_ID,
@@ -198,15 +222,7 @@ const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
       {
         id: 'channel-drum-open-hat',
         name: 'Open Hat',
-        volume: 0.85,
-        pan: 0,
-        muted: false,
-        groupId: PERCUSSION_MIXER_GROUP_ID,
-      },
-      {
-        id: 'channel-drum-crash',
-        name: 'Crash',
-        volume: 0.85,
+        volume: 1,
         pan: 0,
         muted: false,
         groupId: PERCUSSION_MIXER_GROUP_ID,
@@ -214,7 +230,15 @@ const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
       {
         id: 'channel-drum-ride',
         name: 'Ride',
-        volume: 0.85,
+        volume: 1,
+        pan: 0,
+        muted: false,
+        groupId: PERCUSSION_MIXER_GROUP_ID,
+      },
+      {
+        id: 'channel-drum-crash',
+        name: 'Crash',
+        volume: 1,
         pan: 0,
         muted: false,
         groupId: PERCUSSION_MIXER_GROUP_ID,
@@ -520,14 +544,39 @@ export const setNoteSynthVoicing = (synthId: NoteSynthId, voicing: Partial<NoteS
 
 export const setDrumSynthVoicing = (synthId: DrumSynthId, voicing: Partial<DrumVoicing>): void => {
   updateState((draft) => {
+    const getSecondarySynthId = (): DrumSynthId | null => {
+      if (synthId === 'kickPrimary') {
+        return 'kickSecondary';
+      }
+
+      if (synthId === 'snarePrimary') {
+        return 'snareSecondary';
+      }
+
+      if (synthId === 'clapPrimary') {
+        return 'clapSecondary';
+      }
+
+      return null;
+    };
+    const secondarySynthId = getSecondarySynthId();
+    const nextPrimaryVoicing = {
+      ...draft.voicing.drums[synthId],
+      ...voicing,
+    };
+    const nextSecondaryVoicing = secondarySynthId
+      ? ({
+          ...nextPrimaryVoicing,
+          decay: nextPrimaryVoicing.decay * 0.75,
+          bitCrusherDepth: nextPrimaryVoicing.bitCrusherDepth * 1.08,
+        } as DrumVoicing)
+      : undefined;
     const nextVoicing = {
       ...draft.voicing,
       drums: {
         ...draft.voicing.drums,
-        [synthId]: {
-          ...draft.voicing.drums[synthId],
-          ...voicing,
-        },
+        [synthId]: nextPrimaryVoicing,
+        ...(secondarySynthId && nextSecondaryVoicing ? { [secondarySynthId]: nextSecondaryVoicing } : {}),
       },
     };
 

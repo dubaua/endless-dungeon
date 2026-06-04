@@ -65,16 +65,16 @@ const drumClipsToKickSnarePattern = (clips: readonly DrumClip[]): string => {
   const barCount = Math.max(
     1,
     ...clips
-      .filter((clip) => clip.synthId === 'kick' || clip.synthId === 'snare')
+      .filter((clip) => clip.synthId === 'kickPrimary' || clip.synthId === 'snarePrimary')
       .map((clip) => clip.startBar + Math.ceil(clip.pattern.length / StepsPerBar)),
   );
 
   return Array.from({ length: barCount * StepsPerBar }, (_, step) => {
-    if (getDrumClipIntensityAtStep(clips, 'kick', step) > 0) {
+    if (getDrumClipIntensityAtStep(clips, 'kickPrimary', step) > 0) {
       return 'k';
     }
 
-    if (getDrumClipIntensityAtStep(clips, 'snare', step) > 0) {
+    if (getDrumClipIntensityAtStep(clips, 'snarePrimary', step) > 0) {
       return 's';
     }
 
@@ -103,17 +103,21 @@ const drumClipsToHatsPattern = (clips: readonly DrumClip[]): string => {
   }).join('');
 };
 
-const drumClipsToClapPattern = (clips: readonly DrumClip[]): string => {
+const drumClipsToDrumPattern = (
+  clips: readonly DrumClip[],
+  synthId: DrumClip['synthId'],
+  activeStep: string,
+): string => {
   const barCount = Math.max(
     1,
     ...clips
-      .filter((clip) => clip.synthId === 'clap')
+      .filter((clip) => clip.synthId === synthId)
       .map((clip) => clip.startBar + Math.ceil(clip.pattern.length / StepsPerBar)),
   );
 
   return Array.from({ length: barCount * StepsPerBar }, (_, step) => {
-    if (getDrumClipIntensityAtStep(clips, 'clap', step) > 0) {
-      return 'c';
+    if (getDrumClipIntensityAtStep(clips, synthId, step) > 0) {
+      return activeStep;
     }
 
     return '-';
@@ -161,10 +165,28 @@ export const DrumsPanel: Component = () => {
   const [selectedHatsBarPatternIndex, setSelectedHatsBarPatternIndex] = createSignal(0);
   const kickSnarePattern = createMemo(() => drumClipsToKickSnarePattern(drumClips()));
   const hatsPattern = createMemo(() => drumClipsToHatsPattern(drumClips()));
-  const clapPattern = createMemo(() => drumClipsToClapPattern(drumClips()));
+  const kickPrimaryPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'kickPrimary', 'K'));
+  const kickSecondaryPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'kickSecondary', 'K'));
+  const snarePrimaryPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'snarePrimary', 'S'));
+  const snareSecondaryPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'snareSecondary', 'S'));
+  const clapPrimaryPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'clapPrimary', 'P'));
+  const clapSecondaryPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'clapSecondary', 'C'));
+  const closedHatPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'closedHat', 'H'));
+  const openHatPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'openHat', 'O'));
+  const ridePattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'ride', 'R'));
+  const crashPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'crash', 'C'));
   const kickSnareBarPatterns = createMemo(() => kickSnarePattern().match(/.{1,16}/g) ?? []);
   const hatsBarPatterns = createMemo(() => hatsPattern().match(/.{1,16}/g) ?? []);
-  const clapBarPatterns = createMemo(() => clapPattern().match(/.{1,16}/g) ?? []);
+  const kickPrimaryBarPatterns = createMemo(() => kickPrimaryPattern().match(/.{1,16}/g) ?? []);
+  const kickSecondaryBarPatterns = createMemo(() => kickSecondaryPattern().match(/.{1,16}/g) ?? []);
+  const snarePrimaryBarPatterns = createMemo(() => snarePrimaryPattern().match(/.{1,16}/g) ?? []);
+  const snareSecondaryBarPatterns = createMemo(() => snareSecondaryPattern().match(/.{1,16}/g) ?? []);
+  const clapPrimaryBarPatterns = createMemo(() => clapPrimaryPattern().match(/.{1,16}/g) ?? []);
+  const clapSecondaryBarPatterns = createMemo(() => clapSecondaryPattern().match(/.{1,16}/g) ?? []);
+  const closedHatBarPatterns = createMemo(() => closedHatPattern().match(/.{1,16}/g) ?? []);
+  const openHatBarPatterns = createMemo(() => openHatPattern().match(/.{1,16}/g) ?? []);
+  const rideBarPatterns = createMemo(() => ridePattern().match(/.{1,16}/g) ?? []);
+  const crashBarPatterns = createMemo(() => crashPattern().match(/.{1,16}/g) ?? []);
   const selectedBarPattern = createMemo(() => kickSnareBarPatterns()[selectedBarIndex()] ?? '');
   const selectedHatsBarPattern = createMemo(() => hatsBarPatterns()[selectedHatsBarIndex()] ?? '');
   const selectedBarRelativePatterns = createMemo(() =>
@@ -233,15 +255,6 @@ export const DrumsPanel: Component = () => {
     setKickSnarePatternFromList(filteredKickSnarePatterns(), index);
   };
 
-  const setKickSnarePatternFromInput = (pattern: string): void => {
-    if (!/^[ks-]{16}$/.test(pattern)) {
-      return;
-    }
-
-    setSelectedBarIndex(0);
-    setDrumClips(kickSnarePatternToDrumClips(pattern, getState().sequencer.drumClips));
-  };
-
   const randomizeBodyKickSnarePattern = (): void => {
     const patterns = filteredKickSnarePatterns();
 
@@ -283,69 +296,19 @@ export const DrumsPanel: Component = () => {
     setHatsPatternFromList(getFilteredHatsPatterns(nextFilters), 0);
   };
 
-  const hasOtherDrumAtStep = (channelId: string, step: number): boolean => {
-    const channel = drumClips().find((drumChannel) => drumChannel.id === channelId);
-
-    if (!channel || (channel.synthId !== 'kick' && channel.synthId !== 'snare')) {
-      return false;
-    }
-
-    return drumClips().some((drumChannel) => {
-      if (drumChannel.id === channelId) {
-        return false;
-      }
-
-      if (drumChannel.synthId !== 'kick' && drumChannel.synthId !== 'snare') {
-        return false;
-      }
-
-      return getDrumClipIntensityAtStep([drumChannel], drumChannel.synthId, step) > 0;
-    });
-  };
-
-  const hasOtherHatAtStep = (channelId: string, step: number): boolean => {
-    const channel = drumClips().find((drumChannel) => drumChannel.id === channelId);
-
-    if (!channel || (channel.synthId !== 'closedHat' && channel.synthId !== 'openHat')) {
-      return false;
-    }
-
-    return drumClips().some((drumChannel) => {
-      if (drumChannel.id === channelId) {
-        return false;
-      }
-
-      if (drumChannel.synthId !== 'closedHat' && drumChannel.synthId !== 'openHat') {
-        return false;
-      }
-
-      return getDrumClipIntensityAtStep([drumChannel], drumChannel.synthId, step) > 0;
-    });
-  };
-
   const toggleStep = (
     channelId: string,
-    step: number,
     patternStep: number,
     intensity: number,
   ): void => {
-    if (intensity <= 0 && hasOtherDrumAtStep(channelId, step)) {
-      return;
-    }
-
     setDrumPatternStep(channelId, patternStep, intensity > 0 ? 0 : 1);
   };
 
   const toggleHatStep = (
     channelId: string,
-    step: number,
     patternStep: number,
     intensity: number,
   ): void => {
-    if (intensity <= 0 && hasOtherHatAtStep(channelId, step)) {
-      return;
-    }
-
     setDrumPatternStep(channelId, patternStep, intensity > 0 ? 0 : 1);
   };
 
@@ -354,7 +317,7 @@ export const DrumsPanel: Component = () => {
     const channel = drumClips().find((drumChannel) => {
       const startStep = drumChannel.startBar * StepsPerBar;
       const isVoice =
-        voice === 'k' ? drumChannel.synthId === 'kick' : drumChannel.synthId === 'snare';
+        voice === 'k' ? drumChannel.synthId === 'kickPrimary' : drumChannel.synthId === 'snarePrimary';
 
       return (
         isVoice &&
@@ -369,7 +332,6 @@ export const DrumsPanel: Component = () => {
 
     toggleStep(
       channel.id,
-      absoluteStep,
       absoluteStep - channel.startBar * StepsPerBar,
       getDrumClipIntensityAtStep([channel], channel.synthId, absoluteStep),
     );
@@ -395,19 +357,18 @@ export const DrumsPanel: Component = () => {
 
     toggleHatStep(
       channel.id,
-      absoluteStep,
       absoluteStep - channel.startBar * StepsPerBar,
       getDrumClipIntensityAtStep([channel], channel.synthId, absoluteStep),
     );
   };
 
-  const toggleClapBarStep = (barIndex: number, step: number): void => {
+  const toggleDrumBarStep = (synthId: DrumClip['synthId'], barIndex: number, step: number): void => {
     const absoluteStep = barIndex * 16 + step;
     const channel = drumClips().find((drumChannel) => {
       const startStep = drumChannel.startBar * StepsPerBar;
 
       return (
-        drumChannel.synthId === 'clap' &&
+        drumChannel.synthId === synthId &&
         absoluteStep >= startStep &&
         absoluteStep < startStep + drumChannel.pattern.length
       );
@@ -424,6 +385,40 @@ export const DrumsPanel: Component = () => {
     );
   };
 
+  const resetPrimaryBarPattern = (voice: 'k' | 's', barIndex: number): void => {
+    const nextBarPatterns = [...kickSnareBarPatterns()];
+    const barPattern = nextBarPatterns[barIndex] ?? '';
+
+    nextBarPatterns[barIndex] = [...barPattern]
+      .map((stepVoice) => (stepVoice === voice ? '-' : stepVoice))
+      .join('');
+    setDrumClips(kickSnarePatternToDrumClips(nextBarPatterns.join(''), getState().sequencer.drumClips));
+  };
+
+  const resetHatBarPattern = (voice: 'h' | 'o', barIndex: number): void => {
+    const nextBarPatterns = [...hatsBarPatterns()];
+    const barPattern = nextBarPatterns[barIndex] ?? '';
+
+    nextBarPatterns[barIndex] = [...barPattern]
+      .map((stepVoice) => (stepVoice === voice ? '-' : stepVoice))
+      .join('');
+    setDrumClips(hatsPatternToDrumClips(nextBarPatterns.join(''), getState().sequencer.drumClips));
+  };
+
+  const resetDrumBarPattern = (synthId: DrumClip['synthId'], barIndex: number): void => {
+    const channel = drumClips().find((drumChannel) => drumChannel.synthId === synthId && drumChannel.startBar === barIndex);
+
+    if (!channel) {
+      return;
+    }
+
+    channel.pattern.forEach((intensity, step) => {
+      if (intensity > 0) {
+        setDrumPatternStep(channel.id, step, 0);
+      }
+    });
+  };
+
   onMount(() => {
     setBodyKickSnarePattern(0);
     setBodyHatsPattern(0);
@@ -433,17 +428,14 @@ export const DrumsPanel: Component = () => {
     <section style={{ display: 'grid', gap: '0.75rem' }}>
       <KickSnarePatternNavigator
         barIndex={selectedBarIndex()}
-        barPattern={selectedBarPattern()}
         barPatternCount={filteredKickSnarePatterns().length}
         barPatternIndex={selectedBarPatternIndex()}
         filters={kickSnarePatternFilters()}
-        pattern={kickSnarePattern()}
         relativePatternCount={relativeKickSnarePatternCount()}
         syncopationScore={currentKickSnareSyncopationScore()}
         weight={currentKickSnareWeight()}
         onBarPatternIndexInput={setBodyKickSnarePattern}
         onFilterInput={updateKickSnarePatternFilter}
-        onPatternInput={setKickSnarePatternFromInput}
         onRandomPatternInput={randomizeBodyKickSnarePattern}
       />
       <HatPatternNavigator
@@ -471,10 +463,80 @@ export const DrumsPanel: Component = () => {
               }}
             >
               <For each={kickSnareBarPatterns().slice(rowIndex * 4, rowIndex * 4 + 4)}>
-                {(barPattern, barOffset) => {
+                {(_, barOffset) => {
                   const barIndex = (): number => rowIndex * 4 + barOffset();
-                  const hatsBarPattern = (): string => hatsBarPatterns()[barIndex()] ?? '';
-                  const clapBarPattern = (): string => clapBarPatterns()[barIndex()] ?? '';
+                  const drumRows = () => [
+                    {
+                      type: 'numeric',
+                      label: 'KP',
+                      synthId: 'kickPrimary' as const,
+                      pattern: kickPrimaryBarPatterns()[barIndex()] ?? '',
+                      activeStep: 'K',
+                    },
+                    {
+                      type: 'numeric',
+                      label: 'KS',
+                      synthId: 'kickSecondary' as const,
+                      pattern: kickSecondaryBarPatterns()[barIndex()] ?? '',
+                      activeStep: 'K',
+                    },
+                    {
+                      type: 'numeric',
+                      label: 'SP',
+                      synthId: 'snarePrimary' as const,
+                      pattern: snarePrimaryBarPatterns()[barIndex()] ?? '',
+                      activeStep: 'S',
+                    },
+                    {
+                      type: 'numeric',
+                      label: 'SS',
+                      synthId: 'snareSecondary' as const,
+                      pattern: snareSecondaryBarPatterns()[barIndex()] ?? '',
+                      activeStep: 'S',
+                    },
+                    {
+                      type: 'numeric',
+                      label: 'CP',
+                      synthId: 'clapPrimary' as const,
+                      pattern: clapPrimaryBarPatterns()[barIndex()] ?? '',
+                      activeStep: 'P',
+                    },
+                    {
+                      type: 'numeric',
+                      label: 'CS',
+                      synthId: 'clapSecondary' as const,
+                      pattern: clapSecondaryBarPatterns()[barIndex()] ?? '',
+                      activeStep: 'C',
+                    },
+                    {
+                      type: 'numeric',
+                      label: 'H',
+                      synthId: 'closedHat' as const,
+                      pattern: closedHatBarPatterns()[barIndex()] ?? '',
+                      activeStep: 'H',
+                    },
+                    {
+                      type: 'numeric',
+                      label: 'O',
+                      synthId: 'openHat' as const,
+                      pattern: openHatBarPatterns()[barIndex()] ?? '',
+                      activeStep: 'O',
+                    },
+                    {
+                      type: 'numeric',
+                      label: 'R',
+                      synthId: 'ride' as const,
+                      pattern: rideBarPatterns()[barIndex()] ?? '',
+                      activeStep: 'R',
+                    },
+                    {
+                      type: 'numeric',
+                      label: 'C',
+                      synthId: 'crash' as const,
+                      pattern: crashBarPatterns()[barIndex()] ?? '',
+                      activeStep: 'C',
+                    },
+                  ];
 
                   return (
                     <div
@@ -491,35 +553,34 @@ export const DrumsPanel: Component = () => {
                       }}
                     >
                       <div style={{ color: '#666' }}>
-                        bar {barIndex() + 1} {barPattern} {clapBarPattern()} {hatsBarPattern()}
+                        bar {barIndex() + 1}
                       </div>
-                      <For each={['k', 's'] as const}>
-                        {(voice) => (
+                      <For each={drumRows()}>
+                        {(row) => (
                           <div
                             style={{
                               display: 'grid',
-                              'grid-template-columns': '1.5rem repeat(16, 1fr)',
+                              'grid-template-columns': '1.5rem repeat(16, 1fr) 3.6rem',
                               gap: '0.12rem',
                               'align-items': 'center',
                             }}
                           >
-                            <span>{voice}</span>
-                            <For each={[...barPattern]}>
+                            <span>{row.label}</span>
+                            <For each={[...row.pattern]}>
                               {(stepVoice, step) => {
                                 const isActiveStep = (): boolean =>
                                   transport().isPlaying &&
                                   transport().bar % kickSnareBarPatterns().length === barIndex() &&
                                   transport().step === step();
-                                const intensity = (): number => (stepVoice === voice ? 1 : 0);
-                                const isDisabled = (): boolean =>
-                                  intensity() <= 0 && stepVoice !== '-';
+                                const intensity = (): number => (stepVoice === row.activeStep ? 1 : 0);
 
                                 return (
                                   <button
                                     type="button"
-                                    aria-label={`bar ${barIndex() + 1} ${voice} step ${step() + 1}`}
-                                    disabled={isDisabled()}
-                                    onClick={() => toggleBarStep(voice, barIndex(), step())}
+                                    aria-label={`bar ${barIndex() + 1} ${row.label} step ${step() + 1}`}
+                                    onClick={() => {
+                                      toggleDrumBarStep(row.synthId as DrumClip['synthId'], barIndex(), step());
+                                    }}
                                     style={{
                                       height: '1.4rem',
                                       padding: 0,
@@ -527,103 +588,34 @@ export const DrumsPanel: Component = () => {
                                       'border-radius': '0.15rem',
                                       background: getStepBackground(intensity(), isActiveStep()),
                                       color: intensity() > 0 ? '#fff' : '#737373',
-                                      cursor: isDisabled() ? 'not-allowed' : 'pointer',
-                                      opacity: isDisabled() ? 0.45 : 1,
+                                      cursor: 'pointer',
+                                      opacity: 1,
                                       'font-size': '0.6rem',
                                     }}
                                   >
-                                    {intensity() > 0 ? voice : ''}
+                                    {intensity() > 0 ? row.label : ''}
                                   </button>
                                 );
                               }}
                             </For>
-                          </div>
-                        )}
-                      </For>
-                      <div
-                        style={{
-                          display: 'grid',
-                          'grid-template-columns': '1.5rem repeat(16, 1fr)',
-                          gap: '0.12rem',
-                          'align-items': 'center',
-                        }}
-                      >
-                        <span>c</span>
-                        <For each={[...clapBarPattern()]}>
-                          {(stepVoice, step) => {
-                            const isActiveStep = (): boolean =>
-                              transport().isPlaying &&
-                              transport().bar % clapBarPatterns().length === barIndex() &&
-                              transport().step === step();
-                            const intensity = (): number => (stepVoice === 'c' ? 1 : 0);
-
-                            return (
-                              <button
-                                type="button"
-                                aria-label={`bar ${barIndex() + 1} clap step ${step() + 1}`}
-                                onClick={() => toggleClapBarStep(barIndex(), step())}
-                                style={{
-                                  height: '1.4rem',
-                                  padding: 0,
-                                  border: `1px solid ${getStepBorder(intensity(), isActiveStep())}`,
-                                  'border-radius': '0.15rem',
-                                  background: getStepBackground(intensity(), isActiveStep()),
-                                  color: intensity() > 0 ? '#fff' : '#737373',
-                                  cursor: 'pointer',
-                                  opacity: 1,
-                                  'font-size': '0.6rem',
-                                }}
-                              >
-                                {intensity() > 0 ? 'c' : ''}
-                              </button>
-                            );
-                          }}
-                        </For>
-                      </div>
-                      <For each={['h', 'o'] as const}>
-                        {(voice) => (
-                          <div
-                            style={{
-                              display: 'grid',
-                              'grid-template-columns': '1.5rem repeat(16, 1fr)',
-                              gap: '0.12rem',
-                              'align-items': 'center',
-                            }}
-                          >
-                            <span>{voice}</span>
-                            <For each={[...hatsBarPattern()]}>
-                              {(stepVoice, step) => {
-                                const isActiveStep = (): boolean =>
-                                  transport().isPlaying &&
-                                  transport().bar % hatsBarPatterns().length === barIndex() &&
-                                  transport().step === step();
-                                const intensity = (): number => (stepVoice === voice ? 1 : 0);
-                                const isDisabled = (): boolean =>
-                                  intensity() <= 0 && stepVoice !== '-';
-
-                                return (
-                                  <button
-                                    type="button"
-                                    aria-label={`bar ${barIndex() + 1} ${voice} step ${step() + 1}`}
-                                    disabled={isDisabled()}
-                                    onClick={() => toggleHatBarStep(voice, barIndex(), step())}
-                                    style={{
-                                      height: '1.4rem',
-                                      padding: 0,
-                                      border: `1px solid ${getStepBorder(intensity(), isActiveStep())}`,
-                                      'border-radius': '0.15rem',
-                                      background: getStepBackground(intensity(), isActiveStep()),
-                                      color: intensity() > 0 ? '#fff' : '#737373',
-                                      cursor: isDisabled() ? 'not-allowed' : 'pointer',
-                                      opacity: isDisabled() ? 0.45 : 1,
-                                      'font-size': '0.6rem',
-                                    }}
-                                  >
-                                    {intensity() > 0 ? voice : ''}
-                                  </button>
-                                );
+                            <button
+                              type="button"
+                              onClick={() => {
+                                resetDrumBarPattern(row.synthId as DrumClip['synthId'], barIndex());
                               }}
-                            </For>
+                              style={{
+                                height: '1.4rem',
+                                padding: '0 0.35rem',
+                                border: '1px solid #d4d4d4',
+                                'border-radius': '0.15rem',
+                                background: '#fff',
+                                color: '#525252',
+                                cursor: 'pointer',
+                                'font-size': '0.6rem',
+                              }}
+                            >
+                              reset
+                            </button>
                           </div>
                         )}
                       </For>

@@ -19,15 +19,15 @@ import { createSnareVoice } from './drums/snare';
 import type { DrumVoiceRuntimeInstance } from './drums/shared';
 
 export const createDrumVoiceInstance = (synthId: DrumSynthId, voicing: DrumVoicing): DrumVoiceRuntimeInstance => {
-  if (synthId === 'kick') {
+  if (synthId === 'kickPrimary' || synthId === 'kickSecondary') {
     return createKickVoice(voicing as KickVoicing) as DrumVoiceRuntimeInstance;
   }
 
-  if (synthId === 'snare') {
+  if (synthId === 'snarePrimary' || synthId === 'snareSecondary') {
     return createSnareVoice(voicing as SnareVoicing) as DrumVoiceRuntimeInstance;
   }
 
-  if (synthId === 'clap') {
+  if (synthId === 'clapPrimary' || synthId === 'clapSecondary') {
     return createClapVoice(voicing as ClapVoicing) as DrumVoiceRuntimeInstance;
   }
 

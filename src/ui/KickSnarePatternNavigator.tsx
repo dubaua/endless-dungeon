@@ -10,17 +10,14 @@ export interface KickSnarePatternFilters {
 
 interface KickSnarePatternNavigatorProps {
   barIndex: number;
-  barPattern: string;
   barPatternCount: number;
   barPatternIndex: number;
   filters: KickSnarePatternFilters;
-  pattern: string;
   relativePatternCount: number;
   syncopationScore: number | undefined;
   weight: KickSnarePatternWeight | undefined;
   onBarPatternIndexInput: (index: number) => void;
   onFilterInput: (key: keyof KickSnarePatternFilters, value: number) => void;
-  onPatternInput: (pattern: string) => void;
   onRandomPatternInput: () => void;
 }
 
@@ -40,7 +37,7 @@ export const KickSnarePatternNavigator: Component<KickSnarePatternNavigatorProps
             'font-size': '0.78rem',
           }}
         >
-          bar {props.barIndex + 1} {props.barPattern} relatives:{props.relativePatternCount}
+          bar {props.barIndex + 1} relatives:{props.relativePatternCount}
         </span>
       </header>
       <div
@@ -65,18 +62,6 @@ export const KickSnarePatternNavigator: Component<KickSnarePatternNavigatorProps
             value={props.barPatternIndex}
             disabled={props.barPatternCount === 0}
             onInput={(event) => props.onBarPatternIndexInput(event.currentTarget.valueAsNumber)}
-          />
-        </label>
-        <label style={{ display: 'grid', gap: '0.15rem' }}>
-          <span>pattern</span>
-          <input
-            type="text"
-            value={props.barPattern}
-            maxlength="16"
-            onInput={(event) => props.onPatternInput(event.currentTarget.value)}
-            style={{
-              'font-family': 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
-            }}
           />
         </label>
         <label style={{ display: 'grid', gap: '0.15rem' }}>

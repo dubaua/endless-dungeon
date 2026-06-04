@@ -50,3 +50,6 @@ export const RideVoicing = {
   decay: { min: 0.2, max: 1.5 },
   release: { min: 0.05, max: 1.5 },
 } satisfies Record<string, Range>;
+
+export const SecondaryDepthRange = 0.12;
+export const SecondaryDecayMultiplier = 0.62;

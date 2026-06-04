@@ -29,9 +29,9 @@ const setDrumNumber = (synthId: DrumSynthId, key: DrumNumberKey, value: number):
 
 export const DrumsRoute: Component = () => {
   const drums = useStore((state) => state.voicing.drums);
-  const kick = (): KickVoicing => drums().kick as KickVoicing;
-  const snare = (): SnareVoicing => drums().snare as SnareVoicing;
-  const clap = (): ClapVoicing => drums().clap as ClapVoicing;
+  const kick = (): KickVoicing => drums().kickPrimary as KickVoicing;
+  const snare = (): SnareVoicing => drums().snarePrimary as SnareVoicing;
+  const clap = (): ClapVoicing => drums().clapPrimary as ClapVoicing;
   const closedHat = (): ClosedHatVoicing => drums().closedHat as ClosedHatVoicing;
   const openHat = (): OpenHatVoicing => drums().openHat as OpenHatVoicing;
   const crash = (): CrashVoicing => drums().crash as CrashVoicing;
@@ -56,14 +56,14 @@ export const DrumsRoute: Component = () => {
           <h2 style={{ margin: 0 }}>Drum Voicing</h2>
         </header>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <KickControls kick={kick()} onInput={(key, value) => setDrumNumber('kick', key, value)} />
+        <KickControls kick={kick()} onInput={(key, value) => setDrumNumber('kickPrimary', key, value)} />
           <SnareControls
             snare={snare()}
-            onInput={(key, value) => setDrumNumber('snare', key, value)}
+            onInput={(key, value) => setDrumNumber('snarePrimary', key, value)}
           />
           <ClapControls
             clap={clap()}
-            onInput={(key, value) => setDrumNumber('clap', key, value)}
+            onInput={(key, value) => setDrumNumber('clapPrimary', key, value)}
           />
           <CymbalControls
             closedHat={closedHat()}

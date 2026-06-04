@@ -2,7 +2,17 @@ import type * as Tone from 'tone';
 
 import type { OscillatorType } from '../voicing/oscillator-types.const';
 
-export type DrumSynthId = 'kick' | 'snare' | 'clap' | 'closedHat' | 'openHat' | 'crash' | 'ride';
+export type DrumSynthId =
+  | 'kickPrimary'
+  | 'kickSecondary'
+  | 'snarePrimary'
+  | 'snareSecondary'
+  | 'clapPrimary'
+  | 'clapSecondary'
+  | 'closedHat'
+  | 'openHat'
+  | 'ride'
+  | 'crash';
 export type NoteSynthId = 'voice' | 'bass';
 export type SynthId = DrumSynthId | NoteSynthId;
 

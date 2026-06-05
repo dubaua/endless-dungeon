@@ -18,32 +18,36 @@ import { createRideVoice } from './drums/ride';
 import { createSnareVoice } from './drums/snare';
 import type { DrumVoiceRuntimeInstance } from './drums/shared';
 
-export const createDrumVoiceInstance = (synthId: DrumSynthId, voicing: DrumVoicing): DrumVoiceRuntimeInstance => {
+export const createDrumVoiceInstance = (
+  synthId: DrumSynthId,
+  voicing: DrumVoicing,
+  bpm: number,
+): DrumVoiceRuntimeInstance => {
   if (synthId === 'kickPrimary' || synthId === 'kickSecondary') {
-    return createKickVoice(voicing as KickVoicing) as DrumVoiceRuntimeInstance;
+    return createKickVoice(voicing as KickVoicing, bpm) as DrumVoiceRuntimeInstance;
   }
 
   if (synthId === 'snarePrimary' || synthId === 'snareSecondary') {
-    return createSnareVoice(voicing as SnareVoicing) as DrumVoiceRuntimeInstance;
+    return createSnareVoice(voicing as SnareVoicing, bpm) as DrumVoiceRuntimeInstance;
   }
 
   if (synthId === 'clapPrimary' || synthId === 'clapSecondary') {
-    return createClapVoice(voicing as ClapVoicing) as DrumVoiceRuntimeInstance;
+    return createClapVoice(voicing as ClapVoicing, bpm) as DrumVoiceRuntimeInstance;
   }
 
   if (synthId === 'closedHat') {
-    return createClosedHatVoice(voicing as ClosedHatVoicing) as DrumVoiceRuntimeInstance;
+    return createClosedHatVoice(voicing as ClosedHatVoicing, bpm) as DrumVoiceRuntimeInstance;
   }
 
   if (synthId === 'openHat') {
-    return createOpenHatVoice(voicing as OpenHatVoicing) as DrumVoiceRuntimeInstance;
+    return createOpenHatVoice(voicing as OpenHatVoicing, bpm) as DrumVoiceRuntimeInstance;
   }
 
   if (synthId === 'crash') {
-    return createCrashVoice(voicing as CrashVoicing) as DrumVoiceRuntimeInstance;
+    return createCrashVoice(voicing as CrashVoicing, bpm) as DrumVoiceRuntimeInstance;
   }
 
-  return createRideVoice(voicing as RideVoicing) as DrumVoiceRuntimeInstance;
+  return createRideVoice(voicing as RideVoicing, bpm) as DrumVoiceRuntimeInstance;
 };
 
 export type { DrumVoiceRuntimeInstance } from './drums/shared';

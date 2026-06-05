@@ -1,9 +1,12 @@
 import * as Tone from 'tone';
 
 import type { ClosedHatVoicing } from '../../synths/types';
-import { CymbalVoicing as CymbalVoicingSettings } from '../../voicing/drum-voicing.const';
+import {
+  ClosedHatVoicing as ClosedHatVoicingSettings,
+  CymbalVoicing as CymbalVoicingSettings,
+} from '../../voicing/drum-voicing.const';
 import { createLoFiCrusher } from '../loFiCrusher';
-import { type DrumVoiceInstance } from './shared';
+import { getBpmScaledDecay, type DrumVoiceInstance } from './shared';
 import { scale } from '../../../utils/scale';
 
 const BitCrusherDepthAmp = 1.75;
@@ -11,11 +14,13 @@ const LimiterThreshold = -1;
 
 export const createClosedHatVoice = (
   voicing: ClosedHatVoicing,
+  bpm: number,
 ): DrumVoiceInstance<ClosedHatVoicing> => {
+  let scaledDecay = getBpmScaledDecay(voicing.decay, bpm, ClosedHatVoicingSettings.decay);
   const noise = new Tone.Noise('white').start();
   const envelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
-    decay: voicing.decay,
+    decay: scaledDecay,
     sustain: 0,
     release: 0.001,
   });
@@ -36,10 +41,11 @@ export const createClosedHatVoice = (
   return {
     output,
     trigger: (time, intensity) => {
-      envelope.triggerAttackRelease(voicing.decay, time, intensity);
+      envelope.triggerAttackRelease(scaledDecay, time, intensity);
     },
-    update: (nextVoicing) => {
-      envelope.decay = nextVoicing.decay;
+    update: (nextVoicing, bpm) => {
+      scaledDecay = getBpmScaledDecay(nextVoicing.decay, bpm, ClosedHatVoicingSettings.decay);
+      envelope.decay = scaledDecay;
       filter.frequency.value = nextVoicing.filterFrequency;
       filter.Q.value = nextVoicing.filterResonance;
       amplifier.gain.value = scale(

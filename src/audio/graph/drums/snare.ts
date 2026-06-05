@@ -3,7 +3,7 @@ import * as Tone from 'tone';
 import type { SnareVoicing } from '../../synths/types';
 import { SnareVoicing as SnareVoicingSettings } from '../../voicing/drum-voicing.const';
 import { createLoFiCrusher } from '../loFiCrusher';
-import type { DrumVoiceInstance } from './shared';
+import { getBpmScaledDecay, type DrumVoiceInstance } from './shared';
 import { scale } from '../../../utils/scale';
 
 const BitCrusherDepthAmp = 1.75;
@@ -12,14 +12,18 @@ const LimiterThreshold = -1;
 // const SNARE_FILTER_FREQUENCY = 450;
 // const SNARE_FILTER_RESONANCE = 0.2;
 
-export const createSnareVoice = (voicing: SnareVoicing): DrumVoiceInstance<SnareVoicing> => {
+export const createSnareVoice = (
+  voicing: SnareVoicing,
+  bpm: number,
+): DrumVoiceInstance<SnareVoicing> => {
   let { decay } = voicing;
+  let scaledDecay = getBpmScaledDecay(decay, bpm, SnareVoicingSettings.decay);
   let bits = voicing.bitCrusherBits;
   let depth = voicing.bitCrusherDepth;
   const noise = new Tone.Noise('white').start();
   const envelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
-    decay,
+    decay: scaledDecay,
     sustain: 0.7,
     release: 0.02,
   });
@@ -40,12 +44,13 @@ export const createSnareVoice = (voicing: SnareVoicing): DrumVoiceInstance<Snare
   return {
     output,
     trigger: (time, intensity) => {
-      envelope.decay = decay;
-      envelope.triggerAttackRelease(decay * intensity, time, Math.sqrt(intensity));
+      envelope.decay = scaledDecay;
+      envelope.triggerAttackRelease(scaledDecay * intensity, time, Math.sqrt(intensity));
     },
-    update: (nextVoicing) => {
+    update: (nextVoicing, bpm) => {
       decay = nextVoicing.decay;
-      envelope.decay = decay;
+      scaledDecay = getBpmScaledDecay(decay, bpm, SnareVoicingSettings.decay);
+      envelope.decay = scaledDecay;
       bits = nextVoicing.bitCrusherBits;
       depth = nextVoicing.bitCrusherDepth;
       amplifier.gain.value = scale(

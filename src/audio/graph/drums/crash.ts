@@ -1,19 +1,26 @@
 import * as Tone from 'tone';
 
 import type { CrashVoicing } from '../../synths/types';
-import { CymbalVoicing as CymbalVoicingSettings } from '../../voicing/drum-voicing.const';
+import {
+  CrashVoicing as CrashVoicingSettings,
+  CymbalVoicing as CymbalVoicingSettings,
+} from '../../voicing/drum-voicing.const';
 import { createLoFiCrusher } from '../loFiCrusher';
-import { clamp, type DrumVoiceInstance } from './shared';
+import { clamp, getBpmScaledDecay, type DrumVoiceInstance } from './shared';
 import { scale } from '../../../utils/scale';
 
 const BitCrusherDepthAmp = 1.75;
 const LimiterThreshold = -1;
 
-export const createCrashVoice = (voicing: CrashVoicing): DrumVoiceInstance<CrashVoicing> => {
+export const createCrashVoice = (
+  voicing: CrashVoicing,
+  bpm: number,
+): DrumVoiceInstance<CrashVoicing> => {
+  let scaledDecay = getBpmScaledDecay(voicing.decay, bpm, CrashVoicingSettings.decay);
   const noise = new Tone.Noise('white').start();
   const envelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
-    decay: voicing.decay,
+    decay: scaledDecay,
     sustain: 0,
     release: voicing.release,
   });
@@ -36,8 +43,9 @@ export const createCrashVoice = (voicing: CrashVoicing): DrumVoiceInstance<Crash
     trigger: (time, intensity) => {
       envelope.triggerAttackRelease('16n', time, clamp(intensity, 0, 1));
     },
-    update: (nextVoicing) => {
-      envelope.decay = nextVoicing.decay;
+    update: (nextVoicing, bpm) => {
+      scaledDecay = getBpmScaledDecay(nextVoicing.decay, bpm, CrashVoicingSettings.decay);
+      envelope.decay = scaledDecay;
       envelope.release = nextVoicing.release;
       filter.frequency.value = nextVoicing.filterFrequency;
       filter.Q.value = nextVoicing.filterResonance;

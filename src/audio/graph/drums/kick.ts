@@ -3,26 +3,30 @@ import * as Tone from 'tone';
 import type { KickVoicing } from '../../synths/types';
 import { KickVoicing as KickVoicingSettings } from '../../voicing/drum-voicing.const';
 import { createLoFiCrusher } from '../loFiCrusher';
-import { clamp, type DrumVoiceInstance } from './shared';
+import { clamp, getBpmScaledDecay, type DrumVoiceInstance } from './shared';
 import { scale } from '../../../utils/scale';
 
 const BitCrusherDepthAmp = 1.75;
 const LimiterThreshold = -1;
 
-export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoicing> => {
+export const createKickVoice = (
+  voicing: KickVoicing,
+  bpm: number,
+): DrumVoiceInstance<KickVoicing> => {
   let currentVoicing = voicing;
+  let scaledDecay = getBpmScaledDecay(voicing.decay, bpm, KickVoicingSettings.decay);
   const initialPitchStart = voicing.pitchStart;
   const tone = new Tone.Oscillator(initialPitchStart / 2, 'square').start();
   const toneEnvelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
-    decay: voicing.decay,
+    decay: scaledDecay,
     sustain: 0,
     release: 0.001,
   });
   const click = new Tone.Noise('white').start();
   const clickEnvelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
-    decay: voicing.decay / 12,
+    decay: scaledDecay / 12,
     sustain: 0,
     release: 0.001,
   });
@@ -51,23 +55,24 @@ export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoi
       const startTime = Tone.Time(time).toSeconds();
       const pitchStart = currentVoicing.pitchStart;
       const pitchEnd = pitchStart / 2;
-      const pitchDropSeconds = currentVoicing.decay / 6;
-      const clickDecaySeconds = currentVoicing.decay / 12;
+      const pitchDropSeconds = scaledDecay / 6;
+      const clickDecaySeconds = scaledDecay / 12;
 
       tone.frequency.cancelScheduledValues(startTime);
       tone.frequency.setValueAtTime(pitchStart, startTime);
       tone.frequency.exponentialRampToValueAtTime(pitchEnd, startTime + pitchDropSeconds);
       clickFilter.frequency.setValueAtTime(pitchStart * 2, startTime);
       clickEnvelope.decay = clickDecaySeconds;
-      toneEnvelope.triggerAttackRelease(currentVoicing.decay, time, velocity);
+      toneEnvelope.triggerAttackRelease(scaledDecay, time, velocity);
       clickEnvelope.triggerAttackRelease(clickDecaySeconds, time, velocity);
     },
-    update: (nextVoicing) => {
+    update: (nextVoicing, nextBpm) => {
       currentVoicing = nextVoicing;
+      scaledDecay = getBpmScaledDecay(nextVoicing.decay, nextBpm, KickVoicingSettings.decay);
       const pitchStart = nextVoicing.pitchStart;
 
-      toneEnvelope.decay = nextVoicing.decay;
-      clickEnvelope.decay = nextVoicing.decay / 12;
+      toneEnvelope.decay = scaledDecay;
+      clickEnvelope.decay = scaledDecay / 12;
       clickFilter.frequency.value = pitchStart * 2;
       filter.frequency.value = nextVoicing.filterFrequency;
       filter.Q.value = nextVoicing.filterResonance;

@@ -3,15 +3,19 @@ import * as Tone from 'tone';
 import type { ClapVoicing } from '../../synths/types';
 import { ClapVoicing as ClapVoicingSettings } from '../../voicing/drum-voicing.const';
 import { createLoFiCrusher } from '../loFiCrusher';
-import type { DrumVoiceInstance } from './shared';
+import { getBpmScaledDecay, type DrumVoiceInstance } from './shared';
 import { scale } from '../../../utils/scale';
 
 const VolumeMultiplier = 2.5;
 const BitCrusherDepthAmp = 1.75;
 const LimiterThreshold = -1;
 
-export const createClapVoice = (voicing: ClapVoicing): DrumVoiceInstance<ClapVoicing> => {
+export const createClapVoice = (
+  voicing: ClapVoicing,
+  bpm: number,
+): DrumVoiceInstance<ClapVoicing> => {
   let { decay } = voicing;
+  let scaledDecay = getBpmScaledDecay(decay, bpm, ClapVoicingSettings.decay);
   let burstCount = voicing.burstCount;
   let burstSpread = voicing.burstSpread;
   let bits = voicing.bitCrusherBits;
@@ -25,7 +29,7 @@ export const createClapVoice = (voicing: ClapVoicing): DrumVoiceInstance<ClapVoi
   });
   const tailEnvelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
-    decay,
+    decay: scaledDecay,
     sustain: 0,
     release: 0.5,
   });
@@ -58,20 +62,21 @@ export const createClapVoice = (voicing: ClapVoicing): DrumVoiceInstance<ClapVoi
       const spread = Math.max(0.02, Math.min(0.04, burstSpread));
 
       burstEnvelope.decay = 0.009 + spread / 10;
-      tailEnvelope.decay = decay;
+      tailEnvelope.decay = scaledDecay;
 
       for (let index = 0; index < count; index += 1) {
         const offset = count === 1 ? 0 : (spread * index) / (count - 1);
         burstEnvelope.triggerAttackRelease(0.006 + spread / 8, startTime + offset, gain);
       }
 
-      tailEnvelope.triggerAttackRelease(decay, startTime + spread, gain);
+      tailEnvelope.triggerAttackRelease(scaledDecay, startTime + spread, gain);
     },
-    update: (nextVoicing) => {
+    update: (nextVoicing, bpm) => {
       decay = nextVoicing.decay;
+      scaledDecay = getBpmScaledDecay(decay, bpm, ClapVoicingSettings.decay);
       burstCount = nextVoicing.burstCount;
       burstSpread = nextVoicing.burstSpread;
-      tailEnvelope.decay = decay;
+      tailEnvelope.decay = scaledDecay;
       bits = nextVoicing.bitCrusherBits;
       depth = nextVoicing.bitCrusherDepth;
       amplifier.gain.value =

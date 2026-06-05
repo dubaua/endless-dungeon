@@ -34,7 +34,7 @@ const ensureSynths = (): void => {
   const state = getState();
 
   DrumSynthIds.forEach((synthId) => {
-    const synth = createDrumVoiceInstance(synthId, state.voicing.drums[synthId]);
+    const synth = createDrumVoiceInstance(synthId, state.voicing.drums[synthId], state.transport.bpm);
     drumSynths.set(synthId, synth);
     connectMixerChannelInput(getMixerChannelIdForSynth(synthId), synth.output);
   });
@@ -48,21 +48,29 @@ const ensureSynths = (): void => {
 
 const handleVoicingChanges = (): void => {
   let lastVoicing = JSON.stringify(getState().voicing);
+  let lastBpm = getState().transport.bpm;
 
   const unsubscribe = subscribe((next) => {
     const nextVoicing = JSON.stringify(next.voicing);
+    const nextBpm = next.transport.bpm;
 
-    if (nextVoicing === lastVoicing) {
+    if (nextVoicing === lastVoicing && nextBpm === lastBpm) {
       return;
     }
 
+    const didVoicingChange = nextVoicing !== lastVoicing;
+
     lastVoicing = nextVoicing;
+    lastBpm = nextBpm;
     DrumSynthIds.forEach((synthId) => {
-      drumSynths.get(synthId)?.update(next.voicing.drums[synthId]);
+      drumSynths.get(synthId)?.update(next.voicing.drums[synthId], nextBpm);
     });
-    NoteSynthIds.forEach((synthId) => {
-      noteSynths.get(synthId)?.update(next.voicing[synthId]);
-    });
+
+    if (didVoicingChange) {
+      NoteSynthIds.forEach((synthId) => {
+        noteSynths.get(synthId)?.update(next.voicing[synthId]);
+      });
+    }
   });
 
   cleanups.push(unsubscribe);

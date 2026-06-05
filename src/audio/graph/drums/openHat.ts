@@ -1,20 +1,27 @@
 import * as Tone from 'tone';
 
 import type { OpenHatVoicing } from '../../synths/types';
-import { CymbalVoicing as CymbalVoicingSettings } from '../../voicing/drum-voicing.const';
+import {
+  CymbalVoicing as CymbalVoicingSettings,
+  OpenHatVoicing as OpenHatVoicingSettings,
+} from '../../voicing/drum-voicing.const';
 import { createLoFiCrusher } from '../loFiCrusher';
-import { clamp, type DrumVoiceInstance } from './shared';
+import { clamp, getBpmScaledDecay, type DrumVoiceInstance } from './shared';
 import { scale } from '../../../utils/scale';
 
 const OPEN_HAT_CHOKE_RELEASE_SECONDS = 0.015;
 const BitCrusherDepthAmp = 1.75;
 const LimiterThreshold = -1;
 
-export const createOpenHatVoice = (voicing: OpenHatVoicing): DrumVoiceInstance<OpenHatVoicing> => {
+export const createOpenHatVoice = (
+  voicing: OpenHatVoicing,
+  bpm: number,
+): DrumVoiceInstance<OpenHatVoicing> => {
+  let scaledDecay = getBpmScaledDecay(voicing.decay, bpm, OpenHatVoicingSettings.decay);
   const noise = new Tone.Noise('white').start();
   const envelope = new Tone.AmplitudeEnvelope({
     attack: 0.001,
-    decay: voicing.decay,
+    decay: scaledDecay,
     sustain: 0,
     release: voicing.release,
   });
@@ -44,8 +51,9 @@ export const createOpenHatVoice = (voicing: OpenHatVoicing): DrumVoiceInstance<O
       envelope.triggerRelease(time);
       envelope.release = previousRelease;
     },
-    update: (nextVoicing) => {
-      envelope.decay = nextVoicing.decay;
+    update: (nextVoicing, bpm) => {
+      scaledDecay = getBpmScaledDecay(nextVoicing.decay, bpm, OpenHatVoicingSettings.decay);
+      envelope.decay = scaledDecay;
       envelope.release = nextVoicing.release;
       filter.frequency.value = nextVoicing.filterFrequency;
       filter.Q.value = nextVoicing.filterResonance;

@@ -1,4 +1,4 @@
-import { rollBiasChance } from '../../utils/roll-bias-chance';
+import { rollBiasChance } from '@utils/roll-bias-chance';
 
 const MelodyPhaseShiftMinChance = 0.0;
 const MelodyPhaseShiftMaxChance = 0.33;

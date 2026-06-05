@@ -1,10 +1,10 @@
 import * as Tone from 'tone';
 
-import type { ClapVoicing } from '../../synths/types';
-import { ClapVoicing as ClapVoicingSettings } from '../../voicing/drum-voicing.const';
-import { createLoFiCrusher } from '../loFiCrusher';
-import { getBpmScaledDecay, type DrumVoiceInstance } from './shared';
-import { scale } from '../../../utils/scale';
+import type { ClapVoicing } from '@audio/synths/types';
+import { ClapVoicing as ClapVoicingSettings } from '@audio/voicing/drum-voicing.const';
+import { createLoFiCrusher } from '@audio/graph/loFiCrusher';
+import { scale } from '@utils/scale';
+import { getBpmScaledDecay, type DrumVoiceInstance } from '@audio/graph/drums/shared';
 
 const VolumeMultiplier = 2.5;
 const BitCrusherDepthAmp = 1.75;

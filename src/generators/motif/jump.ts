@@ -1,4 +1,4 @@
-import { MinMotifJumpSteps, MaxMotifJumpSteps } from './should-jump-motif';
+import { MinMotifJumpSteps, MaxMotifJumpSteps } from '@generators/motif/should-jump-motif';
 
 interface MotifJumpRange {
   min: number;

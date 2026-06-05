@@ -7,10 +7,10 @@ import {
   VOICE_MIXER_CHANNEL_ID,
   type MixerChannelState,
   type MixerGroupState,
-} from '../state/store';
-import { clamp } from '../utils/clamp';
-import { createMasterOutput, type MasterOutput } from './graph/master';
-import type { SynthId } from './synths/types';
+} from '@state/store';
+import { clamp } from '@utils/clamp';
+import { createMasterOutput, type MasterOutput } from '@audio/graph/master';
+import type { SynthId } from '@audio/synths/types';
 
 interface RuntimeMixerChannel {
   input: Tone.Gain;

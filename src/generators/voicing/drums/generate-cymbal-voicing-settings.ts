@@ -1,7 +1,7 @@
-import type { ClosedHatVoicing } from '../../../audio/synths/types';
-import { CymbalVoicing } from '../../../audio/voicing/drum-voicing.const';
-import { getRandomFloat } from '../../../utils/get-random-float';
-import { getRandomInt } from '../../../utils/get-random-int';
+import type { ClosedHatVoicing } from '@audio/synths/types';
+import { CymbalVoicing } from '@audio/voicing/drum-voicing.const';
+import { getRandomFloat } from '@utils/get-random-float';
+import { getRandomInt } from '@utils/get-random-int';
 
 export type CymbalVoicingSettings = Pick<
   ClosedHatVoicing,

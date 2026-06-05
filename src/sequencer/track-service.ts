@@ -1,5 +1,5 @@
-import { InitialTrack } from './initial-track';
-import type { Track, TrackBlock } from './types';
+import { InitialTrack } from '@sequencer/initial-track';
+import type { Track, TrackBlock } from '@sequencer/types';
 
 let tracks: Track[] = [InitialTrack];
 

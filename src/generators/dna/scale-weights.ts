@@ -1,5 +1,5 @@
-import type { WeightedOptions } from '../../utils/pick-weighted';
-import type { ScaleName } from './track-dna';
+import type { WeightedOptions } from '@utils/pick-weighted';
+import type { ScaleName } from '@generators/dna/track-dna';
 
 export const scaleWeights: WeightedOptions<ScaleName> = [
   { value: 'major', weight: 5 },

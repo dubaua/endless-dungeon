@@ -1,5 +1,5 @@
-import type { GenerateMotifBarOptions, Motif, MotifCadences } from './motif';
-import { generateMotifBar } from './generate-motif-bar.new';
+import type { GenerateMotifBarOptions, Motif, MotifCadences } from '@generators/motif/motif';
+import { generateMotifBar } from '@generators/motif/generate-motif-bar.new';
 
 export type GenerateMotifOptions = GenerateMotifBarOptions & MotifCadences;
 

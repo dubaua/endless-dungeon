@@ -1,8 +1,8 @@
 import { Midi, Note } from 'tonal';
 
-import type { TrackDna } from '../dna/track-dna';
-import type { PatternStep } from '../../sequencer';
-import type { Motif } from './motif';
+import type { TrackDna } from '@generators/dna/track-dna';
+import type { PatternStep } from '@sequencer';
+import type { Motif } from '@generators/motif/motif';
 
 const BaseOctave = 3;
 const MotifStepLength = 2;

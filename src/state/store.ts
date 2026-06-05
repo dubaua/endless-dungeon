@@ -1,11 +1,11 @@
 import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
-import type { DrumSynthId, DrumVoicing, NoteSynthId, NoteSynthVoicing, VoicingState } from '../audio/synths/types';
-import type { TrackDna } from '../generators/dna/track-dna';
-import { InitialTrack } from '../sequencer/initial-track';
-import { getTrack, getTrackBlock, updateTrack, updateTrackBlock } from '../sequencer/track-service';
-import type { DrumClip, NoteClip, PatternStep, SequencerState, TrackBlock } from '../sequencer/types';
-import { clamp } from '../utils/clamp';
+import type { DrumSynthId, DrumVoicing, NoteSynthId, NoteSynthVoicing, VoicingState } from '@audio/synths/types';
+import type { TrackDna } from '@generators/dna/track-dna';
+import { InitialTrack } from '@sequencer/initial-track';
+import { getTrack, getTrackBlock, updateTrack, updateTrackBlock } from '@sequencer/track-service';
+import type { DrumClip, NoteClip, PatternStep, SequencerState, TrackBlock } from '@sequencer/types';
+import { clamp } from '@utils/clamp';
 
 export const VOICE_MIXER_CHANNEL_ID = 'channel-voice-main';
 export const BASS_MIXER_CHANNEL_ID = 'channel-bass-main';

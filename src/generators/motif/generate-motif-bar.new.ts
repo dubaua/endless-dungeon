@@ -1,17 +1,17 @@
-import type { GenerateMotifBarOptions, MotifBar, MotifStepEvent } from './motif';
-import { getRandomFloat } from '../../utils/get-random-float';
-import { scale } from '../../utils/scale';
-import { shouldChangeMotifSpeed } from './should-change-motif-speed';
-import { shouldResetMotifPhase } from './should-reset-motif-phase';
+import type { GenerateMotifBarOptions, MotifBar, MotifStepEvent } from '@generators/motif/motif';
+import { getRandomFloat } from '@utils/get-random-float';
+import { scale } from '@utils/scale';
+import { shouldChangeMotifSpeed } from '@generators/motif/should-change-motif-speed';
+import { shouldResetMotifPhase } from '@generators/motif/should-reset-motif-phase';
 import {
   MinMotifShiftSteps,
   MaxMotifShiftSteps,
   shouldShiftMotifPhase,
-} from './should-shift-motif-phase';
-import { getPhaseAndCurveYShiftForDegree } from './get-shit';
-import { getMotifJumpRange } from './jump';
-import { shouldJumpMotif } from './should-jump-motif';
-import { FullCycle } from '../../utils/full-cycle.const';
+} from '@generators/motif/should-shift-motif-phase';
+import { getPhaseAndCurveYShiftForDegree } from '@generators/motif/get-shit';
+import { getMotifJumpRange } from '@generators/motif/jump';
+import { shouldJumpMotif } from '@generators/motif/should-jump-motif';
+import { FullCycle } from '@utils/full-cycle.const';
 
 const MinCurveCycleSteps = 7;
 const MaxCurveCycleSteps = 15;

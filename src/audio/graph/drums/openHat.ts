@@ -1,13 +1,13 @@
 import * as Tone from 'tone';
 
-import type { OpenHatVoicing } from '../../synths/types';
+import type { OpenHatVoicing } from '@audio/synths/types';
 import {
   CymbalVoicing as CymbalVoicingSettings,
   OpenHatVoicing as OpenHatVoicingSettings,
-} from '../../voicing/drum-voicing.const';
-import { createLoFiCrusher } from '../loFiCrusher';
-import { clamp, getBpmScaledDecay, type DrumVoiceInstance } from './shared';
-import { scale } from '../../../utils/scale';
+} from '@audio/voicing/drum-voicing.const';
+import { createLoFiCrusher } from '@audio/graph/loFiCrusher';
+import { scale } from '@utils/scale';
+import { clamp, getBpmScaledDecay, type DrumVoiceInstance } from '@audio/graph/drums/shared';
 
 const OPEN_HAT_CHOKE_RELEASE_SECONDS = 0.015;
 const BitCrusherDepthAmp = 1.75;

@@ -1,7 +1,7 @@
-import { clamp } from '../../utils/clamp';
-import { getRandomFloat } from '../../utils/get-random-float';
-import { normalizePhase } from '../../utils/normalize-phase';
-import { takeRandom } from '../../utils/take-random';
+import { clamp } from '@utils/clamp';
+import { getRandomFloat } from '@utils/get-random-float';
+import { normalizePhase } from '@utils/normalize-phase';
+import { takeRandom } from '@utils/take-random';
 
 interface CurveYShiftRange {
   min: number;

@@ -1,11 +1,11 @@
 import { createMemo, createSignal, For, onMount, type Component } from 'solid-js';
 
-import { KickOffbeatPatternWeights } from '../generators/drums/kick-offbeat-patterns';
-import { hatsPatternToDrumClips } from '../generators/drums/hats-pattern-to-drum-clips';
-import { HatsPatternWeights } from '../generators/drums/hats-patterns';
-import { RelativeHatsPatterns } from '../generators/drums/relative-hats-patterns';
-import { RelativeKickOffbeatPatterns } from '../generators/drums/relative-kick-offbeat-patterns';
-import type { DrumClip } from '../sequencer/types';
+import { KickOffbeatPatternWeights } from '@generators/drums/kick-offbeat-patterns';
+import { hatsPatternToDrumClips } from '@generators/drums/hats-pattern-to-drum-clips';
+import { HatsPatternWeights } from '@generators/drums/hats-patterns';
+import { RelativeHatsPatterns } from '@generators/drums/relative-hats-patterns';
+import { RelativeKickOffbeatPatterns } from '@generators/drums/relative-kick-offbeat-patterns';
+import type { DrumClip } from '@sequencer/types';
 import {
   getState,
   setDrumClips,
@@ -13,13 +13,13 @@ import {
   setDrumPatternStep,
   setHatsPatternFilters,
   useStore,
-} from '../state/store';
+} from '@state/store';
 import {
   KickOffbeatPatternNavigator,
   type KickOffbeatPatternFilters,
-} from './KickOffbeatPatternNavigator';
-import { HatPatternNavigator } from './HatPatternNavigator';
-import { takeRandomItems } from '../utils/take-random-items';
+} from '@ui/KickOffbeatPatternNavigator';
+import { HatPatternNavigator } from '@ui/HatPatternNavigator';
+import { takeRandomItems } from '@utils/take-random-items';
 
 const isStrongStep = (step: number): boolean => step % 4 === 0;
 

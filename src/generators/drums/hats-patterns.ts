@@ -1,4 +1,4 @@
-import { weighHatPattern } from './weigh-hats-pattern';
+import { weighHatPattern } from '@generators/drums/weigh-hats-pattern';
 
 export const HatsPatterns = [
   'h-------h-------',

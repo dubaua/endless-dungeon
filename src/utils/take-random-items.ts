@@ -1,4 +1,4 @@
-import { takeRandom } from './take-random';
+import { takeRandom } from '@utils/take-random';
 
 export const takeRandomItems = <T>(items: readonly T[], count: number): T[] => {
   if (items.length === 0) {

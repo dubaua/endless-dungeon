@@ -1,5 +1,5 @@
-import { countPatternBeats } from './count-pattern-beats';
-import { getPatternSyncopationScore } from './new-syncope-grade';
+import { countPatternBeats } from '@generators/drums/count-pattern-beats';
+import { getPatternSyncopationScore } from '@generators/drums/new-syncope-grade';
 
 export interface HatPatternWeight {
   pattern: string;

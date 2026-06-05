@@ -1,11 +1,11 @@
 import type * as Tone from 'tone';
 
-import type { DrumVoicing } from '../../synths/types';
-import type { Range } from '../../voicing/range.type';
-import { clamp } from '../../../utils/clamp';
-import { scale } from '../../../utils/scale';
-export { clamp } from '../../../utils/clamp';
-export { lerp } from '../../../utils/lerp';
+import type { DrumVoicing } from '@audio/synths/types';
+import type { Range } from '@audio/voicing/range.type';
+import { clamp } from '@utils/clamp';
+import { scale } from '@utils/scale';
+export { clamp } from '@utils/clamp';
+export { lerp } from '@utils/lerp';
 
 const DecayBaseBpm = 130;
 const DecayMinBpm = DecayBaseBpm - 50;

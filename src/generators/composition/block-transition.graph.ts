@@ -1,5 +1,5 @@
-import type { WeightedOptions } from '../../utils/pick-weighted';
-import type { BlockFunction } from './block-function.type';
+import type { WeightedOptions } from '@utils/pick-weighted';
+import type { BlockFunction } from '@generators/composition/block-function.type';
 
 export const transitionsGraph = {
   body: [

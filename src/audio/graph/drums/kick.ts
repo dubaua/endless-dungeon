@@ -1,10 +1,10 @@
 import * as Tone from 'tone';
 
-import type { KickVoicing } from '../../synths/types';
-import { KickVoicing as KickVoicingSettings } from '../../voicing/drum-voicing.const';
-import { createLoFiCrusher } from '../loFiCrusher';
-import { clamp, getBpmScaledDecay, type DrumVoiceInstance } from './shared';
-import { scale } from '../../../utils/scale';
+import type { KickVoicing } from '@audio/synths/types';
+import { KickVoicing as KickVoicingSettings } from '@audio/voicing/drum-voicing.const';
+import { createLoFiCrusher } from '@audio/graph/loFiCrusher';
+import { scale } from '@utils/scale';
+import { clamp, getBpmScaledDecay, type DrumVoiceInstance } from '@audio/graph/drums/shared';
 
 const BitCrusherDepthAmp = 1.75;
 const LimiterThreshold = -1;

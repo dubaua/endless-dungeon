@@ -1,5 +1,5 @@
-import type { DrumSynthId } from '../../audio/synths/types';
-import type { DrumClip } from '../../sequencer/types';
+import type { DrumSynthId } from '@audio/synths/types';
+import type { DrumClip } from '@sequencer/types';
 
 const StepsPerBar = 16;
 

@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js';
 
-import type { KickOffbeatPatternWeight } from '../generators/drums/weigh-kick-offbeat-pattern';
+import type { KickOffbeatPatternWeight } from '@generators/drums/weigh-kick-offbeat-pattern';
 
 export interface KickOffbeatPatternFilters {
   syncopationScore: number;

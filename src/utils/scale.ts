@@ -1,4 +1,4 @@
-import { clamp } from './clamp';
+import { clamp } from '@utils/clamp';
 
 export const scale = (
   value: number,

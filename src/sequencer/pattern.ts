@@ -1,6 +1,6 @@
-import { STEP_TICKS } from './timing';
-import { getNoteName } from './pitch';
-import type { NoteClip } from './types';
+import { STEP_TICKS } from '@sequencer/timing';
+import { getNoteName } from '@sequencer/pitch';
+import type { NoteClip } from '@sequencer/types';
 
 export interface ExpandedPatternEvent {
   id: string;

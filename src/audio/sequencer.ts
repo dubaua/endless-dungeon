@@ -1,10 +1,10 @@
 import type * as Tone from 'tone';
 
-import { expandClipPattern, PPQ, type ExpandedPatternEvent } from '../sequencer';
-import type { DrumClip } from '../sequencer/types';
-import { getState } from '../state/store';
-import { dispatchNoteOn } from './synths/registry';
-import type { NoteSynthId } from './synths/types';
+import { expandClipPattern, PPQ, type ExpandedPatternEvent } from '@sequencer';
+import type { DrumClip } from '@sequencer/types';
+import { getState } from '@state/store';
+import { dispatchNoteOn } from '@audio/synths/registry';
+import type { NoteSynthId } from '@audio/synths/types';
 
 const StepsPerBar = 16;
 

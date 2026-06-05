@@ -8,6 +8,24 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@app": ["src/app"],
+      "@app/*": ["src/app/*"],
+      "@audio": ["src/audio"],
+      "@audio/*": ["src/audio/*"],
+      "@generators": ["src/generators"],
+      "@generators/*": ["src/generators/*"],
+      "@sequencer": ["src/sequencer"],
+      "@sequencer/*": ["src/sequencer/*"],
+      "@state": ["src/state"],
+      "@state/*": ["src/state/*"],
+      "@ui": ["src/ui"],
+      "@ui/*": ["src/ui/*"],
+      "@utils": ["src/utils"],
+      "@utils/*": ["src/utils/*"]
+    },
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,

@@ -1,4 +1,4 @@
-import { clamp } from '../../utils/clamp';
+import { clamp } from '@utils/clamp';
 
 export type SliderCurve = 'linear' | 'exponential';
 

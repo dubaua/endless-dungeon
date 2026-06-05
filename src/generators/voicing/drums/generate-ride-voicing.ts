@@ -1,7 +1,7 @@
-import type { RideVoicing } from '../../../audio/synths/types';
-import { RideVoicing as RideVoicingSettings } from '../../../audio/voicing/drum-voicing.const';
-import type { CymbalVoicingSettings } from './generate-cymbal-voicing-settings';
-import { getRandomFloat } from '../../../utils/get-random-float';
+import type { RideVoicing } from '@audio/synths/types';
+import { RideVoicing as RideVoicingSettings } from '@audio/voicing/drum-voicing.const';
+import type { CymbalVoicingSettings } from '@generators/voicing/drums/generate-cymbal-voicing-settings';
+import { getRandomFloat } from '@utils/get-random-float';
 
 export const generateRideVoicing = (
   cymbalVoicingSettings: CymbalVoicingSettings,

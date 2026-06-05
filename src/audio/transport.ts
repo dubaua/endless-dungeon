@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 
-import { DEFAULT_CLIP_LENGTH_TICKS, PPQ } from '../sequencer';
+import { DEFAULT_CLIP_LENGTH_TICKS, PPQ } from '@sequencer';
 import {
   getState,
   setTransportBpm,
@@ -9,9 +9,9 @@ import {
   setTransportPosition,
   setTransportStep,
   subscribe,
-} from '../state/store';
-import { on } from '../events';
-import { playSequencerStep, playSequencerTick } from './sequencer';
+} from '@state/store';
+import { on } from '@/events';
+import { playSequencerStep, playSequencerTick } from '@audio/sequencer';
 
 // переписать терминал
 

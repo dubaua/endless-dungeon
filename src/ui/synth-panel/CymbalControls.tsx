@@ -5,24 +5,24 @@ import type {
   CrashVoicing,
   OpenHatVoicing,
   RideVoicing,
-} from '../../audio/synths/types';
+} from '@audio/synths/types';
 import {
   ClosedHatVoicing as ClosedHatVoicingSettings,
   CrashVoicing as CrashVoicingSettings,
   CymbalVoicing as CymbalVoicingSettings,
   OpenHatVoicing as OpenHatVoicingSettings,
   RideVoicing as RideVoicingSettings,
-} from '../../audio/voicing/drum-voicing.const';
-import { Section } from './Section';
-import { Slider } from './Slider';
-import { SliderRow } from './SliderRow';
+} from '@audio/voicing/drum-voicing.const';
+import { Section } from '@ui/synth-panel/Section';
+import { Slider } from '@ui/synth-panel/Slider';
+import { SliderRow } from '@ui/synth-panel/SliderRow';
 import {
   formatHz,
   formatSeconds,
   mapCrushDepthRangePosition,
   unmapCrushDepthRangeValue,
   type DrumNumberKey,
-} from './slider-utils';
+} from '@ui/synth-panel/slider-utils';
 
 interface CymbalControlsProps {
   closedHat: ClosedHatVoicing;

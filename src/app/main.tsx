@@ -1,9 +1,9 @@
 import { render } from 'solid-js/web';
 
-import { initializeAudioEngine } from '../audio/engine';
-import { initializeTransport } from '../audio/transport';
-import { emit } from '../events';
-import { Root } from '../ui/Root';
+import { initializeAudioEngine } from '@audio/engine';
+import { initializeTransport } from '@audio/transport';
+import { emit } from '@/events';
+import { Root } from '@ui/Root';
 
 const mount = (): void => {
   initializeAudioEngine();

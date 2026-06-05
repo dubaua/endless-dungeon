@@ -1,8 +1,8 @@
-import { KickOffbeatPatternWeights } from '../drums/kick-offbeat-patterns';
-import { getRandomFloat } from '../../utils/get-random-float';
-import { lerp } from '../../utils/lerp';
-import { takeRandom } from '../../utils/take-random';
-import { HatsPatternWeights } from '../drums/hats-patterns';
+import { KickOffbeatPatternWeights } from '@generators/drums/kick-offbeat-patterns';
+import { getRandomFloat } from '@utils/get-random-float';
+import { lerp } from '@utils/lerp';
+import { takeRandom } from '@utils/take-random';
+import { HatsPatternWeights } from '@generators/drums/hats-patterns';
 
 export interface DrumDnaSettings {
   density: number;

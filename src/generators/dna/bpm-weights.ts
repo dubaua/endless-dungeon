@@ -1,4 +1,4 @@
-import type { WeightedOptions } from '../../utils/pick-weighted';
+import type { WeightedOptions } from '@utils/pick-weighted';
 
 export type Bpm = number;
 

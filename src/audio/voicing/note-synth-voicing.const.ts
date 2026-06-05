@@ -1,5 +1,5 @@
-import { OscillatorTypes, type OscillatorType } from './oscillator-types.const';
-import type { Range } from './range.type';
+import { OscillatorTypes, type OscillatorType } from '@audio/voicing/oscillator-types.const';
+import type { Range } from '@audio/voicing/range.type';
 
 type NoteSynthVoicingSetting = number | Range | readonly OscillatorType[];
 

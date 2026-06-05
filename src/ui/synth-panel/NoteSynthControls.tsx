@@ -1,22 +1,22 @@
 import { For, type Component, type JSX } from 'solid-js';
 
-import type { NoteSynthId, NoteSynthVoicing } from '../../audio/synths/types';
-import { NoteSynthVoicing as NoteSynthVoicingSettings } from '../../audio/voicing/note-synth-voicing.const';
+import type { NoteSynthId, NoteSynthVoicing } from '@audio/synths/types';
+import { NoteSynthVoicing as NoteSynthVoicingSettings } from '@audio/voicing/note-synth-voicing.const';
 import {
   OscillatorTypes,
   type OscillatorType,
-} from '../../audio/voicing/oscillator-types.const';
-import { setNoteSynthVoicing, useStore } from '../../state/store';
-import { Section } from './Section';
-import { Slider } from './Slider';
-import { SliderRow } from './SliderRow';
+} from '@audio/voicing/oscillator-types.const';
+import { setNoteSynthVoicing, useStore } from '@state/store';
+import { Section } from '@ui/synth-panel/Section';
+import { Slider } from '@ui/synth-panel/Slider';
+import { SliderRow } from '@ui/synth-panel/SliderRow';
 import {
   formatHz,
   formatNormal,
   formatSeconds,
   mapCrushDepthRangePosition,
   unmapCrushDepthRangeValue,
-} from './slider-utils';
+} from '@ui/synth-panel/slider-utils';
 
 type NoteNumberKey = {
   [Key in keyof NoteSynthVoicing]: NoteSynthVoicing[Key] extends number ? Key : never;

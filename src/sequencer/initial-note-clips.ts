@@ -1,4 +1,4 @@
-import type { NoteClip } from './types';
+import type { NoteClip } from '@sequencer/types';
 
 export const InitialNoteClips: NoteClip[] = [
   {

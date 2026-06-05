@@ -1,15 +1,15 @@
 import { createSignal, For, onMount, type Component } from 'solid-js';
 
-import { stopTransport } from '../audio/transport';
-import { generateTrackDna } from '../generators/dna/generate-track-dna';
-import type { TrackDna } from '../generators/dna/track-dna';
-import { generateEightBarDrumPattern } from '../generators/drums/generate-eight-bar-drum-pattern';
-import { generateEightBarHatsPattern } from '../generators/drums/generate-eight-bar-hats-pattern';
-import { hatsPatternToDrumClips } from '../generators/drums/hats-pattern-to-drum-clips';
-import { kickOffbeatPatternToDrumClips } from '../generators/drums/kick-offbeat-pattern-to-drum-clips';
-import { generateMotif, type GenerateMotifOptions } from '../generators/motif/generate-motif';
-import { motifToPattern } from '../generators/motif/motif-to-pattern';
-import type { Motif } from '../generators/motif/motif';
+import { stopTransport } from '@audio/transport';
+import { generateTrackDna } from '@generators/dna/generate-track-dna';
+import type { TrackDna } from '@generators/dna/track-dna';
+import { generateEightBarDrumPattern } from '@generators/drums/generate-eight-bar-drum-pattern';
+import { generateEightBarHatsPattern } from '@generators/drums/generate-eight-bar-hats-pattern';
+import { hatsPatternToDrumClips } from '@generators/drums/hats-pattern-to-drum-clips';
+import { kickOffbeatPatternToDrumClips } from '@generators/drums/kick-offbeat-pattern-to-drum-clips';
+import { generateMotif, type GenerateMotifOptions } from '@generators/motif/generate-motif';
+import { motifToPattern } from '@generators/motif/motif-to-pattern';
+import type { Motif } from '@generators/motif/motif';
 import {
   getState,
   setDrumClips,
@@ -20,8 +20,8 @@ import {
   setVoicing,
   setVoicePattern,
   useStore,
-} from '../state/store';
-import { TrackBlockPanel } from './TrackBlockPanel';
+} from '@state/store';
+import { TrackBlockPanel } from '@ui/TrackBlockPanel';
 
 const DefaultMotifOptions: GenerateMotifOptions = {
   startDegree: 0,

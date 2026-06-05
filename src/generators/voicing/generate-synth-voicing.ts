@@ -1,8 +1,8 @@
-import { getRandomFloat } from '../../utils/get-random-float';
-import { getRandomInt } from '../../utils/get-random-int';
-import type { NoteSynthVoicing } from '../../audio/synths/types';
-import { NoteSynthVoicing as NoteSynthVoicingSettings } from '../../audio/voicing/note-synth-voicing.const';
-import { takeRandom } from '../../utils/take-random';
+import { getRandomFloat } from '@utils/get-random-float';
+import { getRandomInt } from '@utils/get-random-int';
+import type { NoteSynthVoicing } from '@audio/synths/types';
+import { NoteSynthVoicing as NoteSynthVoicingSettings } from '@audio/voicing/note-synth-voicing.const';
+import { takeRandom } from '@utils/take-random';
 
 export const generateSynthVoicing = (): NoteSynthVoicing => {
   return {

@@ -9,15 +9,15 @@ import type {
   OpenHatVoicing,
   RideVoicing,
   SnareVoicing,
-} from '../audio/synths/types';
-import { setDrumSynthVoicing, useStore } from '../state/store';
-import { DrumsPanel } from './DrumsPanel';
-import { TransportPanel } from './TransportPanel';
-import { ClapControls } from './synth-panel/ClapControls';
-import { CymbalControls } from './synth-panel/CymbalControls';
-import { KickControls } from './synth-panel/KickControls';
-import { SnareControls } from './synth-panel/SnareControls';
-import type { DrumNumberKey } from './synth-panel/slider-utils';
+} from '@audio/synths/types';
+import { setDrumSynthVoicing, useStore } from '@state/store';
+import { DrumsPanel } from '@ui/DrumsPanel';
+import { TransportPanel } from '@ui/TransportPanel';
+import { ClapControls } from '@ui/synth-panel/ClapControls';
+import { CymbalControls } from '@ui/synth-panel/CymbalControls';
+import { KickControls } from '@ui/synth-panel/KickControls';
+import { SnareControls } from '@ui/synth-panel/SnareControls';
+import type { DrumNumberKey } from '@ui/synth-panel/slider-utils';
 
 type CymbalSynthId = Extract<DrumSynthId, 'closedHat' | 'openHat' | 'crash' | 'ride'>;
 

@@ -1,4 +1,4 @@
-import type { DrumClip } from './types';
+import type { DrumClip } from '@sequencer/types';
 
 const EmptyPattern = Array.from({ length: 16 }, () => 0);
 

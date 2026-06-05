@@ -1,5 +1,5 @@
-import { initializeMixer } from './mixer';
-import { initializeSynthRegistry } from './synths/registry';
+import { initializeMixer } from '@audio/mixer';
+import { initializeSynthRegistry } from '@audio/synths/registry';
 
 export const initializeAudioEngine = (): void => {
   initializeMixer();

@@ -1,6 +1,6 @@
 import type * as Tone from 'tone';
 
-import type { OscillatorType } from '../voicing/oscillator-types.const';
+import type { OscillatorType } from '@audio/voicing/oscillator-types.const';
 
 export type DrumSynthId =
   | 'kickPrimary'

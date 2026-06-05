@@ -1,9 +1,9 @@
 import { For, onCleanup, onMount, type Component, type JSX } from 'solid-js';
 import { createStore } from 'solid-js/store';
 
-import { getMixerMeterLevel } from '../audio/mixer';
-import { setMixerChannelState, useStore } from '../state/store';
-import { clamp } from '../utils/clamp';
+import { getMixerMeterLevel } from '@audio/mixer';
+import { setMixerChannelState, useStore } from '@state/store';
+import { clamp } from '@utils/clamp';
 
 const formatVolume = (value: number): string => value.toFixed(2);
 const formatPan = (value: number): string => value.toFixed(2);

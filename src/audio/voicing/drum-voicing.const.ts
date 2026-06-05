@@ -1,4 +1,4 @@
-import type { Range } from './range.type';
+import type { Range } from '@audio/voicing/range.type';
 
 type VoicingSetting = number | Range;
 

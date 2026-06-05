@@ -1,10 +1,10 @@
-import { blockFunctions, type BlockFunction } from './block-function.type';
-import { lengthsGraph, type BlockLengthWeights } from './block-length.graph';
-import { startWeights } from './start-block.graph';
-import { transitionsGraph } from './block-transition.graph';
-import type { TrackBlock } from './track-block.interface';
-import { getRandomInt } from '../../utils/get-random-int';
-import { pickWeighted, type WeightedOptions } from '../../utils/pick-weighted';
+import { blockFunctions, type BlockFunction } from '@generators/composition/block-function.type';
+import { lengthsGraph, type BlockLengthWeights } from '@generators/composition/block-length.graph';
+import { startWeights } from '@generators/composition/start-block.graph';
+import { transitionsGraph } from '@generators/composition/block-transition.graph';
+import type { TrackBlock } from '@generators/composition/track-block.interface';
+import { getRandomInt } from '@utils/get-random-int';
+import { pickWeighted, type WeightedOptions } from '@utils/pick-weighted';
 
 const MinTrackBars = 24;
 const MaxTrackBars = 48;

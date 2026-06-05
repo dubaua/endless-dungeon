@@ -1,16 +1,16 @@
 import type { Component } from 'solid-js';
 
-import type { SnareVoicing } from '../../audio/synths/types';
-import { SnareVoicing as SnareVoicingSettings } from '../../audio/voicing/drum-voicing.const';
-import { Section } from './Section';
-import { Slider } from './Slider';
-import { SliderRow } from './SliderRow';
+import type { SnareVoicing } from '@audio/synths/types';
+import { SnareVoicing as SnareVoicingSettings } from '@audio/voicing/drum-voicing.const';
+import { Section } from '@ui/synth-panel/Section';
+import { Slider } from '@ui/synth-panel/Slider';
+import { SliderRow } from '@ui/synth-panel/SliderRow';
 import {
   formatSeconds,
   mapCrushDepthRangePosition,
   unmapCrushDepthRangeValue,
   type DrumNumberKey,
-} from './slider-utils';
+} from '@ui/synth-panel/slider-utils';
 
 interface SnareControlsProps {
   snare: SnareVoicing;

@@ -1,5 +1,5 @@
-import { rollBiasChance } from '../../utils/roll-bias-chance';
-import { scale } from '../../utils/scale';
+import { rollBiasChance } from '@utils/roll-bias-chance';
+import { scale } from '@utils/scale';
 
 const MelodyPhaseResetMinChance = 0.0;
 const MelodyPhaseResetMaxChance = 0.33;

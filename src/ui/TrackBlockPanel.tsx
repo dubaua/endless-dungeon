@@ -1,12 +1,12 @@
 import { createMemo, For, type Component } from 'solid-js';
 import { Note } from 'tonal';
 
-import type { Motif } from '../generators/motif/motif';
-import type { PatternStep } from '../sequencer';
-import { getTrackBlocks } from '../sequencer/track-service';
-import type { DrumClip } from '../sequencer/types';
-import type { DrumSynthId } from '../audio/synths/types';
-import { loadTrackBlock, useStore } from '../state/store';
+import type { Motif } from '@generators/motif/motif';
+import type { PatternStep } from '@sequencer';
+import { getTrackBlocks } from '@sequencer/track-service';
+import type { DrumClip } from '@sequencer/types';
+import type { DrumSynthId } from '@audio/synths/types';
+import { loadTrackBlock, useStore } from '@state/store';
 
 interface TrackBlockPanelProps {
   motif: Motif | undefined;

@@ -1,6 +1,6 @@
-import type { DrumSynthId, NoteSynthId, VoicingState } from '../audio/synths/types';
-import type { TrackDna } from '../generators/dna/track-dna';
-import type { BlockFunction } from '../generators/composition/block-function.type';
+import type { DrumSynthId, NoteSynthId, VoicingState } from '@audio/synths/types';
+import type { TrackDna } from '@generators/dna/track-dna';
+import type { BlockFunction } from '@generators/composition/block-function.type';
 
 export type PatternNote = string | null;
 export type PatternStep = readonly [PatternNote, number];

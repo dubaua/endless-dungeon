@@ -1,7 +1,7 @@
 import type { Component, JSX } from 'solid-js';
 
-import { emit } from '../events';
-import { setTransportBpm, useStore } from '../state/store';
+import { emit } from '@/events';
+import { setTransportBpm, useStore } from '@state/store';
 
 export const TransportPanel: Component = () => {
   const transport = useStore((state) => state.transport);

@@ -1,7 +1,7 @@
 import * as Tone from 'tone';
 
-import type { NoteSynthVoicing } from '../synths/types';
-import { createLoFiCrusher, type LoFiCrusher } from './loFiCrusher';
+import type { NoteSynthVoicing } from '@audio/synths/types';
+import { createLoFiCrusher, type LoFiCrusher } from '@audio/graph/loFiCrusher';
 
 export interface VoiceInstance {
   synth: Tone.PolySynth<Tone.Synth>;

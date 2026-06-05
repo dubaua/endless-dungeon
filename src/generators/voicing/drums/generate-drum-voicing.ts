@@ -1,19 +1,19 @@
 import type { NoteName } from 'tonal';
 
-import type { VoicingState } from '../../../audio/synths/types';
-import { generateClapVoicing } from './generate-clap-voicing';
-import { generateClosedHatVoicing } from './generate-closed-hat-voicing';
-import { generateCrashVoicing } from './generate-crash-voicing';
-import { generateCymbalVoicingSettings } from './generate-cymbal-voicing-settings';
-import { generateKickVoicing } from './generate-kick-voicing';
-import { generateOpenHatVoicing } from './generate-open-hat-voicing';
-import { generateRideVoicing } from './generate-ride-voicing';
-import { generateSnareVoicing } from './generate-snare-voicing';
-import { getRandomFloat } from '../../../utils/get-random-float';
+import type { VoicingState } from '@audio/synths/types';
+import { generateClapVoicing } from '@generators/voicing/drums/generate-clap-voicing';
+import { generateClosedHatVoicing } from '@generators/voicing/drums/generate-closed-hat-voicing';
+import { generateCrashVoicing } from '@generators/voicing/drums/generate-crash-voicing';
+import { generateCymbalVoicingSettings } from '@generators/voicing/drums/generate-cymbal-voicing-settings';
+import { generateKickVoicing } from '@generators/voicing/drums/generate-kick-voicing';
+import { generateOpenHatVoicing } from '@generators/voicing/drums/generate-open-hat-voicing';
+import { generateRideVoicing } from '@generators/voicing/drums/generate-ride-voicing';
+import { generateSnareVoicing } from '@generators/voicing/drums/generate-snare-voicing';
+import { getRandomFloat } from '@utils/get-random-float';
 import {
   SecondaryDecayMultiplier,
   SecondaryDepthRange,
-} from '../../../audio/voicing/drum-voicing.const';
+} from '@audio/voicing/drum-voicing.const';
 
 type SecondaryDrumVoicing = { decay: number; bitCrusherDepth: number };
 

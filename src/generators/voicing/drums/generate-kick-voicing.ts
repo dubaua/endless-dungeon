@@ -1,10 +1,10 @@
 import { Note } from 'tonal';
 import type { NoteName } from 'tonal';
 
-import type { KickVoicing } from '../../../audio/synths/types';
-import { KickVoicing as KickVoicingSettings } from '../../../audio/voicing/drum-voicing.const';
-import { getRandomFloat } from '../../../utils/get-random-float';
-import { getRandomInt } from '../../../utils/get-random-int';
+import type { KickVoicing } from '@audio/synths/types';
+import { KickVoicing as KickVoicingSettings } from '@audio/voicing/drum-voicing.const';
+import { getRandomFloat } from '@utils/get-random-float';
+import { getRandomInt } from '@utils/get-random-int';
 
 const getKickPitchStart = (rootNote: NoteName): number => {
   const noteName = Note.simplify(Note.enharmonic(rootNote));

@@ -1,17 +1,17 @@
 import type { Component } from 'solid-js';
 
-import type { KickVoicing } from '../../audio/synths/types';
-import { KickVoicing as KickVoicingSettings } from '../../audio/voicing/drum-voicing.const';
-import { Section } from './Section';
-import { Slider } from './Slider';
-import { SliderRow } from './SliderRow';
+import type { KickVoicing } from '@audio/synths/types';
+import { KickVoicing as KickVoicingSettings } from '@audio/voicing/drum-voicing.const';
+import { Section } from '@ui/synth-panel/Section';
+import { Slider } from '@ui/synth-panel/Slider';
+import { SliderRow } from '@ui/synth-panel/SliderRow';
 import {
   formatHz,
   formatSeconds,
   mapCrushDepthRangePosition,
   unmapCrushDepthRangeValue,
   type DrumNumberKey,
-} from './slider-utils';
+} from '@ui/synth-panel/slider-utils';
 
 interface KickControlsProps {
   kick: KickVoicing;

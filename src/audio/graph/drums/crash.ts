@@ -1,13 +1,13 @@
 import * as Tone from 'tone';
 
-import type { CrashVoicing } from '../../synths/types';
+import type { CrashVoicing } from '@audio/synths/types';
 import {
   CrashVoicing as CrashVoicingSettings,
   CymbalVoicing as CymbalVoicingSettings,
-} from '../../voicing/drum-voicing.const';
-import { createLoFiCrusher } from '../loFiCrusher';
-import { clamp, getBpmScaledDecay, type DrumVoiceInstance } from './shared';
-import { scale } from '../../../utils/scale';
+} from '@audio/voicing/drum-voicing.const';
+import { createLoFiCrusher } from '@audio/graph/loFiCrusher';
+import { scale } from '@utils/scale';
+import { clamp, getBpmScaledDecay, type DrumVoiceInstance } from '@audio/graph/drums/shared';
 
 const BitCrusherDepthAmp = 1.75;
 const LimiterThreshold = -1;

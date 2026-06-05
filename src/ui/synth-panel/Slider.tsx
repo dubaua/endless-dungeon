@@ -1,6 +1,6 @@
 import type { Component, JSX } from 'solid-js';
 
-import { positionToValue, valueToPosition, type SliderCurve } from './slider-utils';
+import { positionToValue, valueToPosition, type SliderCurve } from '@ui/synth-panel/slider-utils';
 
 interface SliderProps {
   curve?: SliderCurve;

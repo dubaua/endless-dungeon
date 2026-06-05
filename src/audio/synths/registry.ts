@@ -1,9 +1,9 @@
-import { getNoteFrequency } from '../../sequencer';
-import { getState, subscribe } from '../../state/store';
-import { createDrumVoiceInstance, type DrumVoiceRuntimeInstance } from '../graph/drumVoice';
-import { createVoiceInstance, type VoiceInstance } from '../graph/voice';
-import { connectMixerChannelInput, getMixerChannelIdForSynth } from '../mixer';
-import type { DrumSynthId, NoteOnEvent, NoteSynthId } from './types';
+import { getNoteFrequency } from '@sequencer';
+import { getState, subscribe } from '@state/store';
+import { createDrumVoiceInstance, type DrumVoiceRuntimeInstance } from '@audio/graph/drumVoice';
+import { createVoiceInstance, type VoiceInstance } from '@audio/graph/voice';
+import { connectMixerChannelInput, getMixerChannelIdForSynth } from '@audio/mixer';
+import type { DrumSynthId, NoteOnEvent, NoteSynthId } from '@audio/synths/types';
 
 type Cleanup = () => void;
 

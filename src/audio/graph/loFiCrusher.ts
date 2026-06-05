@@ -1,6 +1,6 @@
 import * as Tone from 'tone';
 
-import { clamp } from '../../utils/clamp';
+import { clamp } from '@utils/clamp';
 
 export interface LoFiCrusherState {
   bits: number;

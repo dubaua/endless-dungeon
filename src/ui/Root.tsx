@@ -1,10 +1,10 @@
 import { Match, Switch, type Component } from 'solid-js';
 
-import { DrumsRoute } from './DrumsRoute';
-import { GeneratorPanel } from './GeneratorPanel';
-import { MixerPanel } from './MixerPanel';
-import { SynthPanel } from './SynthPanel';
-import { TransportPanel } from './TransportPanel';
+import { DrumsRoute } from '@ui/DrumsRoute';
+import { GeneratorPanel } from '@ui/GeneratorPanel';
+import { MixerPanel } from '@ui/MixerPanel';
+import { SynthPanel } from '@ui/SynthPanel';
+import { TransportPanel } from '@ui/TransportPanel';
 
 export const Root: Component = () => {
   return (

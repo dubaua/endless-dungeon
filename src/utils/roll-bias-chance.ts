@@ -1,5 +1,5 @@
-import { clamp } from './clamp';
-import { scale } from './scale';
+import { clamp } from '@utils/clamp';
+import { scale } from '@utils/scale';
 
 export const rollBiasChance = (
   bias: number,

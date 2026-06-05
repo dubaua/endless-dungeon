@@ -1,8 +1,8 @@
 import { Scale } from 'tonal';
 import type { NoteName } from 'tonal';
 
-import type { VoicingState } from '../../audio/synths/types';
-import type { TrackBlock as TrackCompositionBlock } from '../composition/track-block.interface';
+import type { VoicingState } from '@audio/synths/types';
+import type { TrackBlock as TrackCompositionBlock } from '@generators/composition/track-block.interface';
 
 export type ScaleName = ReturnType<typeof Scale.names>[number];
 

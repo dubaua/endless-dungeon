@@ -1,7 +1,7 @@
-import type { OpenHatVoicing } from '../../../audio/synths/types';
-import { OpenHatVoicing as OpenHatVoicingSettings } from '../../../audio/voicing/drum-voicing.const';
-import type { CymbalVoicingSettings } from './generate-cymbal-voicing-settings';
-import { getRandomFloat } from '../../../utils/get-random-float';
+import type { OpenHatVoicing } from '@audio/synths/types';
+import { OpenHatVoicing as OpenHatVoicingSettings } from '@audio/voicing/drum-voicing.const';
+import type { CymbalVoicingSettings } from '@generators/voicing/drums/generate-cymbal-voicing-settings';
+import { getRandomFloat } from '@utils/get-random-float';
 
 export const generateOpenHatVoicing = (
   cymbalVoicingSettings: CymbalVoicingSettings,

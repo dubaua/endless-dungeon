@@ -1,8 +1,16 @@
-import { RelativeKickSnarePatterns } from './relative-kick-snare-patterns';
+import { RelativeKickOffbeatPatterns } from './relative-kick-offbeat-patterns';
 import { takeRandom } from '../../utils/take-random';
 
 const takeRelativeDrumPattern = (pattern: string): string => {
-  const relativePatterns = RelativeKickSnarePatterns[pattern] ?? [pattern];
+  const relativePatterns = RelativeKickOffbeatPatterns[pattern];
+
+  if (!relativePatterns) {
+    return pattern;
+  }
+
+  if (relativePatterns.length === 0) {
+    return pattern;
+  }
 
   return takeRandom(relativePatterns);
 };

@@ -6,7 +6,7 @@ import type { TrackDna } from '../generators/dna/track-dna';
 import { generateEightBarDrumPattern } from '../generators/drums/generate-eight-bar-drum-pattern';
 import { generateEightBarHatsPattern } from '../generators/drums/generate-eight-bar-hats-pattern';
 import { hatsPatternToDrumClips } from '../generators/drums/hats-pattern-to-drum-clips';
-import { kickSnarePatternToDrumClips } from '../generators/drums/kick-snare-pattern-to-drum-clips';
+import { kickOffbeatPatternToDrumClips } from '../generators/drums/kick-offbeat-pattern-to-drum-clips';
 import { generateMotif, type GenerateMotifOptions } from '../generators/motif/generate-motif';
 import { motifToPattern } from '../generators/motif/motif-to-pattern';
 import type { Motif } from '../generators/motif/motif';
@@ -128,7 +128,7 @@ export const GeneratorPanel: Component = () => {
     setDrumClips(
       hatsPatternToDrumClips(
         generateEightBarHatsPattern(nextTrackDna.bodyHatPattern),
-        kickSnarePatternToDrumClips(
+        kickOffbeatPatternToDrumClips(
           generateEightBarDrumPattern(nextTrackDna.bodyDrumPattern),
           getState().sequencer.drumClips,
         ),

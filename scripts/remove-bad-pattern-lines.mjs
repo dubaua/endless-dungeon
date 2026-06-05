@@ -1,11 +1,12 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
 const ScriptDir = dirname(fileURLToPath(import.meta.url));
 const ProjectRoot = resolve(ScriptDir, '..');
 const TempDir = resolve(ProjectRoot, '.tmp-script-ts/remove-bad-pattern-lines');
+const TrashDir = resolve(ProjectRoot, 'trash');
 
 const resolvePath = (path) => {
   return resolve(ProjectRoot, path);
@@ -24,7 +25,8 @@ const compileTsModule = async (sourcePath) => {
       verbatimModuleSyntax: true,
     },
   });
-  const outputPath = resolve(TempDir, sourcePath.split('/').at(-1).replace(/\.ts$/, '.mjs'));
+
+  const outputPath = resolve(TempDir, basename(sourcePath).replace(/\.ts$/, '.mjs'));
 
   await writeFile(outputPath, rewriteRelativeImports(transpiled.outputText));
 
@@ -38,6 +40,7 @@ const importPredicate = async (predicatePath) => {
   const outputPath = predicatePath.endsWith('.ts')
     ? await compileTsModule(predicatePath)
     : predicatePath;
+
   const module = await import(pathToFileURL(outputPath).href);
   const predicate =
     module.default ?? module.isBadPattern ?? module.shouldRemovePattern ?? module.findBadPattern;
@@ -52,9 +55,28 @@ const importPredicate = async (predicatePath) => {
 };
 
 const findPatternInLine = (line) => {
-  const match = line.match(/^\s*['"]([ksoh-]{16})['"],?\s*$/);
+  const quotedMatch = line.match(/^\s*['"]([ksohOx-]{16})['"],?\s*$/);
 
-  return match?.[1];
+  if (quotedMatch) {
+    return quotedMatch[1];
+  }
+
+  const rawMatch = line.match(/^\s*([ksohOx-]{16})\s*$/);
+
+  return rawMatch?.[1];
+};
+
+const writeRemovedLinesToTrash = async (targetPath, removedLines) => {
+  if (removedLines.length === 0) {
+    return;
+  }
+
+  await mkdir(TrashDir, { recursive: true });
+
+  const trashPath = resolve(TrashDir, basename(targetPath));
+  const content = `${removedLines.join('\n')}\n`;
+
+  await writeFile(trashPath, content);
 };
 
 const main = async () => {
@@ -72,13 +94,13 @@ const main = async () => {
   const source = await readFile(targetPath, 'utf8');
   const lines = source.split(/\r?\n/);
   const keptLines = [];
-  let removedCount = 0;
+  const removedLines = [];
 
   for (const line of lines) {
     const pattern = findPatternInLine(line);
 
     if (pattern && predicate(pattern)) {
-      removedCount += 1;
+      removedLines.push(line);
       continue;
     }
 
@@ -86,8 +108,14 @@ const main = async () => {
   }
 
   await writeFile(targetPath, keptLines.join('\n'));
+  await writeRemovedLinesToTrash(targetPath, removedLines);
   await rm(TempDir, { recursive: true, force: true });
-  console.log(`Removed ${removedCount} pattern lines from ${targetPath}`);
+
+  console.log(`Removed ${removedLines.length} pattern lines from ${targetPath}`);
+
+  if (removedLines.length > 0) {
+    console.log(`Moved removed lines to ${resolve(TrashDir, basename(targetPath))}`);
+  }
 };
 
 void main();

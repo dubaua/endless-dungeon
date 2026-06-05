@@ -9,13 +9,10 @@ const resolvePath = (path) => {
   return resolve(ProjectRoot, path);
 };
 
-const readPatterns = async (path) => {
+const readLines = async (path) => {
   const content = await readFile(path, 'utf8');
 
-  return content
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+  return content.split(/\r?\n/);
 };
 
 const main = async () => {
@@ -26,11 +23,28 @@ const main = async () => {
   }
 
   const sourcePath = resolvePath(inputPath);
-  const patterns = await readPatterns(sourcePath);
-  const uniquePatterns = [...new Set(patterns)];
+  const lines = await readLines(sourcePath);
+  const seenPatterns = new Set();
+  const resultLines = [];
 
-  await writeFile(sourcePath, `${uniquePatterns.join('\n')}\n`);
-  console.log(`Wrote ${uniquePatterns.length} unique patterns to ${sourcePath}`);
+  lines.forEach((line) => {
+    const trimmedLine = line.trim();
+
+    if (trimmedLine.length === 0 || trimmedLine.startsWith('#')) {
+      resultLines.push(line);
+      return;
+    }
+
+    if (seenPatterns.has(trimmedLine)) {
+      return;
+    }
+
+    seenPatterns.add(trimmedLine);
+    resultLines.push(line);
+  });
+
+  await writeFile(sourcePath, resultLines.join('\n'));
+  console.log(`Wrote ${seenPatterns.size} unique patterns to ${sourcePath}`);
 };
 
 void main();

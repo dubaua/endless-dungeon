@@ -1,27 +1,27 @@
 import type { Component } from 'solid-js';
 
-import type { KickSnarePatternWeight } from '../generators/drums/weigh-kick-snare-pattern';
+import type { KickOffbeatPatternWeight } from '../generators/drums/weigh-kick-offbeat-pattern';
 
-export interface KickSnarePatternFilters {
+export interface KickOffbeatPatternFilters {
   syncopationScore: number;
   density: number;
   densitySpread: number;
 }
 
-interface KickSnarePatternNavigatorProps {
+interface KickOffbeatPatternNavigatorProps {
   barIndex: number;
   barPatternCount: number;
   barPatternIndex: number;
-  filters: KickSnarePatternFilters;
+  filters: KickOffbeatPatternFilters;
   relativePatternCount: number;
   syncopationScore: number | undefined;
-  weight: KickSnarePatternWeight | undefined;
+  weight: KickOffbeatPatternWeight | undefined;
   onBarPatternIndexInput: (index: number) => void;
-  onFilterInput: (key: keyof KickSnarePatternFilters, value: number) => void;
+  onFilterInput: (key: keyof KickOffbeatPatternFilters, value: number) => void;
   onRandomPatternInput: () => void;
 }
 
-export const KickSnarePatternNavigator: Component<KickSnarePatternNavigatorProps> = (props) => {
+export const KickOffbeatPatternNavigator: Component<KickOffbeatPatternNavigatorProps> = (props) => {
   return (
     <div style={{ display: 'grid', gap: '0.5rem' }}>
       <header
@@ -109,7 +109,8 @@ export const KickSnarePatternNavigator: Component<KickSnarePatternNavigatorProps
           color: '#666',
         }}
       >
-        current k:{props.weight?.kickCount ?? '-'} s:{props.weight?.snareCount ?? '-'} sync:
+        current k:{props.weight?.kickCount ?? '-'} o:{props.weight?.offbeatCount ?? '-'} O:
+        {props.weight?.primaryOffbeatCount ?? '-'} sec:{props.weight?.secondaryOffbeatCount ?? '-'} sync:
         {props.weight?.syncopationScore.toFixed(2) ?? '-'} density:
         {props.weight?.density.toFixed(2) ?? '-'} relatives:{props.relativePatternCount}
       </span>

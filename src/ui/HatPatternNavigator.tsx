@@ -1,19 +1,19 @@
 import type { Component } from 'solid-js';
 
 import type { HatPatternWeight } from '../generators/drums/weigh-hats-pattern';
-import type { KickSnarePatternFilters } from './KickSnarePatternNavigator';
+import type { KickOffbeatPatternFilters } from './KickOffbeatPatternNavigator';
 
 interface HatPatternNavigatorProps {
   barIndex: number;
   barPattern: string;
   barPatternCount: number;
   barPatternIndex: number;
-  filters: KickSnarePatternFilters;
+  filters: KickOffbeatPatternFilters;
   pattern: string;
   relativePatternCount: number;
   weight: HatPatternWeight | undefined;
   onBarPatternIndexInput: (index: number) => void;
-  onFilterInput: (key: keyof KickSnarePatternFilters, value: number) => void;
+  onFilterInput: (key: keyof KickOffbeatPatternFilters, value: number) => void;
   onRandomPatternInput: () => void;
 }
 

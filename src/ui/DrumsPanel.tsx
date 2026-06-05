@@ -1,11 +1,11 @@
 import { createMemo, createSignal, For, onMount, type Component } from 'solid-js';
 
-import { KickSnarePatternWeights } from '../generators/drums/kick-snare-patterns';
+import { KickOffbeatPatternWeights } from '../generators/drums/kick-offbeat-patterns';
 import { hatsPatternToDrumClips } from '../generators/drums/hats-pattern-to-drum-clips';
 import { HatsPatternWeights } from '../generators/drums/hats-patterns';
-import { kickSnarePatternToDrumClips } from '../generators/drums/kick-snare-pattern-to-drum-clips';
+import { kickOffbeatPatternToDrumClips } from '../generators/drums/kick-offbeat-pattern-to-drum-clips';
 import { RelativeHatsPatterns } from '../generators/drums/relative-hats-patterns';
-import { RelativeKickSnarePatterns } from '../generators/drums/relative-kick-snare-patterns';
+import { RelativeKickOffbeatPatterns } from '../generators/drums/relative-kick-offbeat-patterns';
 import type { DrumClip } from '../sequencer/types';
 import {
   getState,
@@ -16,9 +16,9 @@ import {
   useStore,
 } from '../state/store';
 import {
-  KickSnarePatternNavigator,
-  type KickSnarePatternFilters,
-} from './KickSnarePatternNavigator';
+  KickOffbeatPatternNavigator,
+  type KickOffbeatPatternFilters,
+} from './KickOffbeatPatternNavigator';
 import { HatPatternNavigator } from './HatPatternNavigator';
 
 const isStrongStep = (step: number): boolean => step % 4 === 0;
@@ -67,21 +67,38 @@ const getDrumClipIntensityAtStep = (
   return clip.pattern[step - clip.startBar * StepsPerBar] ?? 0;
 };
 
-const drumClipsToKickSnarePattern = (clips: readonly DrumClip[]): string => {
+const drumClipsToKickOffbeatPattern = (clips: readonly DrumClip[]): string => {
   const barCount = Math.max(
     1,
     ...clips
-      .filter((clip) => clip.synthId === 'kickPrimary' || clip.synthId === 'snarePrimary')
+      .filter(
+        (clip) =>
+          clip.synthId === 'kickPrimary' ||
+          clip.synthId === 'snarePrimary' ||
+          clip.synthId === 'snareSecondary',
+      )
       .map((clip) => clip.startBar + Math.ceil(clip.pattern.length / StepsPerBar)),
   );
 
   return Array.from({ length: barCount * StepsPerBar }, (_, step) => {
-    if (getDrumClipIntensityAtStep(clips, 'kickPrimary', step) > 0) {
-      return 'k';
+    const hasKick = getDrumClipIntensityAtStep(clips, 'kickPrimary', step) > 0;
+    const hasPrimaryOffbeat = getDrumClipIntensityAtStep(clips, 'snarePrimary', step) > 0;
+    const hasSecondaryOffbeat = getDrumClipIntensityAtStep(clips, 'snareSecondary', step) > 0;
+
+    if (hasKick && hasPrimaryOffbeat) {
+      return 'x';
     }
 
-    if (getDrumClipIntensityAtStep(clips, 'snarePrimary', step) > 0) {
-      return 's';
+    if (hasPrimaryOffbeat) {
+      return 'O';
+    }
+
+    if (hasSecondaryOffbeat) {
+      return 'o';
+    }
+
+    if (hasKick) {
+      return 'k';
     }
 
     return '-';
@@ -130,8 +147,8 @@ const drumClipsToDrumPattern = (
   }).join('');
 };
 
-const getFilteredKickSnarePatterns = (filters: KickSnarePatternFilters) => {
-  return [...KickSnarePatternWeights.values()]
+const getFilteredKickOffbeatPatterns = (filters: KickOffbeatPatternFilters) => {
+  return [...KickOffbeatPatternWeights.values()]
     .filter((weight) => {
       const minDensity = Math.max(0, filters.density - filters.densitySpread);
       const maxDensity = Math.min(1, filters.density + filters.densitySpread);
@@ -145,7 +162,7 @@ const getFilteredKickSnarePatterns = (filters: KickSnarePatternFilters) => {
     .sort((left, right) => left.syncopationScore - right.syncopationScore);
 };
 
-const getFilteredHatsPatterns = (filters: KickSnarePatternFilters) => {
+const getFilteredHatsPatterns = (filters: KickOffbeatPatternFilters) => {
   return [...HatsPatternWeights.values()]
     .filter((weight) => {
       const minDensity = Math.max(0, filters.density - filters.densitySpread);
@@ -163,13 +180,13 @@ const getFilteredHatsPatterns = (filters: KickSnarePatternFilters) => {
 export const DrumsPanel: Component = () => {
   const drumClips = useStore((state) => state.sequencer.drumClips);
   const transport = useStore((state) => state.transport);
-  const kickSnarePatternFilters = useStore((state) => state.drumPatternFilters);
+  const kickOffbeatPatternFilters = useStore((state) => state.drumPatternFilters);
   const hatsPatternFilters = useStore((state) => state.hatsPatternFilters);
   const [selectedBarIndex, setSelectedBarIndex] = createSignal(0);
   const [selectedBarPatternIndex, setSelectedBarPatternIndex] = createSignal(0);
   const [selectedHatsBarIndex, setSelectedHatsBarIndex] = createSignal(0);
   const [selectedHatsBarPatternIndex, setSelectedHatsBarPatternIndex] = createSignal(0);
-  const kickSnarePattern = createMemo(() => drumClipsToKickSnarePattern(drumClips()));
+  const kickOffbeatPattern = createMemo(() => drumClipsToKickOffbeatPattern(drumClips()));
   const hatsPattern = createMemo(() => drumClipsToHatsPattern(drumClips()));
   const kickPrimaryPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'kickPrimary', 'K'));
   const kickSecondaryPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'kickSecondary', 'K'));
@@ -181,7 +198,7 @@ export const DrumsPanel: Component = () => {
   const openHatPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'openHat', 'O'));
   const ridePattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'ride', 'R'));
   const crashPattern = createMemo(() => drumClipsToDrumPattern(drumClips(), 'crash', 'C'));
-  const kickSnareBarPatterns = createMemo(() => kickSnarePattern().match(/.{1,16}/g) ?? []);
+  const kickOffbeatBarPatterns = createMemo(() => kickOffbeatPattern().match(/.{1,16}/g) ?? []);
   const hatsBarPatterns = createMemo(() => hatsPattern().match(/.{1,16}/g) ?? []);
   const kickPrimaryBarPatterns = createMemo(() => kickPrimaryPattern().match(/.{1,16}/g) ?? []);
   const kickSecondaryBarPatterns = createMemo(() => kickSecondaryPattern().match(/.{1,16}/g) ?? []);
@@ -193,32 +210,40 @@ export const DrumsPanel: Component = () => {
   const openHatBarPatterns = createMemo(() => openHatPattern().match(/.{1,16}/g) ?? []);
   const rideBarPatterns = createMemo(() => ridePattern().match(/.{1,16}/g) ?? []);
   const crashBarPatterns = createMemo(() => crashPattern().match(/.{1,16}/g) ?? []);
-  const selectedBarPattern = createMemo(() => kickSnareBarPatterns()[selectedBarIndex()] ?? '');
+  const selectedBarPattern = createMemo(() => kickOffbeatBarPatterns()[selectedBarIndex()] ?? '');
   const selectedHatsBarPattern = createMemo(() => hatsBarPatterns()[selectedHatsBarIndex()] ?? '');
-  const selectedBarRelativePatterns = createMemo(() =>
-    selectedBarPattern()
-      ? (RelativeKickSnarePatterns[selectedBarPattern()] ?? [selectedBarPattern()])
-      : [],
-  );
+  const selectedBarRelativePatterns = createMemo(() => {
+    if (!selectedBarPattern()) {
+      return [];
+    }
+
+    const relativePatterns = RelativeKickOffbeatPatterns[selectedBarPattern()];
+
+    if (!relativePatterns) {
+      return [selectedBarPattern()];
+    }
+
+    return relativePatterns;
+  });
   const selectedHatsBarRelativePatterns = createMemo(() =>
     selectedHatsBarPattern()
       ? (RelativeHatsPatterns[selectedHatsBarPattern()] ?? [selectedHatsBarPattern()])
       : [],
   );
-  const filteredKickSnarePatterns = createMemo(() =>
-    getFilteredKickSnarePatterns(kickSnarePatternFilters()),
+  const filteredKickOffbeatPatterns = createMemo(() =>
+    getFilteredKickOffbeatPatterns(kickOffbeatPatternFilters()),
   );
   const filteredHatsPatterns = createMemo(() => getFilteredHatsPatterns(hatsPatternFilters()));
-  const currentKickSnareWeight = createMemo(() =>
-    KickSnarePatternWeights.get(selectedBarPattern()),
+  const currentKickOffbeatWeight = createMemo(() =>
+    KickOffbeatPatternWeights.get(selectedBarPattern()),
   );
-  const currentKickSnareSyncopationScore = createMemo(() => currentKickSnareWeight()?.syncopationScore);
+  const currentKickOffbeatSyncopationScore = createMemo(() => currentKickOffbeatWeight()?.syncopationScore);
   const currentHatsWeight = createMemo(() => HatsPatternWeights.get(selectedHatsBarPattern()));
-  const relativeKickSnarePatternCount = createMemo(() => selectedBarRelativePatterns().length);
+  const relativeKickOffbeatPatternCount = createMemo(() => selectedBarRelativePatterns().length);
   const relativeHatsPatternCount = createMemo(() => selectedHatsBarRelativePatterns().length);
 
-  const setKickSnarePatternFromList = (
-    patterns: ReturnType<typeof filteredKickSnarePatterns>,
+  const setKickOffbeatPatternFromList = (
+    patterns: ReturnType<typeof filteredKickOffbeatPatterns>,
     index: number,
   ): void => {
     if (patterns.length === 0) {
@@ -234,7 +259,7 @@ export const DrumsPanel: Component = () => {
 
     setSelectedBarIndex(0);
     setSelectedBarPatternIndex(nextIndex);
-    setDrumClips(kickSnarePatternToDrumClips(nextPattern, getState().sequencer.drumClips));
+    setDrumClips(kickOffbeatPatternToDrumClips(nextPattern, getState().sequencer.drumClips));
   };
 
   const setHatsPatternFromList = (
@@ -257,18 +282,18 @@ export const DrumsPanel: Component = () => {
     setDrumClips(hatsPatternToDrumClips(nextPattern, getState().sequencer.drumClips));
   };
 
-  const setBodyKickSnarePattern = (index: number): void => {
-    setKickSnarePatternFromList(filteredKickSnarePatterns(), index);
+  const setBodyKickOffbeatPattern = (index: number): void => {
+    setKickOffbeatPatternFromList(filteredKickOffbeatPatterns(), index);
   };
 
-  const randomizeBodyKickSnarePattern = (): void => {
-    const patterns = filteredKickSnarePatterns();
+  const randomizeBodyKickOffbeatPattern = (): void => {
+    const patterns = filteredKickOffbeatPatterns();
 
     if (patterns.length === 0) {
       return;
     }
 
-    setKickSnarePatternFromList(patterns, Math.floor(Math.random() * patterns.length));
+    setKickOffbeatPatternFromList(patterns, Math.floor(Math.random() * patterns.length));
   };
 
   const setBodyHatsPattern = (index: number): void => {
@@ -285,17 +310,17 @@ export const DrumsPanel: Component = () => {
     setHatsPatternFromList(patterns, Math.floor(Math.random() * patterns.length));
   };
 
-  const updateKickSnarePatternFilter = (
-    key: keyof KickSnarePatternFilters,
+  const updateKickOffbeatPatternFilter = (
+    key: keyof KickOffbeatPatternFilters,
     value: number,
   ): void => {
-    const nextFilters = { ...kickSnarePatternFilters(), [key]: value };
+    const nextFilters = { ...kickOffbeatPatternFilters(), [key]: value };
 
     setDrumPatternFilters(nextFilters);
-    setKickSnarePatternFromList(getFilteredKickSnarePatterns(nextFilters), 0);
+    setKickOffbeatPatternFromList(getFilteredKickOffbeatPatterns(nextFilters), 0);
   };
 
-  const updateHatsPatternFilter = (key: keyof KickSnarePatternFilters, value: number): void => {
+  const updateHatsPatternFilter = (key: keyof KickOffbeatPatternFilters, value: number): void => {
     const nextFilters = { ...hatsPatternFilters(), [key]: value };
 
     setHatsPatternFilters(nextFilters);
@@ -392,13 +417,13 @@ export const DrumsPanel: Component = () => {
   };
 
   const resetPrimaryBarPattern = (voice: 'k' | 's', barIndex: number): void => {
-    const nextBarPatterns = [...kickSnareBarPatterns()];
+    const nextBarPatterns = [...kickOffbeatBarPatterns()];
     const barPattern = nextBarPatterns[barIndex] ?? '';
 
     nextBarPatterns[barIndex] = [...barPattern]
       .map((stepVoice) => (stepVoice === voice ? '-' : stepVoice))
       .join('');
-    setDrumClips(kickSnarePatternToDrumClips(nextBarPatterns.join(''), getState().sequencer.drumClips));
+    setDrumClips(kickOffbeatPatternToDrumClips(nextBarPatterns.join(''), getState().sequencer.drumClips));
   };
 
   const resetHatBarPattern = (voice: 'h' | 'o', barIndex: number): void => {
@@ -426,23 +451,23 @@ export const DrumsPanel: Component = () => {
   };
 
   onMount(() => {
-    setBodyKickSnarePattern(0);
+    setBodyKickOffbeatPattern(0);
     setBodyHatsPattern(0);
   });
 
   return (
     <section style={{ display: 'grid', gap: '0.75rem' }}>
-      <KickSnarePatternNavigator
+      <KickOffbeatPatternNavigator
         barIndex={selectedBarIndex()}
-        barPatternCount={filteredKickSnarePatterns().length}
+        barPatternCount={filteredKickOffbeatPatterns().length}
         barPatternIndex={selectedBarPatternIndex()}
-        filters={kickSnarePatternFilters()}
-        relativePatternCount={relativeKickSnarePatternCount()}
-        syncopationScore={currentKickSnareSyncopationScore()}
-        weight={currentKickSnareWeight()}
-        onBarPatternIndexInput={setBodyKickSnarePattern}
-        onFilterInput={updateKickSnarePatternFilter}
-        onRandomPatternInput={randomizeBodyKickSnarePattern}
+        filters={kickOffbeatPatternFilters()}
+        relativePatternCount={relativeKickOffbeatPatternCount()}
+        syncopationScore={currentKickOffbeatSyncopationScore()}
+        weight={currentKickOffbeatWeight()}
+        onBarPatternIndexInput={setBodyKickOffbeatPattern}
+        onFilterInput={updateKickOffbeatPatternFilter}
+        onRandomPatternInput={randomizeBodyKickOffbeatPattern}
       />
       <HatPatternNavigator
         barIndex={selectedHatsBarIndex()}
@@ -468,7 +493,7 @@ export const DrumsPanel: Component = () => {
                 'min-width': '16rem',
               }}
             >
-              <For each={kickSnareBarPatterns().slice(rowIndex * 4, rowIndex * 4 + 4)}>
+              <For each={kickOffbeatBarPatterns().slice(rowIndex * 4, rowIndex * 4 + 4)}>
                 {(_, barOffset) => {
                   const barIndex = (): number => rowIndex * 4 + barOffset();
                   const drumRows = () => [
@@ -602,7 +627,7 @@ export const DrumsPanel: Component = () => {
                               {(stepVoice, step) => {
                                 const isActiveStep = (): boolean =>
                                   transport().isPlaying &&
-                                  transport().bar % kickSnareBarPatterns().length === barIndex() &&
+                                  transport().bar % kickOffbeatBarPatterns().length === barIndex() &&
                                   transport().step === step();
                                 const intensity = (): number => (stepVoice === row.activeStep ? 1 : 0);
 

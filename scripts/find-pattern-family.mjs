@@ -5,13 +5,16 @@ import ts from 'typescript';
 
 const ScriptDir = dirname(fileURLToPath(import.meta.url));
 const ProjectRoot = resolve(ScriptDir, '..');
-const DefaultOutputPath = resolve(ProjectRoot, 'src/generators/drums/relative-kick-snare-patterns.ts');
+const DefaultOutputPath = resolve(
+  ProjectRoot,
+  'src/generators/drums/relative-kick-offbeat-patterns.ts',
+);
 const TempDir = resolve(ProjectRoot, '.tmp-script-ts/drums-relative');
 const TsModules = [
   'src/generators/drums/count-pattern-beats.ts',
   'src/generators/drums/new-syncope-grade.ts',
-  'src/generators/drums/weigh-kick-snare-pattern.ts',
-  'src/generators/drums/kick-snare-patterns.ts',
+  'src/generators/drums/weigh-kick-offbeat-pattern.ts',
+  'src/generators/drums/kick-offbeat-patterns.ts',
 ];
 
 const resolvePath = (path) => {
@@ -47,7 +50,7 @@ const compileTsModule = async (sourcePath) => {
   return outputPath;
 };
 
-const importKickSnarePatterns = async () => {
+const importKickOffbeatPatterns = async () => {
   await rm(TempDir, { recursive: true, force: true });
   await mkdir(TempDir, { recursive: true });
 
@@ -55,11 +58,11 @@ const importKickSnarePatterns = async () => {
     await compileTsModule(sourcePath);
   }
 
-  const module = await import(pathToFileURL(resolve(TempDir, 'kick-snare-patterns.mjs')).href);
+  const module = await import(pathToFileURL(resolve(TempDir, 'kick-offbeat-patterns.mjs')).href);
 
   await rm(TempDir, { recursive: true, force: true });
 
-  return module.KickSnarePatterns;
+  return module.KickOffbeatPatterns;
 };
 
 const getPatternDiff = (sourcePattern, targetPattern) => {
@@ -88,27 +91,38 @@ const getPatternDiff = (sourcePattern, targetPattern) => {
   return diff;
 };
 
-const isPatternFamilyMember = (sourcePattern, targetPattern) => {
+const isPatternFamilyMember = (sourcePattern, targetPattern, distance) => {
   if (sourcePattern.length !== targetPattern.length) {
     return false;
   }
 
   const diff = getPatternDiff(sourcePattern, targetPattern);
 
-  return diff.addedBeatCount <= 1 && diff.removedBeatCount <= 1;
+  return (
+    (diff.addedBeatCount === 0 && diff.removedBeatCount === distance) ||
+    (diff.addedBeatCount === distance && diff.removedBeatCount === 0)
+  );
 };
 
 const buildRelativePatterns = (patterns) => {
   return Object.fromEntries(
-    patterns.map((sourcePattern) => [
-      sourcePattern,
-      patterns.filter((targetPattern) => isPatternFamilyMember(sourcePattern, targetPattern)),
-    ]),
+    patterns.map((sourcePattern) => {
+      const relativePatterns = patterns.filter((targetPattern) =>
+        isPatternFamilyMember(sourcePattern, targetPattern, 1),
+      );
+
+      return [
+        sourcePattern,
+        relativePatterns.length > 0
+          ? relativePatterns
+          : patterns.filter((targetPattern) => isPatternFamilyMember(sourcePattern, targetPattern, 2)),
+      ];
+    }),
   );
 };
 
 const formatRelativePatternsModule = (relativePatterns, exportName) => {
-  return `export const ${exportName}: Record<string, string[]> = ${JSON.stringify(
+  return `import type { RelativeBeatPatterns } from './relative-beat-pattern.type';\n\nexport const ${exportName}: Record<string, RelativeBeatPatterns> = ${JSON.stringify(
     relativePatterns,
     null,
     2,
@@ -116,8 +130,10 @@ const formatRelativePatternsModule = (relativePatterns, exportName) => {
 };
 
 const main = async () => {
-  const [inputPath, outputPath, exportName = 'RelativeKickSnarePatterns'] = process.argv.slice(2);
-  const patterns = inputPath ? await readPatterns(resolvePath(inputPath)) : await importKickSnarePatterns();
+  const [inputPath, outputPath, exportName = 'RelativeKickOffbeatPatterns'] = process.argv.slice(2);
+  const patterns = inputPath
+    ? await readPatterns(resolvePath(inputPath))
+    : await importKickOffbeatPatterns();
   const relativePatterns = buildRelativePatterns(patterns);
   const resultPath = outputPath ? resolvePath(outputPath) : DefaultOutputPath;
 

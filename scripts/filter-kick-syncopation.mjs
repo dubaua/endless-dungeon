@@ -8,8 +8,9 @@ const ProjectRoot = resolve(ScriptDir, '..');
 const TempDir = resolve(ProjectRoot, '.tmp-script-ts/drums');
 
 const TsModules = [
+  'src/generators/drums/count-pattern-beats.ts',
   'src/generators/drums/new-syncope-grade.ts',
-  'src/generators/drums/weigh-kick-snare-pattern.ts',
+  'src/generators/drums/weigh-kick-offbeat-pattern.ts',
 ];
 
 const resolvePath = (path) => {
@@ -45,7 +46,7 @@ const compileTsModule = async (sourcePath) => {
   return outputPath;
 };
 
-const importWeighKickSnarePattern = async () => {
+const importWeighKickOffbeatPattern = async () => {
   await rm(TempDir, { recursive: true, force: true });
   await mkdir(TempDir, { recursive: true });
 
@@ -53,9 +54,9 @@ const importWeighKickSnarePattern = async () => {
     await compileTsModule(sourcePath);
   }
 
-  const module = await import(pathToFileURL(resolve(TempDir, 'weigh-kick-snare-pattern.mjs')).href);
+  const module = await import(pathToFileURL(resolve(TempDir, 'weigh-kick-offbeat-pattern.mjs')).href);
 
-  return module.weighKickSnarePattern;
+  return module.weighKickOffbeatPattern;
 };
 
 const main = async () => {
@@ -72,10 +73,10 @@ const main = async () => {
   }
 
   const sourcePath = resolvePath(inputPath);
-  const weighKickSnarePattern = await importWeighKickSnarePattern();
+  const weighKickOffbeatPattern = await importWeighKickOffbeatPattern();
   const patterns = await readPatterns(sourcePath);
   const filteredPatterns = patterns.filter((pattern) => {
-    const weight = weighKickSnarePattern(pattern);
+    const weight = weighKickOffbeatPattern(pattern);
 
     return weight.syncopationScore <= threshold;
   });

@@ -1,5 +1,3 @@
-и логику рандомизации я думаю нужно унести как раз рядом с нашими паттернами в папке src/generators/patterns/drums чтобы было четко понятно
-
 node scripts/build-patterns.mjs src/generators/drums/patterns/straight-kick-patterns.txt src/generators/drums/patterns/straight-offbeat-patterns.txt src/generators/drums/patterns/sum/house-like.txt
 
 node scripts/remove-bad-pattern-lines.mjs src/generators/drums/patterns/sum/house-like.txt scripts/only-symmetric-strong-x.ts

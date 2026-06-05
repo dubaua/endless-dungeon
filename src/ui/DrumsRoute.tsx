@@ -48,7 +48,6 @@ export const DrumsRoute: Component = () => {
       <header style={{ display: 'flex', 'align-items': 'center', gap: '0.75rem' }}>
         <h1 style={{ margin: 0 }}>Drums</h1>
         <a href="/">Back</a>
-        <a href="/drum-new">Drum New</a>
       </header>
       <TransportPanel />
       <DrumsPanel />

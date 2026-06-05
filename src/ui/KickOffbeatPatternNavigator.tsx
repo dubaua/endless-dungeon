@@ -19,6 +19,7 @@ interface KickOffbeatPatternNavigatorProps {
   onBarPatternIndexInput: (index: number) => void;
   onFilterInput: (key: keyof KickOffbeatPatternFilters, value: number) => void;
   onRandomPatternInput: () => void;
+  onRandomRelativePatternsInput: () => void;
 }
 
 export const KickOffbeatPatternNavigator: Component<KickOffbeatPatternNavigatorProps> = (props) => {
@@ -30,6 +31,9 @@ export const KickOffbeatPatternNavigator: Component<KickOffbeatPatternNavigatorP
         <h2 style={{ margin: 0 }}>Drums</h2>
         <button type="button" onClick={() => props.onRandomPatternInput()}>
           Random
+        </button>
+        <button type="button" onClick={() => props.onRandomRelativePatternsInput()}>
+          Random relatives
         </button>
         <span
           style={{

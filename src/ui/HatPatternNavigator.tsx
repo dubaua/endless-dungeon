@@ -15,6 +15,7 @@ interface HatPatternNavigatorProps {
   onBarPatternIndexInput: (index: number) => void;
   onFilterInput: (key: keyof KickOffbeatPatternFilters, value: number) => void;
   onRandomPatternInput: () => void;
+  onRandomRelativePatternsInput: () => void;
 }
 
 export const HatPatternNavigator: Component<HatPatternNavigatorProps> = (props) => {
@@ -26,6 +27,9 @@ export const HatPatternNavigator: Component<HatPatternNavigatorProps> = (props) 
         <h2 style={{ margin: 0 }}>Hats</h2>
         <button type="button" onClick={() => props.onRandomPatternInput()}>
           Random
+        </button>
+        <button type="button" onClick={() => props.onRandomRelativePatternsInput()}>
+          Random relatives
         </button>
         <span
           style={{

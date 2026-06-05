@@ -1,8 +1,13 @@
 import * as Tone from 'tone';
 
 import type { KickVoicing } from '../../synths/types';
+import { KickVoicing as KickVoicingSettings } from '../../voicing/drum-voicing.const';
 import { createLoFiCrusher } from '../loFiCrusher';
 import { clamp, type DrumVoiceInstance } from './shared';
+import { scale } from '../../../utils/scale';
+
+const BitCrusherDepthAmp = 1.75;
+const LimiterThreshold = -1;
 
 export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoicing> => {
   let currentVoicing = voicing;
@@ -28,8 +33,9 @@ export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoi
     bits: voicing.bitCrusherBits,
     depth: voicing.bitCrusherDepth,
   });
-  const amplifier = new Tone.Gain(1);
-  const limiter = new Tone.Limiter(-1);
+  const { min, max } = KickVoicingSettings.bitCrusherDepth;
+  const amplifier = new Tone.Gain(scale(voicing.bitCrusherDepth, min, max, 1, BitCrusherDepthAmp));
+  const limiter = new Tone.Limiter(LimiterThreshold);
   const output = new Tone.Gain(1);
 
   filter.Q.value = voicing.filterResonance;
@@ -65,6 +71,13 @@ export const createKickVoice = (voicing: KickVoicing): DrumVoiceInstance<KickVoi
       clickFilter.frequency.value = pitchStart * 2;
       filter.frequency.value = nextVoicing.filterFrequency;
       filter.Q.value = nextVoicing.filterResonance;
+      amplifier.gain.value = scale(
+        nextVoicing.bitCrusherDepth,
+        KickVoicingSettings.bitCrusherDepth.min,
+        KickVoicingSettings.bitCrusherDepth.max,
+        1,
+        BitCrusherDepthAmp,
+      );
       crusher.update({
         bits: nextVoicing.bitCrusherBits,
         depth: nextVoicing.bitCrusherDepth,

@@ -12,17 +12,17 @@ export const KickVoicing = {
 } satisfies Record<string, VoicingSetting>;
 
 export const SnareVoicing = {
-  decay: { min: 0.08, max: 0.25 },
+  decay: { min: 0.08, max: 0.15 },
   bitCrusherBits: { min: 2, max: 4 },
   bitCrusherDepth: { min: 0.02, max: 0.1 },
 } satisfies Record<string, Range>;
 
 export const ClapVoicing = {
-  decay: { min: 0.04, max: 0.5 },
+  decay: { min: 0.04, max: 0.25 },
   burstCount: { min: 3, max: 5 },
   burstSpread: { min: 0.01, max: 0.05 },
   bitCrusherBits: { min: 2, max: 5 },
-  bitCrusherDepth: { min: 0.04, max: 0.18 },
+  bitCrusherDepth: { min: 0.03, max: 0.1 },
 } satisfies Record<string, Range>;
 
 export const CymbalVoicing = {

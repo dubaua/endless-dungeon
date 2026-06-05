@@ -1,8 +1,14 @@
 import * as Tone from 'tone';
 
 import type { ClapVoicing } from '../../synths/types';
+import { ClapVoicing as ClapVoicingSettings } from '../../voicing/drum-voicing.const';
 import { createLoFiCrusher } from '../loFiCrusher';
 import type { DrumVoiceInstance } from './shared';
+import { scale } from '../../../utils/scale';
+
+const VolumeMultiplier = 2.5;
+const BitCrusherDepthAmp = 1.75;
+const LimiterThreshold = -1;
 
 export const createClapVoice = (voicing: ClapVoicing): DrumVoiceInstance<ClapVoicing> => {
   let { decay } = voicing;
@@ -31,13 +37,17 @@ export const createClapVoice = (voicing: ClapVoicing): DrumVoiceInstance<ClapVoi
     bits,
     depth,
   });
-  const output = new Tone.Gain(1.35);
+
+  const { min, max } = ClapVoicingSettings.bitCrusherDepth;
+  const amplifier = new Tone.Gain(VolumeMultiplier * scale(depth, min, max, 1, BitCrusherDepthAmp));
+  const limiter = new Tone.Limiter(LimiterThreshold);
+  const output = new Tone.Gain(1);
 
   filter.Q.value = 1.8;
   noise.chain(burstEnvelope, burstGain, filter);
   noise.chain(tailEnvelope, tailGain, filter);
   filter.chain(drive, crusher.input);
-  crusher.output.connect(output);
+  crusher.output.chain(amplifier, limiter, output);
 
   return {
     output,
@@ -64,6 +74,15 @@ export const createClapVoice = (voicing: ClapVoicing): DrumVoiceInstance<ClapVoi
       tailEnvelope.decay = decay;
       bits = nextVoicing.bitCrusherBits;
       depth = nextVoicing.bitCrusherDepth;
+      amplifier.gain.value =
+        VolumeMultiplier *
+        scale(
+          depth,
+          ClapVoicingSettings.bitCrusherDepth.min,
+          ClapVoicingSettings.bitCrusherDepth.max,
+          1,
+          BitCrusherDepthAmp,
+        );
       crusher.update({
         bits,
         depth,

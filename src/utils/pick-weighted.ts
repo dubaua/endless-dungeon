@@ -5,6 +5,10 @@ interface WeightedOption<T> {
 
 export type WeightedOptions<T> = WeightedOption<T>[];
 
+/**
+ * Picks one value randomly, where each option chance is proportional to its positive weight.
+ * Options with weight <= 0 are ignored.
+ */
 export const pickWeighted = <T>(options: WeightedOptions<T>): T => {
   const validOptions = options.filter((option) => option.weight > 0);
 

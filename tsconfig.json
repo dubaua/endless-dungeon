@@ -17,6 +17,8 @@
       "@audio/*": ["src/audio/*"],
       "@generators": ["src/generators"],
       "@generators/*": ["src/generators/*"],
+      "@harmony": ["src/harmony"],
+      "@harmony/*": ["src/harmony/*"],
       "@sequencer": ["src/sequencer"],
       "@sequencer/*": ["src/sequencer/*"],
       "@state": ["src/state"],

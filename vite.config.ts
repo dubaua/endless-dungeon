@@ -9,6 +9,7 @@ export default defineConfig({
       '@app': '/src/app',
       '@audio': '/src/audio',
       '@generators': '/src/generators',
+      '@harmony': '/src/harmony',
       '@sequencer': '/src/sequencer',
       '@state': '/src/state',
       '@ui': '/src/ui',

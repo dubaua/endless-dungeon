@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js';
 
-import type { HatPatternWeight } from '@generators/drums/weigh-hats-pattern';
+import type { HatPatternWeight } from '@generators/patterns/weigh-hats-pattern';
 import type { KickOffbeatPatternFilters } from '@ui/KickOffbeatPatternNavigator';
 
 interface HatPatternNavigatorProps {

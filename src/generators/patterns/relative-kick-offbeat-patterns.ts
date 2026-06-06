@@ -1,4 +1,4 @@
-import type { RelativeBeatPatterns } from '@generators/drums/relative-beat-pattern.type';
+import type { RelativeBeatPatterns } from '@generators/patterns/relative-beat-pattern.type';
 
 export const RelativeKickOffbeatPatterns: Record<string, RelativeBeatPatterns> = {
   "k---O-------O--k": [

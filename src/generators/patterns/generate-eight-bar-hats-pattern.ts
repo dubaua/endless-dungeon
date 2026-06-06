@@ -1,5 +1,5 @@
 import { takeRandom } from '@utils/take-random';
-import { RelativeHatsPatterns } from '@generators/drums/relative-hats-patterns';
+import { RelativeHatsPatterns } from '@generators/patterns/relative-hats-patterns';
 
 const takeRelativeHatsPattern = (pattern: string): string => {
   const relativePatterns = RelativeHatsPatterns[pattern] ?? [pattern];

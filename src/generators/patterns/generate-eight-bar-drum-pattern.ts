@@ -1,4 +1,4 @@
-import { RelativeKickOffbeatPatterns } from '@generators/drums/relative-kick-offbeat-patterns';
+import { RelativeKickOffbeatPatterns } from '@generators/patterns/relative-kick-offbeat-patterns';
 import { takeRandom } from '@utils/take-random';
 
 const takeRelativeDrumPattern = (pattern: string): string => {

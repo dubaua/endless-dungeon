@@ -1,10 +1,10 @@
 import { createMemo, createSignal, For, onMount, type Component } from 'solid-js';
 
-import { KickOffbeatPatternWeights } from '@generators/drums/kick-offbeat-patterns';
-import { hatsPatternToDrumClips } from '@generators/drums/hats-pattern-to-drum-clips';
-import { HatsPatternWeights } from '@generators/drums/hats-patterns';
-import { RelativeHatsPatterns } from '@generators/drums/relative-hats-patterns';
-import { RelativeKickOffbeatPatterns } from '@generators/drums/relative-kick-offbeat-patterns';
+import { KickOffbeatPatternWeights } from '@generators/patterns/kick-offbeat-patterns';
+import { hatsPatternToDrumClips } from '@generators/patterns/hats-pattern-to-drum-clips';
+import { HatsPatternWeights } from '@generators/patterns/hats-patterns';
+import { RelativeHatsPatterns } from '@generators/patterns/relative-hats-patterns';
+import { RelativeKickOffbeatPatterns } from '@generators/patterns/relative-kick-offbeat-patterns';
 import type { DrumClip } from '@sequencer/types';
 import {
   getState,

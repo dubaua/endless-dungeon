@@ -1,4 +1,4 @@
-import { weighKickOffbeatPattern } from '@generators/drums/weigh-kick-offbeat-pattern';
+import { weighKickOffbeatPattern } from '@generators/patterns/weigh-kick-offbeat-pattern';
 
 export const KickOffbeatPatterns = [
   'k---O-------O--k',

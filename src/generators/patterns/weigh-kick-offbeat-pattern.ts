@@ -1,5 +1,5 @@
-import { countPatternBeats } from '@generators/drums/count-pattern-beats';
-import { getPatternSyncopationScore } from '@generators/drums/new-syncope-grade';
+import { countPatternBeats } from '@generators/patterns/count-pattern-beats';
+import { getPatternSyncopationScore } from '@generators/patterns/new-syncope-grade';
 
 export interface KickOffbeatPatternWeight {
   pattern: string;

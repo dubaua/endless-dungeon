@@ -1,29 +1,9 @@
 import { createSignal, For, onMount, type Component } from 'solid-js';
 
-import { stopTransport } from '@audio/transport';
-import { generateTrackDna } from '@generators/dna/generate-track-dna';
-import type { TrackDna } from '@generators/dna/track-dna';
-import { generateEightBarDrumPattern } from '@generators/patterns/generate-eight-bar-drum-pattern';
-import { generateEightBarHatsPattern } from '@generators/patterns/generate-eight-bar-hats-pattern';
-import { hatsPatternToDrumClips } from '@generators/patterns/hats-pattern-to-drum-clips';
-import { kickOffbeatPatternToDrumClips } from '@generators/patterns/kick-offbeat-pattern-to-drum-clips';
-import { generateModeHarmony } from '@generators/harmony/generate-mode-harmony';
-import { generateMotif, type GenerateMotifOptions } from '@generators/motif/generate-motif';
-import { motifToPattern } from '@generators/motif/motif-to-pattern';
-import type { Motif } from '@generators/motif/motif';
-import { getMode } from '@harmony/get-mode';
-import {
-  getState,
-  setDrumClips,
-  setDrumPatternFilters,
-  setHatsPatternFilters,
-  setTrackDna,
-  setTransportBpm,
-  setVoicing,
-  setVoicePattern,
-  useStore,
-} from '@state/store';
-import { TrackBlockPanel } from '@ui/TrackBlockPanel';
+import type { GenerateMotifOptions } from '@generators/motif/generate-motif';
+import { generateTrack } from '@generators/track/generate-track';
+import { dispatchTrack } from '@state/actions/dispatch-track';
+import { getState, useStore } from '@state/store';
 
 const DefaultMotifOptions: GenerateMotifOptions = {
   startDegree: 0,
@@ -71,87 +51,35 @@ const formatMotifOptionValue = (value: number, step: number): string => {
   return step < 1 ? value.toFixed(2) : String(value);
 };
 
-const getMotifOptionsFromTrackDna = (
-  trackDna: TrackDna,
-  options: GenerateMotifOptions,
-): GenerateMotifOptions => {
-  return {
-    ...options,
-    melodyJumpBias: trackDna.melodyJumpBias,
-    melodyBreakPhaseResetBias: trackDna.melodyBreakPhaseResetBias,
-    melodyBreakPhaseShiftBias: trackDna.melodyBreakPhaseShiftBias,
-    melodySpeedBias: trackDna.melodySpeedBias,
-    melodySpeedChangeBias: trackDna.melodySpeedChangeBias,
-    melodicRange: trackDna.melodicRange,
-    absoluteRange: trackDna.absoluteRange,
-  };
-};
-
-const generateBodyMotif = (trackDna: TrackDna, options: GenerateMotifOptions): Motif => {
-  return generateMotif({
-    ...options,
-    mode: getMode(trackDna.modeName),
-    harmonyFunctions: generateModeHarmony({
-      bars: 8,
-      mode: trackDna.modeName,
-      block: 'theme',
-    }),
-  });
-};
-
 export const GeneratorPanel: Component = () => {
   const trackDna = useStore((state) => state.trackDna);
-  const [motifOptions, setMotifOptions] = createSignal<GenerateMotifOptions>(
-    getMotifOptionsFromTrackDna(getState().trackDna, DefaultMotifOptions),
-  );
-  const [motif, setMotif] = createSignal<Motif>();
-  const [motifAbsoluteRange, setMotifAbsoluteRange] = createSignal(
-    DefaultMotifOptions.absoluteRange,
-  );
+  const [motifOptions, setMotifOptions] =
+    createSignal<GenerateMotifOptions>(DefaultMotifOptions);
 
   const updateMotifOption = (key: keyof GenerateMotifOptions, value: number): void => {
     setMotifOptions((options) => ({ ...options, [key]: value }));
   };
 
-  const applyMotif = (nextMotif: Motif, nextTrackDna: TrackDna, absoluteRange: number): void => {
-    setMotif(nextMotif);
-    setMotifAbsoluteRange(absoluteRange);
-    setVoicePattern(motifToPattern(nextMotif, nextTrackDna));
-    stopTransport();
-  };
-
   const generateCurrentTrackDna = (): void => {
-    const nextTrackDna = generateTrackDna();
-    const nextMotifOptions = getMotifOptionsFromTrackDna(nextTrackDna, motifOptions());
-    const nextMotif = generateBodyMotif(nextTrackDna, nextMotifOptions);
+    const nextTrack = generateTrack({
+      drumClips: getState().sequencer.drumClips,
+      motifOptions: motifOptions(),
+    });
+    console.log('body motif bar start degrees', nextTrack.motif.map((bar) => bar.steps[0]));
 
-    setTrackDna(nextTrackDna);
-    setTransportBpm(nextTrackDna.bpm);
-    setDrumPatternFilters({
-      density: nextTrackDna.density,
-      syncopationScore: nextTrackDna.syncopation,
-    });
-    setHatsPatternFilters({
-      density: nextTrackDna.density,
-      syncopationScore: nextTrackDna.syncopation,
-    });
-    setDrumClips(
-      hatsPatternToDrumClips(
-        generateEightBarHatsPattern(nextTrackDna.bodyHatPattern),
-        kickOffbeatPatternToDrumClips(
-          generateEightBarDrumPattern(nextTrackDna.bodyDrumPattern),
-          getState().sequencer.drumClips,
-        ),
-      ),
-    );
-    setVoicing(nextTrackDna.voicing);
-    setMotifOptions(nextMotifOptions);
-    applyMotif(nextMotif, nextTrackDna, nextMotifOptions.absoluteRange);
+    dispatchTrack(nextTrack);
+    setMotifOptions(nextTrack.motifOptions);
   };
 
   const generateCurrentMotif = (): void => {
-    const generatedMotif = generateBodyMotif(trackDna(), motifOptions());
-    applyMotif(generatedMotif, trackDna(), motifOptions().absoluteRange);
+    const nextTrack = generateTrack({
+      drumClips: getState().sequencer.drumClips,
+      motifOptions: motifOptions(),
+      trackDna: trackDna(),
+    });
+    console.log('body motif bar start degrees', nextTrack.motif.map((bar) => bar.steps[0]));
+
+    dispatchTrack(nextTrack);
   };
 
   onMount(() => {
@@ -273,8 +201,6 @@ export const GeneratorPanel: Component = () => {
           </For>
         </div>
       </div>
-
-      <TrackBlockPanel motif={motif()} absoluteRange={motifAbsoluteRange()} />
     </section>
   );
 };

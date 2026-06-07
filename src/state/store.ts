@@ -1,10 +1,17 @@
 import { createSignal, onCleanup, type Accessor } from 'solid-js';
 
-import type { DrumSynthId, DrumVoicing, NoteSynthId, NoteSynthVoicing, VoicingState } from '@audio/synths/types';
+import type {
+  DrumSynthId,
+  DrumVoicing,
+  NoteSynthId,
+  NoteSynthVoicing,
+  VoicingState,
+} from '@audio/synths/types';
 import type { TrackDna } from '@generators/dna/track-dna';
+import type { Motif } from '@generators/motif/motif';
 import { InitialTrack } from '@sequencer/initial-track';
 import { getTrack, getTrackBlock, updateTrack, updateTrackBlock } from '@sequencer/track-service';
-import type { DrumClip, NoteClip, PatternStep, SequencerState, TrackBlock } from '@sequencer/types';
+import type { DrumClip, NoteClip, PatternStep, SequencerState } from '@sequencer/types';
 import { clamp } from '@utils/clamp';
 
 export const VOICE_MIXER_CHANNEL_ID = 'channel-voice-main';
@@ -53,6 +60,11 @@ export interface DrumPatternFiltersState {
   densitySpread: number;
 }
 
+export interface PlayerState {
+  motif: Motif | undefined;
+  motifAbsoluteRange: number;
+}
+
 export interface AppState {
   transport: TransportState;
   sequencer: SequencerState;
@@ -60,6 +72,7 @@ export interface AppState {
   drumPatternFilters: DrumPatternFiltersState;
   hatsPatternFilters: DrumPatternFiltersState;
   voicing: VoicingState;
+  player: PlayerState;
   mixer: MixerState;
 }
 
@@ -278,7 +291,7 @@ const createInitialMixerState = (): MixerState => {
   return { channels, groups: createDefaultMixerGroups(), masterVolume: 1 };
 };
 
-const InitialTrackBlock = InitialTrack.blocks[0] as TrackBlock;
+const InitialTrackBlock = InitialTrack.blocks[0];
 
 const updateActiveTrackBlock = (
   sequencer: SequencerState,
@@ -333,6 +346,10 @@ const state: AppState = {
     densitySpread: 0.1,
   },
   voicing: InitialTrackBlock.voicing,
+  player: {
+    motif: undefined,
+    motifAbsoluteRange: 8,
+  },
   mixer: createInitialMixerState(),
 };
 
@@ -522,7 +539,10 @@ export const setDrumClips = (drumClips: DrumClip[]): void => {
   });
 };
 
-export const setNoteSynthVoicing = (synthId: NoteSynthId, voicing: Partial<NoteSynthVoicing>): void => {
+export const setNoteSynthVoicing = (
+  synthId: NoteSynthId,
+  voicing: Partial<NoteSynthVoicing>,
+): void => {
   updateState((draft) => {
     const nextVoicing = {
       ...draft.voicing,
@@ -576,7 +596,9 @@ export const setDrumSynthVoicing = (synthId: DrumSynthId, voicing: Partial<DrumV
       drums: {
         ...draft.voicing.drums,
         [synthId]: nextPrimaryVoicing,
-        ...(secondarySynthId && nextSecondaryVoicing ? { [secondarySynthId]: nextSecondaryVoicing } : {}),
+        ...(secondarySynthId && nextSecondaryVoicing
+          ? { [secondarySynthId]: nextSecondaryVoicing }
+          : {}),
       },
     };
 
@@ -599,6 +621,12 @@ export const setVoicing = (voicing: VoicingState): void => {
       draft.sequencer.drumClips,
       voicing,
     );
+  });
+};
+
+export const setPlayerMotif = (motif: Motif, motifAbsoluteRange: number): void => {
+  updateState((draft) => {
+    draft.player = { motif, motifAbsoluteRange };
   });
 };
 

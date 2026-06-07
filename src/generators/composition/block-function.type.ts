@@ -1,4 +1,4 @@
-export const blockFunctions = [
+export const BlockFunctions = [
   'body',
   'variation',
   'tension',
@@ -8,4 +8,4 @@ export const blockFunctions = [
   'breakdown',
 ] as const;
 
-export type BlockFunction = (typeof blockFunctions)[number];
+export type BlockFunction = (typeof BlockFunctions)[number];

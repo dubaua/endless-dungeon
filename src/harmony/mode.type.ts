@@ -1,35 +1,25 @@
 import type { NoteName } from 'tonal';
 
+import type { ModeDegreeFunction } from '@harmony/mode-degree-function.type';
+import type { ModeHarmonyProfile } from '@harmony/mode-harmony-profile.type';
+
 export type ModeName = string;
 
-export type ModeDegreeFunction =
-  /** Home degree: strongest point of rest and resolution. */
-  | 'tonic'
-  /** Phrase-ending degree: useful for cadential arrival or turnaround points. */
-  | 'cadence'
-  /** Consonant color degree: safe melodic target without full tonic resolution. */
-  | 'stable'
-  /** Setup degree: tends to move toward dominant or stronger tension. */
-  | 'predominant'
-  /** Pull degree: creates forward motion back toward tonic or another stable target. */
-  | 'dominant'
-  /** Character/tension degree: useful for color, usually wants resolution. */
-  | 'tension'
-  /** Connector degree: weak melodic passing tone between stronger degrees. */
-  | 'passing'
-  /** Fragile degree: usable for effect, but usually avoided as a landing point. */
-  | 'avoid';
-
-export interface ModeDegree {
+export interface ModeDegree<Function extends ModeDegreeFunction = ModeDegreeFunction> {
   degree: number;
   interval: number;
-  functions: readonly ModeDegreeFunction[];
+  functions: readonly Function[];
 }
 
-export interface Mode {
-  name: ModeName;
+export interface Mode<
+  Name extends ModeName = ModeName,
+  Functions extends readonly ModeDegreeFunction[] = readonly ModeDegreeFunction[],
+> {
+  name: Name;
   weight: number;
-  degrees: readonly ModeDegree[];
+  functions: Functions;
+  degrees: readonly ModeDegree<Functions[number]>[];
+  harmonyProfile: ModeHarmonyProfile<Functions>;
 }
 
 export type ModeNotes = readonly NoteName[];

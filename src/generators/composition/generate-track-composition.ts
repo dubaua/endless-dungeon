@@ -1,4 +1,4 @@
-import { blockFunctions, type BlockFunction } from '@generators/composition/block-function.type';
+import { BlockFunctions, type BlockFunction } from '@generators/composition/block-function.type';
 import { lengthsGraph, type BlockLengthWeights } from '@generators/composition/block-length.graph';
 import { startWeights } from '@generators/composition/start-block.graph';
 import { transitionsGraph } from '@generators/composition/block-transition.graph';
@@ -69,7 +69,7 @@ const hasPickableOption = <T>(options: WeightedOptions<T>): boolean => {
 };
 
 const getFallbackBlockWeights = (track: readonly TrackBlock[]): WeightedOptions<BlockFunction> => {
-  return blockFunctions.map((block) => ({
+  return BlockFunctions.map((block) => ({
     value: block,
     weight: hasAvailableLength(block, track) ? 1 : 0,
   }));

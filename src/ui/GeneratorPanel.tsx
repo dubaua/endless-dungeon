@@ -7,9 +7,11 @@ import { generateEightBarDrumPattern } from '@generators/patterns/generate-eight
 import { generateEightBarHatsPattern } from '@generators/patterns/generate-eight-bar-hats-pattern';
 import { hatsPatternToDrumClips } from '@generators/patterns/hats-pattern-to-drum-clips';
 import { kickOffbeatPatternToDrumClips } from '@generators/patterns/kick-offbeat-pattern-to-drum-clips';
+import { generateModeHarmony } from '@generators/harmony/generate-mode-harmony';
 import { generateMotif, type GenerateMotifOptions } from '@generators/motif/generate-motif';
 import { motifToPattern } from '@generators/motif/motif-to-pattern';
 import type { Motif } from '@generators/motif/motif';
+import { getMode } from '@harmony/get-mode';
 import {
   getState,
   setDrumClips,
@@ -32,8 +34,6 @@ const DefaultMotifOptions: GenerateMotifOptions = {
   melodySpeedChangeBias: 0,
   melodicRange: 5,
   absoluteRange: 8,
-  midCadence: 5,
-  finalCadence: 0,
 };
 
 interface MotifOptionField {
@@ -46,8 +46,6 @@ interface MotifOptionField {
 
 const MotifOptionFields: readonly MotifOptionField[] = [
   { key: 'startDegree', label: 'startDegree', min: -16, max: 16, step: 1 },
-  { key: 'midCadence', label: 'midCadence', min: -16, max: 16, step: 1 },
-  { key: 'finalCadence', label: 'finalCadence', min: -16, max: 16, step: 1 },
   { key: 'melodicRange', label: 'melodicRange', min: 1, max: 16, step: 1 },
   { key: 'absoluteRange', label: 'absoluteRange', min: 1, max: 16, step: 1 },
   { key: 'melodyJumpBias', label: 'melodyJumpBias', min: 0, max: 1, step: 0.05 },
@@ -89,6 +87,18 @@ const getMotifOptionsFromTrackDna = (
   };
 };
 
+const generateBodyMotif = (trackDna: TrackDna, options: GenerateMotifOptions): Motif => {
+  return generateMotif({
+    ...options,
+    mode: getMode(trackDna.modeName),
+    harmonyFunctions: generateModeHarmony({
+      bars: 8,
+      mode: trackDna.modeName,
+      block: 'theme',
+    }),
+  });
+};
+
 export const GeneratorPanel: Component = () => {
   const trackDna = useStore((state) => state.trackDna);
   const [motifOptions, setMotifOptions] = createSignal<GenerateMotifOptions>(
@@ -113,7 +123,7 @@ export const GeneratorPanel: Component = () => {
   const generateCurrentTrackDna = (): void => {
     const nextTrackDna = generateTrackDna();
     const nextMotifOptions = getMotifOptionsFromTrackDna(nextTrackDna, motifOptions());
-    const nextMotif = generateMotif(nextMotifOptions);
+    const nextMotif = generateBodyMotif(nextTrackDna, nextMotifOptions);
 
     setTrackDna(nextTrackDna);
     setTransportBpm(nextTrackDna.bpm);
@@ -140,7 +150,7 @@ export const GeneratorPanel: Component = () => {
   };
 
   const generateCurrentMotif = (): void => {
-    const generatedMotif = generateMotif(motifOptions());
+    const generatedMotif = generateBodyMotif(trackDna(), motifOptions());
     applyMotif(generatedMotif, trackDna(), motifOptions().absoluteRange);
   };
 
@@ -169,10 +179,8 @@ export const GeneratorPanel: Component = () => {
         >
           <dt>rootNote</dt>
           <dd style={{ margin: 0 }}>{trackDna().rootNote}</dd>
-          <dt>scale</dt>
-          <dd style={{ margin: 0 }}>
-            {trackDna().scaleName} [{trackDna().scaleNotes.join(' ')}]
-          </dd>
+          <dt>mode</dt>
+          <dd style={{ margin: 0 }}>{trackDna().modeName}</dd>
           <dt>bpm</dt>
           <dd style={{ margin: 0 }}>{trackDna().bpm}</dd>
           <dt>syncopation</dt>

@@ -10,6 +10,7 @@
 
 - No inline “this does that” comments.
 - Avoid readability cleanups that do not change behaviour.
+- Do not create local pass-through wrapper functions when a direct call is equally clear.
 
 ## Obey explicit commands
 

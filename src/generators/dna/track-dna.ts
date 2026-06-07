@@ -1,21 +1,12 @@
-import { Scale } from 'tonal';
 import type { NoteName } from 'tonal';
 
 import type { VoicingState } from '@audio/synths/types';
 import type { TrackBlock as TrackCompositionBlock } from '@generators/composition/track-block.interface';
-
-export type ScaleName = ReturnType<typeof Scale.names>[number];
-
-export interface CustomScale {
-  name: ScaleName;
-  notes: NoteName[];
-  weight: number;
-}
+import type { KnownModeName } from '@harmony/modes.const';
 
 export interface TrackDna {
   rootNote: NoteName;
-  scaleName: ScaleName;
-  scaleNotes: NoteName[];
+  modeName: KnownModeName;
   bpm: number;
   syncopation: number;
   density: number;

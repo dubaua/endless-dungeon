@@ -25,8 +25,3 @@ export interface GenerateMotifBarOptions {
   melodicRange: number;
   absoluteRange: number;
 }
-
-export interface MotifCadences {
-  midCadence: MotifDegree;
-  finalCadence: MotifDegree;
-}

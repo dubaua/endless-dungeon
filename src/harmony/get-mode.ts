@@ -1,4 +1,4 @@
-import { Modes } from '@/harmony/modes.const';
+import { Modes } from '@harmony/modes.const';
 import type { Mode, ModeName } from '@harmony/mode.type';
 
 /**

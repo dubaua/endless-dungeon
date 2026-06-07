@@ -1,41 +1,30 @@
-import type { GenerateMotifBarOptions, Motif, MotifCadences } from '@generators/motif/motif';
+import type { GenerateMotifBarOptions, Motif } from '@generators/motif/motif';
 import { generateMotifBar } from '@generators/motif/generate-motif-bar.new';
+import { getNearestModeDegreeByFunction } from '@harmony/get-nearest-mode-degree-by-function';
+import type { ModeDegreeFunction } from '@harmony/mode-degree-function.type';
+import type { Mode } from '@harmony/mode.type';
 
-export type GenerateMotifOptions = GenerateMotifBarOptions & MotifCadences;
+export type GenerateMotifOptions = GenerateMotifBarOptions;
 
-/** Собирает 8 тактов; 4 и 8 такты разворачиваются к каденциям. */
-export const generateMotif = (options: GenerateMotifOptions): Motif => {
-  const { startDegree, ...restOptions } = options;
+type Props = GenerateMotifOptions & {
+  mode: Mode;
+  harmonyFunctions: readonly ModeDegreeFunction[];
+};
+
+export const generateMotif = (options: Props): Motif => {
+  const { startDegree, mode, harmonyFunctions, ...restOptions } = options;
   const barOptions: GenerateMotifBarOptions = restOptions;
+  let nextStartDegree = startDegree ?? 0;
 
-  const bar1 = generateMotifBar({ ...barOptions, startDegree }, 8);
-  const bar2 = generateMotifBar(barOptions, 8);
-  const bar3 = generateMotifBar(barOptions, 8);
-  const bar4Reverse = generateMotifBar(
-    {
-      ...barOptions,
-      startDegree: options.midCadence,
-    },
-    8,
-  );
-  const bar4 = {
-    steps: [...bar4Reverse.steps].reverse(),
-    stepEvents: [...bar4Reverse.stepEvents].reverse(),
-  };
-  const bar5 = generateMotifBar(barOptions, 8);
-  const bar6 = generateMotifBar(barOptions, 8);
-  const bar7 = generateMotifBar(barOptions, 8);
-  const bar8Reverse = generateMotifBar(
-    {
-      ...barOptions,
-      startDegree: options.finalCadence,
-    },
-    8,
-  );
-  const bar8 = {
-    steps: [...bar8Reverse.steps].reverse(),
-    stepEvents: [...bar8Reverse.stepEvents].reverse(),
-  };
+  return harmonyFunctions.map((fn) => {
+    const barStartDegree = getNearestModeDegreeByFunction({
+      mode,
+      degree: nextStartDegree,
+      fn,
+    });
+    const bar = generateMotifBar({ ...barOptions, startDegree: barStartDegree }, 8);
+    nextStartDegree = bar.steps[bar.steps.length - 1] ?? barStartDegree;
 
-  return [bar1, bar2, bar3, bar4, bar5, bar6, bar7, bar8];
+    return bar;
+  });
 };

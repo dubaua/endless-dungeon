@@ -9,6 +9,7 @@ import { generateSynthVoicing } from '@generators/voicing/generate-synth-voicing
 import { generateTrackComposition } from '@generators/composition/generate-track-composition';
 import { bpmWeights } from '@generators/dna/bpm-weights';
 import { generateDrumDnaSettings } from '@generators/dna/generate-drum-dna';
+import { getModeDegreeRangeForNoteRange } from '@harmony/get-mode-degree-range-for-note-range';
 import { pickMode } from '@harmony/pick-mode';
 import type { TrackDna } from '@generators/dna/track-dna';
 
@@ -28,16 +29,27 @@ const RootNotes: readonly NoteName[] = [
 ];
 
 const MinMelodicRangeSteps = 5;
-const MaxMelodicRangeSteps = 16;
+const MaxMelodicRangeSteps = 12;
 const MinAbsoluteRangeSteps = 5;
-const MaxAbsoluteRangeSteps = 16;
-const MinBassRangeSteps = 5;
-const MaxBassRangeSteps = 16;
+const MaxAbsoluteRangeSteps = 12;
+const BassRangeSteps = 8;
+const VoiceMinNote = 'B2';
+const VoiceMaxNote = 'B5';
 
 export const generateTrackDna = (): TrackDna => {
   const rootNote = Note.enharmonic(takeRandom(RootNotes));
   const mode = pickMode();
-  const absoluteRange = getRandomInt(MinAbsoluteRangeSteps, MaxAbsoluteRangeSteps);
+  const voiceDegreeRange = getModeDegreeRangeForNoteRange({
+    rootNote,
+    mode,
+    minNote: VoiceMinNote,
+    maxNote: VoiceMaxNote,
+  });
+  const maxAbsoluteRange = Math.min(MaxAbsoluteRangeSteps, voiceDegreeRange.absoluteRange);
+  const absoluteRange = getRandomInt(
+    Math.min(MinAbsoluteRangeSteps, maxAbsoluteRange),
+    maxAbsoluteRange,
+  );
   const drumDnaSettings = generateDrumDnaSettings();
 
   return {
@@ -57,12 +69,9 @@ export const generateTrackDna = (): TrackDna => {
     melodyBreakPhaseShiftBias: getRandomInt(0, 10) / 10,
     melodySpeedBias: getRandomInt(0, 10) / 10,
     melodySpeedChangeBias: getRandomInt(0, 10) / 10,
-    melodicRange: getRandomInt(
-      MinMelodicRangeSteps,
-      Math.min(MaxMelodicRangeSteps, absoluteRange),
-    ),
+    melodicRange: getRandomInt(MinMelodicRangeSteps, Math.min(MaxMelodicRangeSteps, absoluteRange)),
     absoluteRange,
-    bassRange: getRandomInt(MinBassRangeSteps, MaxBassRangeSteps),
+    bassRange: BassRangeSteps,
     voicing: {
       drums: generateDrumVoicing(rootNote),
       voice: generateSynthVoicing(),

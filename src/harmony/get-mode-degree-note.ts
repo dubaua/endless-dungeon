@@ -10,11 +10,7 @@ const RootNoteOctave = 4;
  * Materializes an absolute mode degree into a concrete note name.
  * Keeps note conversion at the score-building edge while generators stay degree-based.
  */
-export const getModeDegreeNote = (
-  rootNote: NoteName,
-  mode: Mode,
-  degree: number,
-): string => {
+export const getModeDegreeNote = (rootNote: NoteName, mode: Mode, degree: number): string => {
   const rootMidi = Note.midi(`${rootNote}${RootNoteOctave}`);
 
   if (rootMidi === null) {

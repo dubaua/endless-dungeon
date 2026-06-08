@@ -1,6 +1,7 @@
 import { stopTransport } from '@audio/transport';
 import type { TrackTemp } from '@generators/track/generate-track';
 import {
+  setBassPattern,
   setDrumClips,
   setDrumPatternFilters,
   setHatsPatternFilters,
@@ -25,6 +26,7 @@ export const dispatchTrack = (track: TrackTemp): void => {
   setDrumClips(track.drumClips);
   setVoicing(track.voicing);
   setVoicePattern(track.voicePattern);
+  setBassPattern(track.bassPattern);
   setPlayerMotif(track.motif, track.motifOptions.absoluteRange);
   stopTransport();
 };

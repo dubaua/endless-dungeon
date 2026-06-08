@@ -1,6 +1,6 @@
 import { createSignal, For, onMount, type Component } from 'solid-js';
 
-import type { GenerateMotifOptions } from '@generators/motif/generate-motif';
+import type { GenerateMotifOptions } from '@generators/motif/generate-block-motif';
 import { generateTrack } from '@generators/track/generate-track';
 import { dispatchTrack } from '@state/actions/dispatch-track';
 import { getState, useStore } from '@state/store';
@@ -25,9 +25,9 @@ interface MotifOptionField {
 }
 
 const MotifOptionFields: readonly MotifOptionField[] = [
-  { key: 'startDegree', label: 'startDegree', min: -16, max: 16, step: 1 },
-  { key: 'melodicRange', label: 'melodicRange', min: 1, max: 16, step: 1 },
-  { key: 'absoluteRange', label: 'absoluteRange', min: 1, max: 16, step: 1 },
+  { key: 'startDegree', label: 'startDegree', min: -12, max: 12, step: 1 },
+  { key: 'melodicRange', label: 'melodicRange', min: 1, max: 12, step: 1 },
+  { key: 'absoluteRange', label: 'absoluteRange', min: 1, max: 12, step: 1 },
   { key: 'melodyJumpBias', label: 'melodyJumpBias', min: 0, max: 1, step: 0.05 },
   {
     key: 'melodyBreakPhaseResetBias',
@@ -53,8 +53,7 @@ const formatMotifOptionValue = (value: number, step: number): string => {
 
 export const GeneratorPanel: Component = () => {
   const trackDna = useStore((state) => state.trackDna);
-  const [motifOptions, setMotifOptions] =
-    createSignal<GenerateMotifOptions>(DefaultMotifOptions);
+  const [motifOptions, setMotifOptions] = createSignal<GenerateMotifOptions>(DefaultMotifOptions);
 
   const updateMotifOption = (key: keyof GenerateMotifOptions, value: number): void => {
     setMotifOptions((options) => ({ ...options, [key]: value }));
@@ -65,7 +64,10 @@ export const GeneratorPanel: Component = () => {
       drumClips: getState().sequencer.drumClips,
       motifOptions: motifOptions(),
     });
-    console.log('body motif bar start degrees', nextTrack.motif.map((bar) => bar.steps[0]));
+    console.log(
+      'body motif bar start degrees',
+      nextTrack.motif.map((bar) => bar.steps[0]),
+    );
 
     dispatchTrack(nextTrack);
     setMotifOptions(nextTrack.motifOptions);
@@ -77,7 +79,10 @@ export const GeneratorPanel: Component = () => {
       motifOptions: motifOptions(),
       trackDna: trackDna(),
     });
-    console.log('body motif bar start degrees', nextTrack.motif.map((bar) => bar.steps[0]));
+    console.log(
+      'body motif bar start degrees',
+      nextTrack.motif.map((bar) => bar.steps[0]),
+    );
 
     dispatchTrack(nextTrack);
   };

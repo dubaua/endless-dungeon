@@ -1,9 +1,11 @@
 import type { VoicingState } from '@audio/synths/types';
+import { generateCounterContour } from '@generators/harmony/generate-counter-contour';
 import { generateTrackDna } from '@generators/dna/generate-track-dna';
 import type { TrackDna } from '@generators/dna/track-dna';
 import { generateModeHarmony } from '@generators/harmony/generate-mode-harmony';
-import { generateMotif, type GenerateMotifOptions } from '@generators/motif/generate-motif';
-import type { Motif } from '@generators/motif/motif';
+import { generateBlockMotif, type GenerateMotifOptions } from '@generators/motif/generate-block-motif';
+import type { Motif, MotifContour } from '@generators/motif/motif.type';
+import { motifContourToDegrees } from '@generators/motif/motif-contour-to-degrees';
 import { motifToPattern } from '@generators/motif/motif-to-pattern';
 import { generateEightBarDrumPattern } from '@generators/patterns/generate-eight-bar-drum-pattern';
 import { generateEightBarHatsPattern } from '@generators/patterns/generate-eight-bar-hats-pattern';
@@ -19,11 +21,20 @@ type Props = {
   trackDna?: TrackDna;
 };
 
+const BassCounterRangeSteps = 8;
+const BassCounterPreferredDegreeOffsets = [-2, 2, -3, 3, -4, 4] as const;
+const BassCounterMinNote = 'A1';
+const BassCounterMaxNote = 'A3';
+
 export type TrackTemp = {
   drumClips: DrumClip[];
   harmonyFunctions: ModeDegreeFunction[];
   motif: Motif;
+  motifContour: MotifContour;
   motifOptions: GenerateMotifOptions;
+  bass: Motif;
+  bassContour: MotifContour;
+  bassPattern: PatternStep[];
   trackDna: TrackDna;
   voicePattern: PatternStep[];
   voicing: VoicingState;
@@ -59,17 +70,36 @@ export const generateTrack = ({ drumClips, motifOptions, trackDna }: Props): Tra
     mode: nextTrackDna.modeName,
     block: 'theme',
   });
-  const motif = generateMotif({
+  const motifContour = generateBlockMotif({
     ...nextMotifOptions,
-    mode: getMode(nextTrackDna.modeName),
+    bars: harmonyFunctions.length,
+  });
+  const mode = getMode(nextTrackDna.modeName);
+  const motif = motifContourToDegrees({
+    motif: motifContour,
+    mode,
     harmonyFunctions,
   });
+  const bassContour = generateCounterContour({
+    motif: motifContour,
+    rangeSteps: BassCounterRangeSteps,
+    preferredDegreeOffsets: BassCounterPreferredDegreeOffsets,
+    minNote: BassCounterMinNote,
+    maxNote: BassCounterMaxNote,
+    rootNote: nextTrackDna.rootNote,
+    mode,
+  });
+  const bass = bassContour;
 
   return {
     drumClips: nextDrumClips,
     harmonyFunctions,
     motif,
+    motifContour,
     motifOptions: nextMotifOptions,
+    bass,
+    bassContour,
+    bassPattern: motifToPattern(bass, nextTrackDna),
     trackDna: nextTrackDna,
     voicePattern: motifToPattern(motif, nextTrackDna),
     voicing: nextTrackDna.voicing,

@@ -1,6 +1,6 @@
 import type { TrackDna } from '@generators/dna/track-dna';
 import type { PatternStep } from '@sequencer';
-import type { Motif } from '@generators/motif/motif';
+import type { Motif } from '@generators/motif/motif.type';
 import { getMode } from '@harmony/get-mode';
 import { getModeDegreeNote } from '@harmony/get-mode-degree-note';
 

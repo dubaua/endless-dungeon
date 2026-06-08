@@ -1,7 +1,7 @@
 import { createMemo, For, type Component } from 'solid-js';
 import { Note } from 'tonal';
 
-import type { Motif } from '@generators/motif/motif';
+import type { Motif } from '@generators/motif/motif.type';
 import type { PatternStep } from '@sequencer';
 import { getTrackBlocks } from '@sequencer/track-service';
 import type { DrumClip } from '@sequencer/types';

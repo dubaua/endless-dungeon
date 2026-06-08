@@ -8,7 +8,7 @@ import type {
   VoicingState,
 } from '@audio/synths/types';
 import type { TrackDna } from '@generators/dna/track-dna';
-import type { Motif } from '@generators/motif/motif';
+import type { Motif } from '@generators/motif/motif.type';
 import { InitialTrack } from '@sequencer/initial-track';
 import { getTrack, getTrackBlock, updateTrack, updateTrackBlock } from '@sequencer/track-service';
 import type { DrumClip, NoteClip, PatternStep, SequencerState } from '@sequencer/types';
@@ -481,6 +481,29 @@ export const setVoicePattern = (pattern: PatternStep[]): void => {
   updateState((draft) => {
     const noteClips = draft.sequencer.noteClips.map((clip) => {
       if (clip.synthId !== 'voice') {
+        return clip;
+      }
+
+      return {
+        ...clip,
+        startTick: 0,
+        pattern,
+      };
+    });
+
+    draft.sequencer = updateActiveTrackBlock(
+      draft.sequencer,
+      noteClips,
+      draft.sequencer.drumClips,
+      draft.voicing,
+    );
+  });
+};
+
+export const setBassPattern = (pattern: PatternStep[]): void => {
+  updateState((draft) => {
+    const noteClips = draft.sequencer.noteClips.map((clip) => {
+      if (clip.synthId !== 'bass') {
         return clip;
       }
 

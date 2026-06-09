@@ -1,21 +1,22 @@
 import { defineMode } from '@harmony/define-mode';
 import type { Mode } from '@harmony/mode.type';
 
-export const AeolianFunctions = ['tonic', 'cadence', 'passing', 'tension', 'stable', 'predominant', 'dominant'] as const;
+export const IchikosuchoFunctions = ['tonic', 'cadence', 'passing', 'tension', 'stable', 'predominant', 'dominant'] as const;
 
-export const AeolianMode = defineMode({
-  name: 'aeolian',
-  weight: 3,
-  functions: AeolianFunctions,
-  intervals: ['1P', '2M', '3m', '4P', '5P', '6m', '7m'],
+export const IchikosuchoMode = defineMode({
+  name: 'ichikosucho',
+  weight: 2,
+  functions: IchikosuchoFunctions,
+  intervals: ['1P', '2M', '3M', '4P', '5d', '5P', '6M', '7M'],
   intervalFunctions: {
     '1P': ['tonic', 'cadence'],
     '2M': ['passing', 'tension'],
-    '3m': ['stable', 'passing'],
+    '3M': ['stable', 'passing'],
     '4P': ['predominant', 'tension'],
+    '5d': ['tension', 'passing'],
     '5P': ['dominant', 'cadence'],
-    '6m': ['tension', 'passing'],
-    '7m': ['dominant', 'cadence'],
+    '6M': ['stable', 'passing'],
+    '7M': ['tension', 'passing'],
   },
   harmonyProfile: {
     theme: {
@@ -49,4 +50,4 @@ export const AeolianMode = defineMode({
       variations: ['tension', 'dominant'],
     },
   },
-}) satisfies Mode<'aeolian', typeof AeolianFunctions>;
+}) satisfies Mode<'ichikosucho', typeof IchikosuchoFunctions>;

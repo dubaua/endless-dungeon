@@ -1,5 +1,5 @@
 import type { ModeDegreeFunction } from '@harmony/mode-degree-function.type';
-import type { Mode, ModeDegree } from '@harmony/mode.type';
+import type { Mode } from '@harmony/mode.type';
 
 /**
  * Lists local mode degrees that can express a harmony function.
@@ -8,6 +8,14 @@ import type { Mode, ModeDegree } from '@harmony/mode.type';
 export const getModeDegreesByFunction = (
   mode: Mode,
   fn: ModeDegreeFunction,
-): ModeDegree[] => {
-  return mode.degrees.filter((degree) => degree.functions.includes(fn));
+): number[] => {
+  return mode.intervals.reduce<number[]>((degrees, interval, degree) => {
+    const functions = mode.intervalFunctions[interval] ?? [];
+
+    if (functions.includes(fn)) {
+      degrees.push(degree);
+    }
+
+    return degrees;
+  }, []);
 };

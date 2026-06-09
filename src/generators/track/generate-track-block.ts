@@ -7,8 +7,8 @@ import type { Motif, MotifContour } from '@generators/motif/motif.type';
 import { motifContourToDegrees } from '@generators/motif/motif-contour-to-degrees';
 import { motifToPattern } from '@generators/motif/motif-to-pattern';
 import type { TrackDna } from '@generators/dna/track-dna';
-import { getMode } from '@harmony/get-mode';
 import type { ModeDegreeFunction } from '@harmony/mode-degree-function.type';
+import { Modes } from '@harmony/modes.const';
 import type { DrumClip, PatternStep } from '@sequencer/types';
 import { getRandomFloat } from '@utils/get-random-float';
 
@@ -85,7 +85,7 @@ export const generateTrackBlock = ({
     ...motifOptions,
     bars: harmonyFunctions.length,
   });
-  const mode = getMode(trackDna.modeName);
+  const mode = Modes[trackDna.modeName];
   const motif = motifContourToDegrees({
     motif: motifContour,
     mode,

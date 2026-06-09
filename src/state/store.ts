@@ -9,8 +9,6 @@ import type {
 } from '@audio/synths/types';
 import type { TrackDna } from '@generators/dna/track-dna';
 import type { Motif } from '@generators/motif/motif.type';
-import { getMode } from '@harmony/get-mode';
-import { getModeNoteSpelling, type ModeNoteSpelling } from '@harmony/get-mode-note-spelling';
 import { InitialTrack } from '@sequencer/initial-track';
 import { getTrack, getTrackBlock, updateTrack, updateTrackBlock } from '@sequencer/track-service';
 import type { DrumClip, NoteClip, PatternStep, SequencerState } from '@sequencer/types';
@@ -74,7 +72,6 @@ export interface AppState {
   transport: TransportState;
   sequencer: SequencerState;
   trackDna: TrackDna;
-  modeNoteSpelling: ModeNoteSpelling;
   drumPatternFilters: DrumPatternFiltersState;
   hatsPatternFilters: DrumPatternFiltersState;
   voicing: VoicingState;
@@ -398,10 +395,6 @@ const state: AppState = {
     drumClips: InitialTrackBlock.drumClips,
   },
   trackDna: InitialTrack.dna,
-  modeNoteSpelling: getModeNoteSpelling({
-    rootNote: InitialTrack.dna.rootNote,
-    mode: getMode(InitialTrack.dna.modeName),
-  }),
   drumPatternFilters: {
     syncopationScore: 0,
     density: 0.5,
@@ -500,10 +493,6 @@ export const setTransportTimeSignature = (timeSignature: [number, number]): void
 export const setTrackDna = (trackDna: TrackDna): void => {
   updateState((draft) => {
     draft.trackDna = trackDna;
-    draft.modeNoteSpelling = getModeNoteSpelling({
-      rootNote: trackDna.rootNote,
-      mode: getMode(trackDna.modeName),
-    });
     const track = getTrack(draft.sequencer.activeTrackId);
 
     if (track) {
@@ -544,10 +533,6 @@ export const loadTrackBlock = (trackId: string, blockId: string): void => {
       drumClips: block.drumClips,
     };
     draft.trackDna = track.dna;
-    draft.modeNoteSpelling = getModeNoteSpelling({
-      rootNote: track.dna.rootNote,
-      mode: getMode(track.dna.modeName),
-    });
     draft.voicing = block.voicing;
   });
 };

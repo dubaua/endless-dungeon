@@ -1,20 +1,22 @@
+import { defineMode } from '@harmony/define-mode';
 import type { Mode } from '@harmony/mode.type';
 
 export const PersianFunctions = ['tonic', 'cadence', 'tension', 'passing', 'stable', 'predominant', 'dominant'] as const;
 
-export const PersianMode = {
+export const PersianMode = defineMode({
   name: 'persian',
   weight: 3,
   functions: PersianFunctions,
-  degrees: [
-    { degree: 0, interval: 0, functions: ['tonic', 'cadence'] },
-    { degree: 1, interval: 1, functions: ['tension', 'passing'] },
-    { degree: 2, interval: 4, functions: ['stable', 'passing'] },
-    { degree: 3, interval: 5, functions: ['predominant', 'tension'] },
-    { degree: 4, interval: 6, functions: ['tension', 'passing'] },
-    { degree: 5, interval: 8, functions: ['tension', 'passing'] },
-    { degree: 6, interval: 11, functions: ['dominant', 'cadence'] },
-  ],
+  intervals: ['1P', '2m', '3M', '4P', '5d', '6m', '7M'],
+  intervalFunctions: {
+    '1P': ['tonic', 'cadence'],
+    '2m': ['tension', 'passing'],
+    '3M': ['stable', 'passing'],
+    '4P': ['predominant', 'tension'],
+    '5d': ['tension', 'passing'],
+    '6m': ['tension', 'passing'],
+    '7M': ['dominant', 'cadence'],
+  },
   harmonyProfile: {
     theme: {
       generator: 'contour',
@@ -47,4 +49,4 @@ export const PersianMode = {
       variations: ['tension', 'dominant'],
     },
   },
-} satisfies Mode<'persian', typeof PersianFunctions>;
+}) satisfies Mode<'persian', typeof PersianFunctions>;

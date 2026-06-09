@@ -1,6 +1,6 @@
-import { defineModes } from '@harmony/define-modes';
 import { AeolianMode } from '@harmony/modes/aeolian';
 import { DorianMode } from '@harmony/modes/dorian';
+import { IchikosuchoMode } from '@harmony/modes/ichikosucho';
 import { IonianMode } from '@harmony/modes/ionian';
 import { LocrianMode } from '@harmony/modes/locrian';
 import { LydianMode } from '@harmony/modes/lydian';
@@ -11,8 +11,9 @@ import { OrientalMode } from '@harmony/modes/oriental';
 import { PersianMode } from '@harmony/modes/persian';
 import { PhrygianMode } from '@harmony/modes/phrygian';
 
-export const Modes = defineModes({
+export const Modes = {
   ionian: IonianMode,
+  ichikosucho: IchikosuchoMode,
   dorian: DorianMode,
   phrygian: PhrygianMode,
   lydian: LydianMode,
@@ -23,6 +24,6 @@ export const Modes = defineModes({
   minorPentatonic: MinorPentatonicMode,
   persian: PersianMode,
   oriental: OrientalMode,
-});
+} as const;
 
 export type KnownModeName = keyof typeof Modes;

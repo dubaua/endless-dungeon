@@ -1,8 +1,9 @@
 import { createSignal, For, onMount, type Component } from 'solid-js';
+import { Note } from 'tonal';
 
 import type { GenerateMotifOptions } from '@generators/motif/generate-block-motif';
 import { generateTrack } from '@generators/track/generate-track';
-import { getMode } from '@harmony/get-mode';
+import { Modes } from '@harmony/modes.const';
 import { dispatchTrack } from '@state/actions/dispatch-track';
 import { getState, useStore } from '@state/store';
 
@@ -54,7 +55,7 @@ const formatMotifOptionValue = (value: number, step: number): string => {
 
 export const GeneratorPanel: Component = () => {
   const trackDna = useStore((state) => state.trackDna);
-  const modeNoteSpelling = useStore((state) => state.modeNoteSpelling);
+  const mode = () => Modes[trackDna().modeName];
   const [motifOptions, setMotifOptions] = createSignal<GenerateMotifOptions>(DefaultMotifOptions);
 
   const updateMotifOption = (key: keyof GenerateMotifOptions, value: number): void => {
@@ -106,13 +107,13 @@ export const GeneratorPanel: Component = () => {
           }}
         >
           <dt>rootNote</dt>
-          <dd style={{ margin: 0 }}>{modeNoteSpelling().getNoteSpelling(trackDna().rootNote)}</dd>
+          <dd style={{ margin: 0 }}>{Note.get(trackDna().rootNote).name}</dd>
           <dt>mode</dt>
           <dd style={{ margin: 0 }}>{trackDna().modeName}</dd>
           <dt>modeNotes</dt>
           <dd style={{ margin: 0 }}>
-            {getMode(trackDna().modeName).degrees
-              .map((degree) => modeNoteSpelling().getNoteSpelling(degree.interval))
+            {mode().intervals
+              .map((interval) => Note.transpose(trackDna().rootNote, interval))
               .join(' ')}
           </dd>
           <dt>bpm</dt>

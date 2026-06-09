@@ -1,20 +1,22 @@
+import { defineMode } from '@harmony/define-mode';
 import type { Mode } from '@harmony/mode.type';
 
 export const DorianFunctions = ['tonic', 'cadence', 'passing', 'tension', 'stable', 'predominant', 'dominant'] as const;
 
-export const DorianMode = {
+export const DorianMode = defineMode({
   name: 'dorian',
   weight: 3,
   functions: DorianFunctions,
-  degrees: [
-    { degree: 0, interval: 0, functions: ['tonic', 'cadence'] },
-    { degree: 1, interval: 2, functions: ['passing', 'tension'] },
-    { degree: 2, interval: 3, functions: ['stable', 'passing'] },
-    { degree: 3, interval: 5, functions: ['predominant', 'tension'] },
-    { degree: 4, interval: 7, functions: ['dominant', 'cadence'] },
-    { degree: 5, interval: 9, functions: ['stable', 'passing'] },
-    { degree: 6, interval: 10, functions: ['tension', 'passing'] },
-  ],
+  intervals: ['1P', '2M', '3m', '4P', '5P', '6M', '7m'],
+  intervalFunctions: {
+    '1P': ['tonic', 'cadence'],
+    '2M': ['passing', 'tension'],
+    '3m': ['stable', 'passing'],
+    '4P': ['predominant', 'tension'],
+    '5P': ['dominant', 'cadence'],
+    '6M': ['stable', 'passing'],
+    '7m': ['tension', 'passing'],
+  },
   harmonyProfile: {
     theme: {
       generator: 'contour',
@@ -47,4 +49,4 @@ export const DorianMode = {
       variations: ['tension', 'dominant'],
     },
   },
-} satisfies Mode<'dorian', typeof DorianFunctions>;
+}) satisfies Mode<'dorian', typeof DorianFunctions>;

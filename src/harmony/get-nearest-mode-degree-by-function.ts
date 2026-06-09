@@ -24,11 +24,11 @@ export const getNearestModeDegreeByFunction = ({
     throw new Error(`Mode ${mode.name} does not contain function ${fn}`);
   }
 
-  const modeSize = mode.degrees.length;
+  const modeSize = mode.intervals.length;
   const currentOctave = getModeDegreeOctave(degree, mode);
   const candidates = modeDegrees.flatMap((modeDegree) => (
     [currentOctave - 1, currentOctave, currentOctave + 1].map((octave) => (
-      modeDegree.degree + octave * modeSize
+      modeDegree + octave * modeSize
     ))
   ));
 

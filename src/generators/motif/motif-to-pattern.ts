@@ -3,8 +3,8 @@ import type { PatternStep } from '@sequencer';
 import type { Motif } from '@generators/motif/motif.type';
 import { generateMelodyDurationPattern } from '@generators/motif/generate-melody-duration-pattern';
 import type { MelodyDurationPattern } from '@generators/motif/melody-duration-pattern.type';
-import { getMode } from '@harmony/get-mode';
 import { getModeDegreeNote } from '@harmony/get-mode-degree-note';
+import { Modes } from '@harmony/modes.const';
 
 const SecondBarIndex = 1;
 const ThirdBarIndex = 2;
@@ -26,7 +26,7 @@ const copyDurationPattern = (
 };
 
 export const motifToPattern = (motif: Motif, trackDna: TrackDna): PatternStep[] => {
-  const mode = getMode(trackDna.modeName);
+  const mode = Modes[trackDna.modeName];
   const durationPatterns = motif.map(() =>
     generateMelodyDurationPattern({
       noteGapBias: trackDna.noteGapBias,

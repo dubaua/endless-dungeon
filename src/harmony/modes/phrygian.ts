@@ -1,20 +1,22 @@
+import { defineMode } from '@harmony/define-mode';
 import type { Mode } from '@harmony/mode.type';
 
 export const PhrygianFunctions = ['tonic', 'cadence', 'tension', 'passing', 'stable', 'predominant', 'dominant'] as const;
 
-export const PhrygianMode = {
+export const PhrygianMode = defineMode({
   name: 'phrygian',
   weight: 5,
   functions: PhrygianFunctions,
-  degrees: [
-    { degree: 0, interval: 0, functions: ['tonic', 'cadence'] },
-    { degree: 1, interval: 1, functions: ['tension', 'passing'] },
-    { degree: 2, interval: 3, functions: ['stable', 'passing'] },
-    { degree: 3, interval: 5, functions: ['predominant', 'tension'] },
-    { degree: 4, interval: 7, functions: ['dominant', 'cadence'] },
-    { degree: 5, interval: 8, functions: ['tension', 'passing'] },
-    { degree: 6, interval: 10, functions: ['dominant', 'cadence'] },
-  ],
+  intervals: ['1P', '2m', '3m', '4P', '5P', '6m', '7m'],
+  intervalFunctions: {
+    '1P': ['tonic', 'cadence'],
+    '2m': ['tension', 'passing'],
+    '3m': ['stable', 'passing'],
+    '4P': ['predominant', 'tension'],
+    '5P': ['dominant', 'cadence'],
+    '6m': ['tension', 'passing'],
+    '7m': ['dominant', 'cadence'],
+  },
   harmonyProfile: {
     theme: {
       generator: 'contour',
@@ -47,4 +49,4 @@ export const PhrygianMode = {
       variations: ['tension', 'dominant'],
     },
   },
-} satisfies Mode<'phrygian', typeof PhrygianFunctions>;
+}) satisfies Mode<'phrygian', typeof PhrygianFunctions>;

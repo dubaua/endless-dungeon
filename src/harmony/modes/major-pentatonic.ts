@@ -1,3 +1,4 @@
+import { defineMode } from '@harmony/define-mode';
 import type { Mode } from '@harmony/mode.type';
 
 export const MajorPentatonicFunctions = [
@@ -9,17 +10,18 @@ export const MajorPentatonicFunctions = [
   'tension',
 ] as const;
 
-export const MajorPentatonicMode = {
+export const MajorPentatonicMode = defineMode({
   name: 'majorPentatonic',
   weight: 2,
   functions: MajorPentatonicFunctions,
-  degrees: [
-    { degree: 0, interval: 0, functions: ['tonic', 'cadence'] },
-    { degree: 1, interval: 2, functions: ['stable', 'tension'] },
-    { degree: 2, interval: 4, functions: ['stable', 'predominant'] },
-    { degree: 3, interval: 7, functions: ['dominant', 'cadence'] },
-    { degree: 4, interval: 9, functions: ['stable', 'tension'] },
-  ],
+  intervals: ['1P', '2M', '3M', '5P', '6M'],
+  intervalFunctions: {
+    '1P': ['tonic', 'cadence'],
+    '2M': ['stable', 'tension'],
+    '3M': ['stable', 'predominant'],
+    '5P': ['dominant', 'cadence'],
+    '6M': ['stable', 'tension'],
+  },
   harmonyProfile: {
     theme: {
       generator: 'contour',
@@ -52,4 +54,4 @@ export const MajorPentatonicMode = {
       variations: ['tension', 'cadence'],
     },
   },
-} satisfies Mode<'majorPentatonic', typeof MajorPentatonicFunctions>;
+}) satisfies Mode<'majorPentatonic', typeof MajorPentatonicFunctions>;

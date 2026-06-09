@@ -1,20 +1,22 @@
+import { defineMode } from '@harmony/define-mode';
 import type { Mode } from '@harmony/mode.type';
 
 export const MixolydianFunctions = ['tonic', 'cadence', 'passing', 'tension', 'stable', 'predominant', 'dominant'] as const;
 
-export const MixolydianMode = {
+export const MixolydianMode = defineMode({
   name: 'mixolydian',
   weight: 3,
   functions: MixolydianFunctions,
-  degrees: [
-    { degree: 0, interval: 0, functions: ['tonic', 'cadence'] },
-    { degree: 1, interval: 2, functions: ['passing', 'tension'] },
-    { degree: 2, interval: 4, functions: ['stable', 'passing'] },
-    { degree: 3, interval: 5, functions: ['predominant', 'tension'] },
-    { degree: 4, interval: 7, functions: ['dominant', 'cadence'] },
-    { degree: 5, interval: 9, functions: ['stable', 'passing'] },
-    { degree: 6, interval: 10, functions: ['dominant', 'cadence'] },
-  ],
+  intervals: ['1P', '2M', '3M', '4P', '5P', '6M', '7m'],
+  intervalFunctions: {
+    '1P': ['tonic', 'cadence'],
+    '2M': ['passing', 'tension'],
+    '3M': ['stable', 'passing'],
+    '4P': ['predominant', 'tension'],
+    '5P': ['dominant', 'cadence'],
+    '6M': ['stable', 'passing'],
+    '7m': ['dominant', 'cadence'],
+  },
   harmonyProfile: {
     theme: {
       generator: 'contour',
@@ -47,4 +49,4 @@ export const MixolydianMode = {
       variations: ['tension', 'dominant'],
     },
   },
-} satisfies Mode<'mixolydian', typeof MixolydianFunctions>;
+}) satisfies Mode<'mixolydian', typeof MixolydianFunctions>;

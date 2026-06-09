@@ -1,3 +1,4 @@
+import { defineMode } from '@harmony/define-mode';
 import type { Mode } from '@harmony/mode.type';
 
 export const MinorPentatonicFunctions = [
@@ -9,17 +10,18 @@ export const MinorPentatonicFunctions = [
   'tension',
 ] as const;
 
-export const MinorPentatonicMode = {
+export const MinorPentatonicMode = defineMode({
   name: 'minorPentatonic',
   weight: 2,
   functions: MinorPentatonicFunctions,
-  degrees: [
-    { degree: 0, interval: 0, functions: ['tonic', 'cadence'] },
-    { degree: 1, interval: 3, functions: ['stable', 'tension'] },
-    { degree: 2, interval: 5, functions: ['predominant', 'stable'] },
-    { degree: 3, interval: 7, functions: ['dominant', 'cadence'] },
-    { degree: 4, interval: 10, functions: ['dominant', 'tension'] },
-  ],
+  intervals: ['1P', '3m', '4P', '5P', '7m'],
+  intervalFunctions: {
+    '1P': ['tonic', 'cadence'],
+    '3m': ['stable', 'tension'],
+    '4P': ['predominant', 'stable'],
+    '5P': ['dominant', 'cadence'],
+    '7m': ['dominant', 'tension'],
+  },
   harmonyProfile: {
     theme: {
       generator: 'contour',
@@ -52,4 +54,4 @@ export const MinorPentatonicMode = {
       variations: ['tension', 'cadence'],
     },
   },
-} satisfies Mode<'minorPentatonic', typeof MinorPentatonicFunctions>;
+}) satisfies Mode<'minorPentatonic', typeof MinorPentatonicFunctions>;

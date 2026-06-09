@@ -12,5 +12,5 @@ export const NoteSynthVoicing = {
   filterFrequency: { min: 1000, max: 12000 },
   filterResonance: { min: 0.1, max: 5 },
   bitCrusherBits: { min: 2, max: 4 },
-  bitCrusherDepth: { min: 0, max: 0.06 },
+  bitCrusherDepth: { min: 0.005, max: 0.04 },
 } satisfies Record<string, NoteSynthVoicingSetting>;

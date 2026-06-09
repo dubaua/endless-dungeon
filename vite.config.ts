@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 
 export default defineConfig({
-  base: './',
+  base: '/endless-dungeon/',
   plugins: [solidPlugin()],
   build: {
     outDir: 'docs',

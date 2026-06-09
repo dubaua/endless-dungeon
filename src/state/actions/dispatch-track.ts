@@ -13,6 +13,12 @@ import {
 } from '@state/store';
 
 export const dispatchTrack = (track: TrackTemp): void => {
+  const block = track.blocks[0];
+
+  if (!block) {
+    return;
+  }
+
   setTrackDna(track.trackDna);
   setTransportBpm(track.trackDna.bpm);
   setDrumPatternFilters({
@@ -23,10 +29,10 @@ export const dispatchTrack = (track: TrackTemp): void => {
     density: track.trackDna.density,
     syncopationScore: track.trackDna.syncopation,
   });
-  setDrumClips(track.drumClips);
-  setVoicing(track.voicing);
-  setVoicePattern(track.voicePattern);
-  setBassPattern(track.bassPattern);
-  setPlayerMotif(track.motif, track.motifOptions.absoluteRange);
+  setDrumClips(block.drumClips);
+  setVoicing(block.voicing);
+  setVoicePattern(block.voicePattern);
+  setBassPattern(block.bassPattern);
+  setPlayerMotif(block.motif, block.motifOptions.absoluteRange);
   stopTransport();
 };

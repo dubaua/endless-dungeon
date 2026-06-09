@@ -1,5 +1,3 @@
-import type { NoteName } from 'tonal';
-
 import type { ModeDegreeFunction } from '@harmony/mode-degree-function.type';
 import type { ModeHarmonyProfile } from '@harmony/mode-harmony-profile.type';
 
@@ -21,5 +19,3 @@ export interface Mode<
   degrees: readonly ModeDegree<Functions[number]>[];
   harmonyProfile: ModeHarmonyProfile<Functions>;
 }
-
-export type ModeNotes = readonly NoteName[];

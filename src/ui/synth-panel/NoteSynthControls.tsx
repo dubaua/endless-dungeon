@@ -3,7 +3,7 @@ import { For, type Component, type JSX } from 'solid-js';
 import type { NoteSynthId, NoteSynthVoicing } from '@audio/synths/types';
 import { NoteSynthVoicing as NoteSynthVoicingSettings } from '@audio/voicing/note-synth-voicing.const';
 import {
-  OscillatorTypes,
+  OscillatorTypeValues,
   type OscillatorType,
 } from '@audio/voicing/oscillator-types.const';
 import { setNoteSynthVoicing, useStore } from '@state/store';
@@ -40,7 +40,7 @@ export const NoteSynthControls: Component<{ synthId: NoteSynthId; title: string 
       <label style={{ display: 'grid', gap: '0.3rem', 'font-size': '0.8rem', 'max-width': '180px' }}>
         <span>Osc</span>
         <select value={synth().oscillatorType} onInput={handleOscillatorInput}>
-          <For each={OscillatorTypes}>
+          <For each={OscillatorTypeValues}>
             {(oscillatorType) => (
               <option value={oscillatorType}>{oscillatorType}</option>
             )}

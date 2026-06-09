@@ -1,3 +1,10 @@
-export const OscillatorTypes = ['sine', 'triangle', 'sawtooth', 'square'] as const;
+export const OscillatorTypes = {
+  Sine: 'sine',
+  Triangle: 'triangle',
+  Sawtooth: 'sawtooth',
+  Square: 'square',
+} as const;
 
-export type OscillatorType = (typeof OscillatorTypes)[number];
+export const OscillatorTypeValues = Object.values(OscillatorTypes);
+
+export type OscillatorType = (typeof OscillatorTypes)[keyof typeof OscillatorTypes];

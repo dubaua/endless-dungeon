@@ -9,6 +9,8 @@ import type {
 } from '@audio/synths/types';
 import type { TrackDna } from '@generators/dna/track-dna';
 import type { Motif } from '@generators/motif/motif.type';
+import { getMode } from '@harmony/get-mode';
+import { getModeNoteSpelling, type ModeNoteSpelling } from '@harmony/get-mode-note-spelling';
 import { InitialTrack } from '@sequencer/initial-track';
 import { getTrack, getTrackBlock, updateTrack, updateTrackBlock } from '@sequencer/track-service';
 import type { DrumClip, NoteClip, PatternStep, SequencerState } from '@sequencer/types';
@@ -16,6 +18,7 @@ import { clamp } from '@utils/clamp';
 
 export const VOICE_MIXER_CHANNEL_ID = 'channel-voice-main';
 export const BASS_MIXER_CHANNEL_ID = 'channel-bass-main';
+export const DRUMS_MIXER_GROUP_ID = 'group-drums';
 export const PERCUSSION_MIXER_GROUP_ID = 'group-percussion';
 
 const MIXER_SESSION_STORAGE_KEY = 'endless-dungeon:mixer';
@@ -40,6 +43,8 @@ export interface MixerGroupState {
 export interface MixerState {
   channels: Record<string, MixerChannelState>;
   groups: Record<string, MixerGroupState>;
+  masterMuted: boolean;
+  masterPan: number;
   masterVolume: number;
 }
 
@@ -69,6 +74,7 @@ export interface AppState {
   transport: TransportState;
   sequencer: SequencerState;
   trackDna: TrackDna;
+  modeNoteSpelling: ModeNoteSpelling;
   drumPatternFilters: DrumPatternFiltersState;
   hatsPatternFilters: DrumPatternFiltersState;
   voicing: VoicingState;
@@ -84,7 +90,13 @@ type Selector<T> = (state: AppState) => T;
 type Cleanup = () => void;
 
 type StoredMixerChannelState = Partial<Pick<MixerChannelState, 'volume' | 'pan' | 'muted'>>;
-type StoredMixerState = Record<string, StoredMixerChannelState>;
+type StoredMixerState = {
+  channels?: Record<string, StoredMixerChannelState>;
+  groups?: Record<string, StoredMixerChannelState>;
+  masterMuted?: boolean;
+  masterPan?: number;
+  masterVolume?: number;
+};
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -132,7 +144,15 @@ const readStoredMixerState = (): StoredMixerState => {
 
     const parsed = JSON.parse(raw) as unknown;
 
-    return isPlainObject(parsed) ? (parsed as StoredMixerState) : {};
+    if (!isPlainObject(parsed)) {
+      return {};
+    }
+
+    if ('channels' in parsed || 'masterVolume' in parsed || 'masterPan' in parsed || 'masterMuted' in parsed) {
+      return parsed as StoredMixerState;
+    }
+
+    return { channels: parsed as Record<string, StoredMixerChannelState> };
   } catch {
     return {};
   }
@@ -143,16 +163,31 @@ const writeStoredMixerState = (mixer: MixerState): void => {
     return;
   }
 
-  const stored: StoredMixerState = Object.fromEntries(
-    Object.entries(mixer.channels).map(([id, channel]) => [
-      id,
-      {
-        volume: channel.volume,
-        pan: channel.pan,
-        muted: channel.muted,
-      },
-    ]),
-  );
+  const stored: StoredMixerState = {
+    channels: Object.fromEntries(
+      Object.entries(mixer.channels).map(([id, channel]) => [
+        id,
+        {
+          volume: channel.volume,
+          pan: channel.pan,
+          muted: channel.muted,
+        },
+      ]),
+    ),
+    groups: Object.fromEntries(
+      Object.entries(mixer.groups).map(([id, group]) => [
+        id,
+        {
+          volume: group.volume,
+          pan: group.pan,
+          muted: group.muted,
+        },
+      ]),
+    ),
+    masterMuted: mixer.masterMuted,
+    masterPan: mixer.masterPan,
+    masterVolume: mixer.masterVolume,
+  };
 
   sessionStorage.setItem(MIXER_SESSION_STORAGE_KEY, JSON.stringify(stored));
 };
@@ -178,51 +213,51 @@ const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
       },
       {
         id: 'channel-drum-kick-primary',
-        name: 'Kick Primary',
+        name: 'Kick Prim.',
         volume: 1,
         pan: 0,
         muted: false,
-        groupId: null,
+        groupId: DRUMS_MIXER_GROUP_ID,
       },
       {
         id: 'channel-drum-kick-secondary',
-        name: 'Kick Secondary',
+        name: 'Kick Sec.',
         volume: 0.8,
         pan: 0,
         muted: false,
-        groupId: null,
+        groupId: DRUMS_MIXER_GROUP_ID,
       },
       {
         id: 'channel-drum-snare-primary',
-        name: 'Snare Primary',
+        name: 'Snare Prim.',
         volume: 1,
         pan: 0,
         muted: false,
-        groupId: null,
+        groupId: DRUMS_MIXER_GROUP_ID,
       },
       {
         id: 'channel-drum-snare-secondary',
-        name: 'Snare Secondary',
+        name: 'Snare Sec.',
         volume: 0.8,
         pan: 0,
         muted: false,
-        groupId: null,
+        groupId: DRUMS_MIXER_GROUP_ID,
       },
       {
         id: 'channel-drum-clap-primary',
-        name: 'Clap Primary',
+        name: 'Clap Prim.',
         volume: 1,
         pan: 0,
         muted: false,
-        groupId: null,
+        groupId: DRUMS_MIXER_GROUP_ID,
       },
       {
         id: 'channel-drum-clap-secondary',
-        name: 'Clap Secondary',
+        name: 'Clap Sec.',
         volume: 0.8,
         pan: 0,
         muted: false,
-        groupId: null,
+        groupId: DRUMS_MIXER_GROUP_ID,
       },
       {
         id: 'channel-drum-closed-hat',
@@ -260,6 +295,13 @@ const createDefaultMixerChannels = (): Record<string, MixerChannelState> =>
   );
 
 const createDefaultMixerGroups = (): Record<string, MixerGroupState> => ({
+  [DRUMS_MIXER_GROUP_ID]: {
+    id: DRUMS_MIXER_GROUP_ID,
+    name: 'Drums',
+    volume: 0.9,
+    pan: 0,
+    muted: false,
+  },
   [PERCUSSION_MIXER_GROUP_ID]: {
     id: PERCUSSION_MIXER_GROUP_ID,
     name: 'Percussion',
@@ -271,9 +313,10 @@ const createDefaultMixerGroups = (): Record<string, MixerGroupState> => ({
 
 const createInitialMixerState = (): MixerState => {
   const channels = createDefaultMixerChannels();
+  const groups = createDefaultMixerGroups();
   const stored = readStoredMixerState();
 
-  Object.entries(stored).forEach(([id, settings]) => {
+  Object.entries(stored.channels ?? {}).forEach(([id, settings]) => {
     const channel = channels[id];
 
     if (!channel) {
@@ -287,8 +330,28 @@ const createInitialMixerState = (): MixerState => {
       muted: typeof settings.muted === 'boolean' ? settings.muted : channel.muted,
     };
   });
+  Object.entries(stored.groups ?? {}).forEach(([id, settings]) => {
+    const group = groups[id];
 
-  return { channels, groups: createDefaultMixerGroups(), masterVolume: 1 };
+    if (!group) {
+      return;
+    }
+
+    groups[id] = {
+      ...group,
+      volume: typeof settings.volume === 'number' ? clamp(settings.volume, 0, 1) : group.volume,
+      pan: typeof settings.pan === 'number' ? clamp(settings.pan, -1, 1) : group.pan,
+      muted: typeof settings.muted === 'boolean' ? settings.muted : group.muted,
+    };
+  });
+
+  return {
+    channels,
+    groups,
+    masterMuted: typeof stored.masterMuted === 'boolean' ? stored.masterMuted : false,
+    masterPan: typeof stored.masterPan === 'number' ? clamp(stored.masterPan, -1, 1) : 0,
+    masterVolume: typeof stored.masterVolume === 'number' ? clamp(stored.masterVolume, 0, 1) : 1,
+  };
 };
 
 const InitialTrackBlock = InitialTrack.blocks[0];
@@ -335,6 +398,10 @@ const state: AppState = {
     drumClips: InitialTrackBlock.drumClips,
   },
   trackDna: InitialTrack.dna,
+  modeNoteSpelling: getModeNoteSpelling({
+    rootNote: InitialTrack.dna.rootNote,
+    mode: getMode(InitialTrack.dna.modeName),
+  }),
   drumPatternFilters: {
     syncopationScore: 0,
     density: 0.5,
@@ -433,6 +500,10 @@ export const setTransportTimeSignature = (timeSignature: [number, number]): void
 export const setTrackDna = (trackDna: TrackDna): void => {
   updateState((draft) => {
     draft.trackDna = trackDna;
+    draft.modeNoteSpelling = getModeNoteSpelling({
+      rootNote: trackDna.rootNote,
+      mode: getMode(trackDna.modeName),
+    });
     const track = getTrack(draft.sequencer.activeTrackId);
 
     if (track) {
@@ -473,6 +544,10 @@ export const loadTrackBlock = (trackId: string, blockId: string): void => {
       drumClips: block.drumClips,
     };
     draft.trackDna = track.dna;
+    draft.modeNoteSpelling = getModeNoteSpelling({
+      rootNote: track.dna.rootNote,
+      mode: getMode(track.dna.modeName),
+    });
     draft.voicing = block.voicing;
   });
 };
@@ -656,6 +731,7 @@ export const setPlayerMotif = (motif: Motif, motifAbsoluteRange: number): void =
 export const setMixerChannelState = (
   channelId: string,
   settings: Partial<Pick<MixerChannelState, 'volume' | 'pan' | 'muted'>>,
+  persist = false,
 ): void => {
   updateState((draft) => {
     const channel = draft.mixer.channels[channelId];
@@ -674,6 +750,75 @@ export const setMixerChannelState = (
         },
       },
     };
-    writeStoredMixerState(draft.mixer);
+    if (persist) {
+      writeStoredMixerState(draft.mixer);
+    }
+  });
+};
+
+export const setMixerGroupState = (
+  groupId: string,
+  settings: Partial<Pick<MixerGroupState, 'volume' | 'pan' | 'muted'>>,
+  persist = false,
+): void => {
+  updateState((draft) => {
+    const group = draft.mixer.groups[groupId];
+
+    if (!group) {
+      return;
+    }
+
+    draft.mixer = {
+      ...draft.mixer,
+      groups: {
+        ...draft.mixer.groups,
+        [groupId]: {
+          ...group,
+          ...settings,
+        },
+      },
+    };
+    if (persist) {
+      writeStoredMixerState(draft.mixer);
+    }
+  });
+};
+
+export const setMixerMasterVolume = (masterVolume: number, persist = false): void => {
+  updateState((draft) => {
+    draft.mixer = {
+      ...draft.mixer,
+      masterVolume: clamp(masterVolume, 0, 1),
+    };
+
+    if (persist) {
+      writeStoredMixerState(draft.mixer);
+    }
+  });
+};
+
+export const setMixerMasterPan = (masterPan: number, persist = false): void => {
+  updateState((draft) => {
+    draft.mixer = {
+      ...draft.mixer,
+      masterPan: clamp(masterPan, -1, 1),
+    };
+
+    if (persist) {
+      writeStoredMixerState(draft.mixer);
+    }
+  });
+};
+
+export const setMixerMasterMuted = (masterMuted: boolean, persist = false): void => {
+  updateState((draft) => {
+    draft.mixer = {
+      ...draft.mixer,
+      masterMuted,
+    };
+
+    if (persist) {
+      writeStoredMixerState(draft.mixer);
+    }
   });
 };

@@ -1,13 +1,21 @@
+import { Note } from 'tonal';
 import type { NoteName } from 'tonal';
 
-import { getModeDegreeNote } from '@harmony/get-mode-degree-note';
+import { getModeDegree, getModeDegreeOctave } from '@harmony/get-mode-degree';
 import type { Mode } from '@harmony/mode.type';
-import { getNoteHeight } from '@harmony/utils/get-note-height';
+
+const RootNoteOctave = 4;
 
 export const getModeDegreeNoteHeight = (
   degree: number,
   rootNote: NoteName,
   mode: Mode,
 ): number => {
-  return getNoteHeight(getModeDegreeNote(rootNote, mode, degree));
+  const rootHeight = Note.midi(`${rootNote}${RootNoteOctave}`);
+
+  if (rootHeight === null) {
+    throw new Error(`Invalid root note: ${rootNote}`);
+  }
+
+  return rootHeight + getModeDegree(degree, mode).interval + getModeDegreeOctave(degree, mode) * 12;
 };

@@ -24,6 +24,7 @@ interface RuntimeMixerGroup {
   input: Tone.Gain;
   gain: Tone.Gain;
   panner: Tone.Panner;
+  meter: Tone.Meter;
   setState: (state: MixerGroupState) => void;
 }
 
@@ -61,15 +62,19 @@ const createRuntimeMixerGroup = (
   const input = new Tone.Gain();
   const gain = new Tone.Gain(getMixerGain(group.volume, group.muted));
   const panner = new Tone.Panner(clamp(group.pan, -1, 1));
+  const meter = new Tone.Meter({ normalRange: true, smoothing: 0.78 });
 
   input.connect(gain);
   gain.connect(panner);
+  panner.connect(meter);
   panner.connect(destination);
+  meters.set(group.id, meter);
 
   return {
     input,
     gain,
     panner,
+    meter,
     setState: (state) => {
       gain.gain.value = getMixerGain(state.volume, state.muted);
       panner.pan.value = clamp(state.pan, -1, 1);
@@ -122,7 +127,11 @@ const ensureMixer = (): void => {
   }
 
   const state = getState();
-  masterOutput = createMasterOutput(state.mixer.masterVolume);
+  masterOutput = createMasterOutput(
+    state.mixer.masterVolume,
+    state.mixer.masterPan,
+    state.mixer.masterMuted,
+  );
 
   Object.values(state.mixer.groups).forEach((group) => {
     groups.set(group.id, createRuntimeMixerGroup(group, masterOutput!.input));
@@ -150,7 +159,11 @@ const handleMixerChanges = (): void => {
     }
 
     lastMixer = nextMixer;
-    masterOutput?.setVolume(next.mixer.masterVolume);
+    masterOutput?.setState(
+      next.mixer.masterVolume,
+      next.mixer.masterPan,
+      next.mixer.masterMuted,
+    );
     Object.values(next.mixer.groups).forEach((group) => {
       groups.get(group.id)?.setState(group);
     });
@@ -211,6 +224,7 @@ export const disposeMixer = (): void => {
     group.input.dispose();
     group.gain.dispose();
     group.panner.dispose();
+    group.meter.dispose();
   });
   channels.clear();
   groups.clear();

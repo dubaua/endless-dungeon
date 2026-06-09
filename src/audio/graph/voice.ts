@@ -2,22 +2,30 @@ import * as Tone from 'tone';
 
 import type { NoteSynthVoicing } from '@audio/synths/types';
 import { createLoFiCrusher, type LoFiCrusher } from '@audio/graph/loFiCrusher';
+import { OscillatorTypes } from '@audio/voicing/oscillator-types.const';
 
-const CompressorThreshold = -22;
-const CompressorRatio = 3;
+const CompressorThreshold = -25;
+const CompressorRatio = 4;
 const CompressorAttack = 0.004;
 const CompressorRelease = 0.12;
 const CompressorKnee = 12;
 
 const BitCrusherDepthAmp = 1.45;
+const SoftOscillatorAmp = 1.18;
 const LimiterThreshold = -1;
 
 const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
 };
 
-const getBitCrusherDepthGain = (depth: number): number => {
-  return 1 + clamp(depth, 0, 1) * (BitCrusherDepthAmp - 1);
+const getVoiceGain = (state: NoteSynthVoicing): number => {
+  const depthGain = 1 + clamp(state.bitCrusherDepth, 0, 1) * (BitCrusherDepthAmp - 1);
+
+  if (state.oscillatorType === OscillatorTypes.Sine || state.oscillatorType === OscillatorTypes.Triangle) {
+    return depthGain * SoftOscillatorAmp;
+  }
+
+  return depthGain;
 };
 
 export interface VoiceInstance {
@@ -51,7 +59,7 @@ export const createVoiceInstance = (state: NoteSynthVoicing): VoiceInstance => {
     bits: state.bitCrusherBits,
     depth: state.bitCrusherDepth,
   });
-  const amplifier = new Tone.Gain(getBitCrusherDepthGain(state.bitCrusherDepth));
+  const amplifier = new Tone.Gain(getVoiceGain(state));
   const compressor = new Tone.Compressor({
     threshold: CompressorThreshold,
     ratio: CompressorRatio,
@@ -92,7 +100,7 @@ export const createVoiceInstance = (state: NoteSynthVoicing): VoiceInstance => {
 
       filter.frequency.value = nextState.filterFrequency;
       filter.Q.value = nextState.filterResonance;
-      amplifier.gain.value = getBitCrusherDepthGain(nextState.bitCrusherDepth);
+      amplifier.gain.value = getVoiceGain(nextState);
 
       crusher.update({
         bits: nextState.bitCrusherBits,

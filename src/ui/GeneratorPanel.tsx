@@ -2,6 +2,7 @@ import { createSignal, For, onMount, type Component } from 'solid-js';
 
 import type { GenerateMotifOptions } from '@generators/motif/generate-block-motif';
 import { generateTrack } from '@generators/track/generate-track';
+import { getMode } from '@harmony/get-mode';
 import { dispatchTrack } from '@state/actions/dispatch-track';
 import { getState, useStore } from '@state/store';
 
@@ -53,6 +54,7 @@ const formatMotifOptionValue = (value: number, step: number): string => {
 
 export const GeneratorPanel: Component = () => {
   const trackDna = useStore((state) => state.trackDna);
+  const modeNoteSpelling = useStore((state) => state.modeNoteSpelling);
   const [motifOptions, setMotifOptions] = createSignal<GenerateMotifOptions>(DefaultMotifOptions);
 
   const updateMotifOption = (key: keyof GenerateMotifOptions, value: number): void => {
@@ -64,13 +66,10 @@ export const GeneratorPanel: Component = () => {
       drumClips: getState().sequencer.drumClips,
       motifOptions: motifOptions(),
     });
-    console.log(
-      'body motif bar start degrees',
-      nextTrack.motif.map((bar) => bar.steps[0]),
-    );
+    const bodyBlock = nextTrack.blocks[0];
 
     dispatchTrack(nextTrack);
-    setMotifOptions(nextTrack.motifOptions);
+    setMotifOptions(bodyBlock?.motifOptions ?? motifOptions());
   };
 
   const generateCurrentMotif = (): void => {
@@ -79,10 +78,6 @@ export const GeneratorPanel: Component = () => {
       motifOptions: motifOptions(),
       trackDna: trackDna(),
     });
-    console.log(
-      'body motif bar start degrees',
-      nextTrack.motif.map((bar) => bar.steps[0]),
-    );
 
     dispatchTrack(nextTrack);
   };
@@ -111,9 +106,15 @@ export const GeneratorPanel: Component = () => {
           }}
         >
           <dt>rootNote</dt>
-          <dd style={{ margin: 0 }}>{trackDna().rootNote}</dd>
+          <dd style={{ margin: 0 }}>{modeNoteSpelling().getNoteSpelling(trackDna().rootNote)}</dd>
           <dt>mode</dt>
           <dd style={{ margin: 0 }}>{trackDna().modeName}</dd>
+          <dt>modeNotes</dt>
+          <dd style={{ margin: 0 }}>
+            {getMode(trackDna().modeName).degrees
+              .map((degree) => modeNoteSpelling().getNoteSpelling(degree.interval))
+              .join(' ')}
+          </dd>
           <dt>bpm</dt>
           <dd style={{ margin: 0 }}>{trackDna().bpm}</dd>
           <dt>syncopation</dt>

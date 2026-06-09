@@ -7,6 +7,7 @@ import { getTrackBlocks } from '@sequencer/track-service';
 import type { DrumClip } from '@sequencer/types';
 import type { DrumSynthId } from '@audio/synths/types';
 import { loadTrackBlock, useStore } from '@state/store';
+import { PianoRollBar, type PianoRollEvent } from '@ui/PianoRollBar';
 
 interface TrackBlockPanelProps {
   motif: Motif | undefined;
@@ -27,27 +28,11 @@ interface NoteEventSegment {
   stepCount: number;
 }
 
-interface PianoRollEvent {
-  label: string;
-  row: number;
-  startStep: number;
-  stepCount: number;
-}
-
-interface PianoRollBarProps {
-  activeStep: number;
-  columnCount: number;
-  columnWidthRem: number;
-  events: PianoRollEvent[];
-  rowCount: number;
-}
-
 const StepsPerBar = 16;
 const MotifStepsPerBar = 8;
 const CellSizeRem = 1;
 const LabelWidthRem = 2;
 const BarSeparator = '2px solid #9ca3af';
-const PianoRollRowHeight = '0.38rem';
 const DrumClipLabels: Record<DrumSynthId, string> = {
   kickPrimary: 'Kick P',
   kickSecondary: 'Kick S',
@@ -150,8 +135,8 @@ const getDrumStepBackground = (intensity: number, isCurrentStep: boolean): strin
 };
 
 const getDrumClipsBarCount = (clips: readonly DrumClip[]): number => {
-  const clipEndBars = clips.map((clip) =>
-    clip.startBar + Math.ceil(clip.pattern.length / StepsPerBar),
+  const clipEndBars = clips.map(
+    (clip) => clip.startBar + Math.ceil(clip.pattern.length / StepsPerBar),
   );
 
   return Math.max(1, ...clipEndBars);
@@ -179,65 +164,10 @@ const getDrumClipIntensity = (
   return clip.pattern[absoluteStep - clip.startBar * StepsPerBar] ?? 0;
 };
 
-const PianoRollBar: Component<PianoRollBarProps> = (props) => {
-  return (
-    <div
-      style={{
-        display: 'grid',
-        'grid-template-columns': `repeat(${props.columnCount}, ${props.columnWidthRem}rem)`,
-        'grid-template-rows': `repeat(${props.rowCount}, ${PianoRollRowHeight})`,
-        gap: '1px',
-        background: `repeating-linear-gradient(to bottom, #f5f5f5 0, #f5f5f5 ${PianoRollRowHeight}, #ededed ${PianoRollRowHeight}, #ededed calc(${PianoRollRowHeight} + 1px))`,
-      }}
-    >
-      <For each={props.events}>
-        {(event) => {
-          const isCurrentStep = createMemo(
-            () =>
-              props.activeStep >= event.startStep &&
-              props.activeStep < event.startStep + event.stepCount,
-          );
-
-          return (
-            <div
-              style={{
-                position: 'relative',
-                'grid-column': `${event.startStep + 1} / span ${event.stepCount}`,
-                'grid-row': event.row,
-                background: isCurrentStep() ? '#ef4444' : '#60a5fa',
-                border: isCurrentStep() ? '1px solid #b91c1c' : '1px solid #1d4ed8',
-                color: '#0f172a',
-              }}
-            >
-              <span
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  'align-items': 'center',
-                  'justify-content': 'center',
-                  'font-size': '0.55rem',
-                  'line-height': '1',
-                  '-webkit-text-stroke': '3px #fff',
-                  'paint-order': 'stroke fill',
-                }}
-              >
-                {event.label}
-              </span>
-            </div>
-          );
-        }}
-      </For>
-    </div>
-  );
-};
-
 export const TrackBlockPanel: Component<TrackBlockPanelProps> = (props) => {
   const sequencer = useStore((state) => state.sequencer);
   const transport = useStore((state) => state.transport);
-  const sequenceBlocks = createMemo(() =>
-    getTrackBlocks(sequencer().activeTrackId),
-  );
+  const sequenceBlocks = createMemo(() => getTrackBlocks(sequencer().activeTrackId));
   const voicePattern = createMemo(
     () => sequencer().noteClips.find((clip) => clip.synthId === 'voice')?.pattern ?? [],
   );
@@ -259,10 +189,7 @@ export const TrackBlockPanel: Component<TrackBlockPanelProps> = (props) => {
     const bassBars = Math.ceil(
       Math.max(0, ...bassEvents().map((event) => event.startStep + event.stepCount)) / StepsPerBar,
     );
-    const drumBars = Math.max(
-      0,
-      getDrumClipsBarCount(sequencer().drumClips),
-    );
+    const drumBars = Math.max(0, getDrumClipsBarCount(sequencer().drumClips));
 
     return Math.max(1, motifBars, voiceBars, bassBars, drumBars);
   });
@@ -274,7 +201,9 @@ export const TrackBlockPanel: Component<TrackBlockPanelProps> = (props) => {
 
   return (
     <section style={{ display: 'grid', gap: '0.45rem' }}>
-      <header style={{ display: 'flex', gap: '0.5rem', 'align-items': 'center', 'flex-wrap': 'wrap' }}>
+      <header
+        style={{ display: 'flex', gap: '0.5rem', 'align-items': 'center', 'flex-wrap': 'wrap' }}
+      >
         <h2 style={{ margin: 0 }}>Block</h2>
         <For each={sequenceBlocks()}>
           {(block) => (
@@ -283,7 +212,9 @@ export const TrackBlockPanel: Component<TrackBlockPanelProps> = (props) => {
               onClick={() => loadTrackBlock(sequencer().activeTrackId, block.id)}
               style={{
                 border:
-                  block.id === sequencer().activeBlockId ? '1px solid #2563eb' : '1px solid #d4d4d4',
+                  block.id === sequencer().activeBlockId
+                    ? '1px solid #2563eb'
+                    : '1px solid #d4d4d4',
                 background: block.id === sequencer().activeBlockId ? '#dbeafe' : '#fff',
                 padding: '0.2rem 0.45rem',
               }}

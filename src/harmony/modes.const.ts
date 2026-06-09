@@ -4,6 +4,8 @@ import { DorianMode } from '@harmony/modes/dorian';
 import { IonianMode } from '@harmony/modes/ionian';
 import { LocrianMode } from '@harmony/modes/locrian';
 import { LydianMode } from '@harmony/modes/lydian';
+import { MajorPentatonicMode } from '@harmony/modes/major-pentatonic';
+import { MinorPentatonicMode } from '@harmony/modes/minor-pentatonic';
 import { MixolydianMode } from '@harmony/modes/mixolydian';
 import { OrientalMode } from '@harmony/modes/oriental';
 import { PersianMode } from '@harmony/modes/persian';
@@ -17,6 +19,8 @@ export const Modes = defineModes({
   mixolydian: MixolydianMode,
   aeolian: AeolianMode,
   locrian: LocrianMode,
+  majorPentatonic: MajorPentatonicMode,
+  minorPentatonic: MinorPentatonicMode,
   persian: PersianMode,
   oriental: OrientalMode,
 });

@@ -17,7 +17,7 @@ export const expandClipPattern = (clip: NoteClip): ExpandedPatternEvent[] => {
 
   return clip.pattern.flatMap(([note, stepCount], index) => {
     const stepTicks = stepCount * STEP_TICKS;
-    const startTick = cursorTick;
+    const startTick = Math.round(cursorTick);
     cursorTick += stepTicks;
 
     if (!note) {
@@ -29,7 +29,7 @@ export const expandClipPattern = (clip: NoteClip): ExpandedPatternEvent[] => {
         id: `${clip.id}-${index}`,
         note: getNoteName(note),
         startTick,
-        durationTicks: stepTicks * clip.gatePercent,
+        durationTicks: Math.max(0, stepTicks),
       },
     ];
   });

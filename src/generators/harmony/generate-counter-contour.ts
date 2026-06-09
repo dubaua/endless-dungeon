@@ -84,24 +84,25 @@ const getBestPlacedCounterBar = (
   const candidates = firstTargetDegrees.map((firstTargetDegree) =>
     placeCounterBar(normalizedSteps, firstTargetDegree, rangeSteps),
   );
-  const steps = candidates.sort((left, right) => {
-    return (
-      getRegisterDistance({
-        degrees: left,
-        rootNote,
-        mode,
-        minNoteHeight,
-        maxNoteHeight,
-      }) -
-      getRegisterDistance({
-        degrees: right,
-        rootNote,
-        mode,
-        minNoteHeight,
-        maxNoteHeight,
-      })
-    );
-  })[0] ?? [];
+  const steps =
+    candidates.sort((left, right) => {
+      return (
+        getRegisterDistance({
+          degrees: left,
+          rootNote,
+          mode,
+          minNoteHeight,
+          maxNoteHeight,
+        }) -
+        getRegisterDistance({
+          degrees: right,
+          rootNote,
+          mode,
+          minNoteHeight,
+          maxNoteHeight,
+        })
+      );
+    })[0] ?? [];
 
   return {
     registerDistance: getRegisterDistance({
@@ -162,7 +163,7 @@ const getBestCounterBarCandidate = (
     }
 
     return left.offsetIndex - right.offsetIndex;
-  })[0] as CounterBarCandidate;
+  })[0];
 };
 
 export const generateCounterContour = ({

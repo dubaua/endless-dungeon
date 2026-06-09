@@ -9,7 +9,6 @@ export interface NoteClip {
   id: string;
   synthId: NoteSynthId;
   startTick: number;
-  gatePercent: number;
   pattern: PatternStep[];
 }
 
